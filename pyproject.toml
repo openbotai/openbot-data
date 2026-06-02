@@ -1,0 +1,78 @@
+[project]
+name = "openbot-data"
+version = "0.0.1.post2"
+description = "Clean, label, and organize robot data for training and evaluation."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "OpenBot", email = "hello@openbot.ai" }
+]
+keywords = [
+  "robotics",
+  "embodied-ai",
+  "robot-data",
+  "egocentric-video",
+  "wrist-camera",
+  "data-cleaning",
+  "annotation",
+  "computer-vision",
+  "failure-analysis",
+  "dataset"
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Image Processing"
+]
+dependencies = [
+  "opencv-python>=4.8.0",
+  "numpy>=1.24.0",
+  "tqdm>=4.65.0",
+  "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.0.0",
+  "pytest>=7.0.0",
+  "twine>=6.2.0",
+]
+
+[project.urls]
+Homepage = "https://openbot.ai/data"
+Repository = "https://github.com/openbotai/openbot-data"
+Issues = "https://github.com/openbotai/openbot-data/issues"
+
+[project.scripts]
+openbot-data = "openbot_data.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["openbot_data"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/LICENSE",
+  "/README.md",
+  "/openbot_data",
+  "/pyproject.toml",
+  "/tests",
+]
+exclude = [
+  "**/__pycache__",
+  "**/*.pyc",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
