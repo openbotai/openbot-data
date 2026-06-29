@@ -10,6 +10,7 @@ import openbot_data
 from openbot_data.cli import app
 from openbot_data.extract import extract_preview_frames, inspect_dataset
 from openbot_data.video import scan_directory
+from openbot_data.catalog import export_catalog
 
 
 def make_video(path: Path, frames: int = 6) -> None:
@@ -37,6 +38,7 @@ def test_public_api_exports_expected_functions() -> None:
         "inspect_dataset",
         "scan_directory",
         "scan_video",
+        "export_catalog",
     }
 
 
@@ -100,3 +102,55 @@ def test_cli_version_and_inspect_command(tmp_path: Path) -> None:
     assert inspect_result.exit_code == 0
     assert "Inspection complete!" in inspect_result.output
     assert (output_dir / "metadata" / "manifest.json").exists()
+
+
+def test_export_catalog_json(tmp_path: Path) -> None:
+    video_dir = tmp_path / "videos"
+    output_path = tmp_path / "catalog.json"
+    make_video(video_dir / "clip.avi")
+
+    result = export_catalog(str(video_dir), str(output_path), fmt="json")
+
+    assert "error" not in result
+    assert output_path.exists()
+
+    catalog = json.loads(output_path.read_text())
+    assert catalog["summary"]["total_videos"] == 1
+    assert catalog["summary"]["valid_videos"] == 1
+    assert len(catalog["videos"]) == 1
+    assert catalog["videos"][0]["filename"] == "clip.avi"
+
+
+def test_export_catalog_csv(tmp_path: Path) -> None:
+    video_dir = tmp_path / "videos"
+    output_path = tmp_path / "catalog.csv"
+    make_video(video_dir / "clip.avi")
+
+    result = export_catalog(str(video_dir), str(output_path), fmt="csv")
+
+    assert "error" not in result
+    assert output_path.exists()
+
+    import csv
+
+    rows = list(csv.DictReader(output_path.read_text().splitlines()))
+    assert len(rows) == 1
+    assert rows[0]["filename"] == "clip.avi"
+
+
+def test_export_catalog_invalid_format(tmp_path: Path) -> None:
+    with pytest.raises(ValueError):
+        export_catalog(str(tmp_path / "videos"), str(tmp_path / "catalog.txt"), fmt="txt")
+
+
+def test_cli_catalog_command(tmp_path: Path) -> None:
+    runner = CliRunner()
+    video_dir = tmp_path / "videos"
+    output_path = tmp_path / "catalog.json"
+    make_video(video_dir / "clip.avi")
+
+    result = runner.invoke(app, ["catalog", str(video_dir), "--out", str(output_path), "--format", "json"])
+
+    assert result.exit_code == 0
+    assert "Catalog exported" in result.output
+    assert output_path.exists()

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from openbot_data.video import scan_directory
 from openbot_data.extract import inspect_dataset
+from openbot_data.catalog import export_catalog, SUPPORTED_FORMATS
 
 app = typer.Typer(
     name="openbot-data",
@@ -67,6 +68,36 @@ def inspect(
     typer.echo("Generated files:")
     typer.echo(f"   {result['manifest_path']}")
     typer.echo(f"   {result['report_path']}")
+
+
+@app.command()
+def catalog(
+    video_dir: str = typer.Argument(..., help="Path to video directory"),
+    output: str = typer.Option(..., "--out", "-o", help="Output catalog file path"),
+    fmt: str = typer.Option(
+        "json",
+        "--format",
+        "-f",
+        help=f"Catalog format: {', '.join(sorted(SUPPORTED_FORMATS))}",
+    ),
+):
+    """
+    Export a robot video catalog as JSON or CSV.
+
+    Useful for dataset registries, documentation, and SEO-friendly
+    catalog pages that link back to OpenBot.ai.
+    """
+    import json
+
+    result = export_catalog(video_dir=video_dir, output_path=output, fmt=fmt)
+
+    if "error" in result:
+        typer.echo(f"Error: {result['error']}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(f"Catalog exported to {result['output_path']}")
+    typer.echo(f"  format: {result['format']}")
+    typer.echo(f"  videos: {result['total_videos']}")
 
 
 @app.command()

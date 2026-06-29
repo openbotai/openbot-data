@@ -9,14 +9,19 @@ authors = [
   { name = "OpenBot", email = "hello@openbot.ai" }
 ]
 keywords = [
+  "robot data",
+  "robot dataset",
+  "ego data",
+  "egocentric data",
+  "embodied AI",
+  "robot learning",
+  "teleoperation data",
   "robotics",
   "embodied-ai",
-  "robot-data",
-  "egocentric-video",
+  "robot-video",
   "wrist-camera",
   "data-cleaning",
-  "annotation",
-  "computer-vision",
+  "dataset-catalog",
   "failure-analysis",
   "dataset"
 ]
