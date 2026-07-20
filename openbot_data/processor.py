@@ -257,8 +257,99 @@ class GeminiAnnotationProvider:
         )
 
 
+class CloudflareWorkersAIAnnotationProvider:
+    """Private Workers AI gateway used by the Cloudflare-hosted processor."""
+
+    def __init__(
+        self,
+        endpoint: str,
+        secret: str,
+        model: str = "@cf/moonshotai/kimi-k2.6",
+        timeout_seconds: float = 120.0,
+    ) -> None:
+        self.endpoint = endpoint
+        self.secret = secret
+        self.model = model
+        self.timeout_seconds = timeout_seconds
+
+    def annotate(
+        self,
+        *,
+        task_hint: Optional[str],
+        taxonomy: List[str],
+        video: Dict[str, Any],
+        frames: List[Dict[str, Any]],
+        contact_sheet_paths: List[Path],
+        prompt_version: str,
+    ) -> ProviderResult:
+        payload = {
+            "task_hint": task_hint,
+            "taxonomy": taxonomy,
+            "video": video,
+            "frames": [
+                {"index": index, "timestamp_sec": frame["timestamp"]}
+                for index, frame in enumerate(frames)
+            ],
+            "contact_sheets": [
+                {
+                    "mime_type": "image/jpeg",
+                    "base64_data": base64.b64encode(path.read_bytes()).decode("ascii"),
+                }
+                for path in contact_sheet_paths
+            ],
+            "prompt_version": prompt_version,
+            "model": self.model,
+        }
+        try:
+            with httpx.Client(timeout=self.timeout_seconds) as client:
+                response = client.post(
+                    self.endpoint,
+                    headers={
+                        "authorization": f"Bearer {self.secret}",
+                        "content-type": "application/json",
+                    },
+                    json=payload,
+                )
+        except httpx.HTTPError as exc:
+            raise ProcessingError("Workers AI annotation gateway could not be reached") from exc
+        if response.status_code < 200 or response.status_code >= 300:
+            raise ProcessingError(
+                f"Workers AI annotation gateway failed with HTTP {response.status_code}"
+            )
+        try:
+            result = response.json()
+            segments = result["segments"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise ProcessingError("Workers AI annotation gateway returned an invalid response") from exc
+        if not isinstance(segments, list):
+            raise ProcessingError("Workers AI annotation gateway segments must be an array")
+        return ProviderResult(
+            segments=segments,
+            provider=str(result.get("provider") or "cloudflare-workers-ai"),
+            model_version=str(result.get("model_version") or self.model),
+            provider_run_id=result.get("provider_run_id"),
+            usage=result.get("usage") if isinstance(result.get("usage"), dict) else None,
+        )
+
+
 def provider_from_env() -> AnnotationProvider:
     provider_name = os.getenv("OPENBOT_ANNOTATION_PROVIDER", "gemini").strip().lower()
+    if provider_name in {"cloudflare", "cloudflare-workers-ai"}:
+        endpoint = os.getenv("OPENBOT_ANNOTATION_URL")
+        secret = os.getenv("OPENBOT_ANNOTATION_SECRET")
+        if not endpoint or not secret:
+            raise ProcessingError(
+                "OPENBOT_ANNOTATION_URL and OPENBOT_ANNOTATION_SECRET are required "
+                "for the Workers AI provider"
+            )
+        return CloudflareWorkersAIAnnotationProvider(
+            endpoint=endpoint,
+            secret=secret,
+            model=os.getenv(
+                "OPENBOT_ANNOTATION_MODEL",
+                "@cf/moonshotai/kimi-k2.6",
+            ),
+        )
     if provider_name != "gemini":
         raise ProcessingError(f"Unsupported annotation provider: {provider_name}")
     api_key = os.getenv("GEMINI_API_KEY")

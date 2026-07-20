@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "openbot-data-annotator",
+  "main": "worker/annotator.ts",
+  "compatibility_date": "2026-07-20",
+  "workers_dev": true,
+  "ai": { "binding": "AI" },
+  "vars": {
+    "OPENBOT_ANNOTATION_MODEL": "@cf/moonshotai/kimi-k2.6"
+  },
+  "secrets": {
+    "required": ["OPENBOT_ANNOTATION_SECRET"]
+  },
+  "observability": { "enabled": true }
+}

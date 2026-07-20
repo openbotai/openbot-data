@@ -100,8 +100,10 @@ The container entrypoint exposes the real worker used by `POST /v1/data/subtask-
 ```bash
 pip install -e ".[service]"
 export OPENBOT_PROCESSOR_SECRET="replace-me"
-export GEMINI_API_KEY="..."
-export OPENBOT_ANNOTATION_MODEL="gemini-3.5-flash"
+export OPENBOT_ANNOTATION_PROVIDER="cloudflare-workers-ai"
+export OPENBOT_ANNOTATION_URL="https://openbot-data-annotator.example.workers.dev"
+export OPENBOT_ANNOTATION_SECRET="replace-me"
+export OPENBOT_ANNOTATION_MODEL="@cf/moonshotai/kimi-k2.6"
 uvicorn openbot_data.service:app --host 0.0.0.0 --port 8080
 ```
 
@@ -138,7 +140,17 @@ python -m twine check dist/*
 
 ## Status
 
-OpenBot Data is in early preview. The library and container now provide the real video preprocessing and annotation-provider data plane. Production availability still depends on deploying the processor and configuring the OpenBot API service binding/secret.
+OpenBot Data is in hosted beta. The Python processor runs in Cloudflare Containers, the private annotation gateway runs on Workers AI, and `api.openbot.ai` reaches the processor through a Cloudflare service binding. Production has passed a real public robot-video smoke test from Queue through review, approval, private R2 export, and authenticated download. Machine output still requires explicit human/API approval before export.
+
+### Cloudflare deployment
+
+```bash
+npm install
+npx wrangler deploy --config wrangler.annotator.jsonc
+npx wrangler deploy --config wrangler.processor.jsonc
+```
+
+The annotator requires `OPENBOT_ANNOTATION_SECRET`. The processor requires both `OPENBOT_PROCESSOR_SECRET` and `OPENBOT_ANNOTATION_SECRET`; its Worker configuration supplies the private annotation endpoint and model. Never place either secret in `vars` or source control.
 
 ## Roadmap
 
@@ -147,7 +159,9 @@ OpenBot Data is in early preview. The library and container now provide the real
 - [x] Manifest and report generation
 - [x] JSON/CSV catalog export
 - [x] Timestamped frame sampling and contact sheets
-- [x] Authenticated subtask processor service and structured Gemini adapter
+- [x] Authenticated subtask processor service and provider-neutral structured adapter
+- [x] Cloudflare Containers deployment and private Workers AI annotation gateway
+- [x] Queue -> processor -> R2 -> review -> approved export production smoke
 - [ ] LeRobot dataset format reader
 - [ ] RLDS / HDF5 ingestion helpers
 - [ ] Per-episode quality scoring

@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "openbot-data-processor",
+  "main": "worker/processor.ts",
+  "compatibility_date": "2026-07-20",
+  "workers_dev": true,
+  "containers": [
+    {
+      "class_name": "DataProcessorContainer",
+      "image": "./Dockerfile",
+      "instance_type": "standard-1",
+      "max_instances": 3
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "DATA_PROCESSOR_CONTAINER", "class_name": "DataProcessorContainer" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["DataProcessorContainer"] }
+  ],
+  "vars": {
+    "OPENBOT_ANNOTATION_PROVIDER": "cloudflare-workers-ai",
+    "OPENBOT_ANNOTATION_MODEL": "@cf/moonshotai/kimi-k2.6",
+    "OPENBOT_ANNOTATION_URL": "https://openbot-data-annotator.openbot.workers.dev/v1/annotate/subtasks"
+  },
+  "secrets": {
+    "required": ["OPENBOT_PROCESSOR_SECRET", "OPENBOT_ANNOTATION_SECRET"]
+  },
+  "observability": { "enabled": true }
+}

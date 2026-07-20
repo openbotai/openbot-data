@@ -12,7 +12,13 @@ from openbot_data.cli import app
 from openbot_data.extract import extract_preview_frames, inspect_dataset
 from openbot_data.video import scan_directory
 from openbot_data.catalog import export_catalog
-from openbot_data.processor import ProcessingError, ProviderResult, process_subtask_job
+from openbot_data.processor import (
+    CloudflareWorkersAIAnnotationProvider,
+    ProcessingError,
+    ProviderResult,
+    process_subtask_job,
+    provider_from_env,
+)
 from openbot_data import service as data_service
 
 
@@ -243,6 +249,55 @@ def test_process_subtask_job_rejects_local_paths_by_default(tmp_path: Path) -> N
             },
             provider=FakeAnnotationProvider(),
         )
+
+
+def test_workers_ai_provider_forwards_contact_sheets(respx_mock, tmp_path: Path) -> None:
+    sheet = tmp_path / "sheet.jpg"
+    sheet.write_bytes(b"jpeg-bytes")
+    route = respx_mock.post("https://annotator.example.test/v1/annotate/subtasks").mock(
+        return_value=__import__("httpx").Response(
+            200,
+            json={
+                "segments": [{"start_sec": 0, "end_sec": 1, "label": "reach"}],
+                "provider": "cloudflare-workers-ai",
+                "model_version": "@cf/test/model",
+                "provider_run_id": "run_test",
+                "usage": {"total_tokens": 12},
+            },
+        )
+    )
+    provider = CloudflareWorkersAIAnnotationProvider(
+        "https://annotator.example.test/v1/annotate/subtasks",
+        "annotation-secret",
+        "@cf/test/model",
+    )
+
+    result = provider.annotate(
+        task_hint="reach the block",
+        taxonomy=["reach"],
+        video={"duration_seconds": 1},
+        frames=[{"timestamp": 0, "frame_id": "frame_000"}],
+        contact_sheet_paths=[sheet],
+        prompt_version="subtask-timeline-v1",
+    )
+
+    assert result.provider_run_id == "run_test"
+    assert result.usage == {"total_tokens": 12}
+    request = route.calls[0].request
+    assert request.headers["authorization"] == "Bearer annotation-secret"
+    body = json.loads(request.content)
+    assert body["contact_sheets"][0]["base64_data"] == "anBlZy1ieXRlcw=="
+    assert body["frames"] == [{"index": 0, "timestamp_sec": 0}]
+
+
+def test_provider_from_env_selects_workers_ai(monkeypatch) -> None:
+    monkeypatch.setenv("OPENBOT_ANNOTATION_PROVIDER", "cloudflare-workers-ai")
+    monkeypatch.setenv("OPENBOT_ANNOTATION_URL", "https://annotator.example.test")
+    monkeypatch.setenv("OPENBOT_ANNOTATION_SECRET", "secret")
+
+    provider = provider_from_env()
+
+    assert isinstance(provider, CloudflareWorkersAIAnnotationProvider)
 
 
 def test_processor_service_requires_auth_and_forwards_valid_jobs(monkeypatch) -> None:
