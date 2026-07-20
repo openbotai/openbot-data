@@ -28,6 +28,7 @@ Current version: `0.0.1.post2`
 - **Generate manifests** — `manifest.json` with per-video metadata and preview paths.
 - **Generate quality reports** — `report.json` with aggregate duration, size, and resolutions.
 - **Export dataset catalogs** — JSON or CSV for dataset registries, documentation, and SEO-friendly catalog pages.
+- **Process subtask annotation jobs** — download a signed video URL, decode and sample timestamped frames, build contact sheets, call a structured VLM provider, and return evidence-backed review suggestions.
 
 ## CLI
 
@@ -92,6 +93,33 @@ export_catalog(
 )
 ```
 
+## Data processor service
+
+The container entrypoint exposes the real worker used by `POST /v1/data/subtask-jobs`:
+
+```bash
+pip install -e ".[service]"
+export OPENBOT_PROCESSOR_SECRET="replace-me"
+export GEMINI_API_KEY="..."
+export OPENBOT_ANNOTATION_MODEL="gemini-3.5-flash"
+uvicorn openbot_data.service:app --host 0.0.0.0 --port 8080
+```
+
+```http
+POST /v1/process/subtasks
+Authorization: Bearer $OPENBOT_PROCESSOR_SECRET
+```
+
+The processor accepts an HTTP(S) video source and returns:
+
+- real video metadata and decoding failures;
+- timestamped evidence frames and contact sheets;
+- canonical action/object/source/target/state-change/outcome segments;
+- provider, model, prompt, sampling and usage provenance;
+- `confidence: null` until OpenBot has a calibrated evaluation set.
+
+Remote input rejects credentials, private/loopback addresses, unsafe redirects, and downloads over the configured size limit. Model output remains `needs_review`; the public API is responsible for R2 persistence, immutable review revisions, approved export gating, and billing.
+
 ## Use cases
 
 - Prepare **teleoperation data** collected from ALOHA, Mobile ALOHA, VR, or SpaceMouse setups.
@@ -110,8 +138,7 @@ python -m twine check dist/*
 
 ## Status
 
-OpenBot Data is in early preview. The current release focuses on video inspection,
-dataset metadata generation, and catalog export.
+OpenBot Data is in early preview. The library and container now provide the real video preprocessing and annotation-provider data plane. Production availability still depends on deploying the processor and configuring the OpenBot API service binding/secret.
 
 ## Roadmap
 
@@ -119,6 +146,8 @@ dataset metadata generation, and catalog export.
 - [x] Preview frame extraction
 - [x] Manifest and report generation
 - [x] JSON/CSV catalog export
+- [x] Timestamped frame sampling and contact sheets
+- [x] Authenticated subtask processor service and structured Gemini adapter
 - [ ] LeRobot dataset format reader
 - [ ] RLDS / HDF5 ingestion helpers
 - [ ] Per-episode quality scoring

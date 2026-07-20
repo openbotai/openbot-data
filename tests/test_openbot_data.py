@@ -4,6 +4,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
+from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
 import openbot_data
@@ -11,6 +12,8 @@ from openbot_data.cli import app
 from openbot_data.extract import extract_preview_frames, inspect_dataset
 from openbot_data.video import scan_directory
 from openbot_data.catalog import export_catalog
+from openbot_data.processor import ProcessingError, ProviderResult, process_subtask_job
+from openbot_data import service as data_service
 
 
 def make_video(path: Path, frames: int = 6) -> None:
@@ -39,6 +42,8 @@ def test_public_api_exports_expected_functions() -> None:
         "scan_directory",
         "scan_video",
         "export_catalog",
+        "process_subtask_job",
+        "ProcessingError",
     }
 
 
@@ -154,3 +159,118 @@ def test_cli_catalog_command(tmp_path: Path) -> None:
     assert result.exit_code == 0
     assert "Catalog exported" in result.output
     assert output_path.exists()
+
+
+class FakeAnnotationProvider:
+    def annotate(self, **kwargs):
+        frames = kwargs["frames"]
+        duration = kwargs["video"]["duration_seconds"]
+        return ProviderResult(
+            segments=[
+                {
+                    "start_sec": 0,
+                    "end_sec": duration / 2,
+                    "action": "reach",
+                    "object": "block",
+                    "source": None,
+                    "target": "bowl",
+                    "state_change": None,
+                    "outcome": "uncertain",
+                    "label": "reach for the block",
+                    "evidence_frame_indices": [0],
+                },
+                {
+                    "start_sec": duration / 2,
+                    "end_sec": duration,
+                    "action": "place",
+                    "object": "block",
+                    "source": None,
+                    "target": "bowl",
+                    "state_change": "block is in bowl",
+                    "outcome": "success",
+                    "label": "place the block in the bowl",
+                    "evidence_frame_indices": [len(frames) - 1],
+                },
+            ],
+            provider="fixture",
+            model_version="fixture-v1",
+            provider_run_id="fixture-run",
+            usage={"input_frames": len(frames)},
+        )
+
+
+def test_process_subtask_job_generates_grounded_review_artifact(tmp_path: Path) -> None:
+    video_path = tmp_path / "episode.avi"
+    make_video(video_path, frames=20)
+
+    result = process_subtask_job(
+        {
+            "job_id": "djob_test",
+            "dataset_id": "data_test",
+            "source": {"video_path": str(video_path), "video_key": "observation.images.top"},
+            "task_hint": "place the block in the bowl",
+            "segmentation": {"sample_fps": 2, "max_frames": 8, "contact_sheet": {"columns": 4}},
+            "labeling": {"taxonomy": ["reach", "place"]},
+            "prompt_version": "subtask-timeline-v1",
+        },
+        provider=FakeAnnotationProvider(),
+        allow_local_input=True,
+    )
+
+    assert result["schema_version"] == "openbot.data_processor_result.v1"
+    assert result["metrics"]["segment_count"] == 2
+    assert result["checks"]["manifest"]["processing"]["provider"] == "fixture"
+    segments = result["annotations"]["timeline"]["segments"]
+    assert segments[0]["confidence"] is None
+    assert segments[1]["outcome"] == "success"
+    assert segments[0]["evidence_frames"][0]["artifact_key"].startswith("evidence/")
+    assert any(artifact["name"].startswith("contact_sheets/") for artifact in result["artifacts"])
+    assert any(artifact["name"].startswith("evidence/") for artifact in result["artifacts"])
+
+
+def test_process_subtask_job_rejects_local_paths_by_default(tmp_path: Path) -> None:
+    video_path = tmp_path / "episode.avi"
+    make_video(video_path)
+
+    with pytest.raises(ProcessingError, match="local video paths are disabled"):
+        process_subtask_job(
+            {
+                "job_id": "djob_test",
+                "dataset_id": "data_test",
+                "source": {"video_path": str(video_path)},
+                "segmentation": {"sample_fps": 1, "contact_sheet": {"columns": 4}},
+                "labeling": {"taxonomy": ["reach"]},
+            },
+            provider=FakeAnnotationProvider(),
+        )
+
+
+def test_processor_service_requires_auth_and_forwards_valid_jobs(monkeypatch) -> None:
+    monkeypatch.setenv("OPENBOT_PROCESSOR_SECRET", "processor-secret")
+    monkeypatch.setattr(
+        data_service,
+        "process_subtask_job",
+        lambda payload: {
+            "schema_version": "openbot.data_processor_result.v1",
+            "job_id": payload["job_id"],
+        },
+    )
+    client = TestClient(data_service.app)
+    payload = {
+        "job_id": "djob_test",
+        "dataset_id": "data_test",
+        "source": {"video_url": "https://cdn.example.com/video.mp4"},
+        "segmentation": {"sample_fps": 1, "contact_sheet": {"columns": 5}},
+        "labeling": {"taxonomy": ["reach"]},
+    }
+
+    unauthorized = client.post("/v1/process/subtasks", json=payload)
+    assert unauthorized.status_code == 401
+
+    authorized = client.post(
+        "/v1/process/subtasks",
+        json=payload,
+        headers={"Authorization": "Bearer processor-secret"},
+    )
+    assert authorized.status_code == 200
+    assert authorized.json()["job_id"] == "djob_test"

@@ -9,6 +9,7 @@ __version__ = "0.0.1.post2"
 from openbot_data.video import scan_directory, scan_video
 from openbot_data.extract import extract_preview_frames, inspect_dataset
 from openbot_data.catalog import export_catalog
+from openbot_data.processor import ProcessingError, process_subtask_job
 
 __all__ = [
     "scan_directory",
@@ -16,4 +17,6 @@ __all__ = [
     "extract_preview_frames",
     "inspect_dataset",
     "export_catalog",
+    "process_subtask_job",
+    "ProcessingError",
 ]
