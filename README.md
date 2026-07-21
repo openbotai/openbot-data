@@ -2,6 +2,8 @@
 
 > Inspect, catalog, and prepare robot video data for embodied AI and robot learning.
 
+[Data product](https://openbot.ai/data) · [Data API documentation](https://openbot.ai/api/docs#data-recipe) · [Source repository](https://github.com/openbotai/openbot-data)
+
 OpenBot Data is an early Python toolkit for working with **robot data** — especially
 **egocentric video** and **teleoperation data** collected from wrist cameras,
 head-mounted cameras, and robot demonstrators.
@@ -28,7 +30,6 @@ Current version: `0.0.1.post2`
 - **Generate manifests** — `manifest.json` with per-video metadata and preview paths.
 - **Generate quality reports** — `report.json` with aggregate duration, size, and resolutions.
 - **Export dataset catalogs** — JSON or CSV for dataset registries, documentation, and SEO-friendly catalog pages.
-- **Process subtask annotation jobs** — download a signed video URL, decode and sample timestamped frames, build contact sheets, call a structured VLM provider, and return evidence-backed review suggestions.
 
 ## CLI
 
@@ -93,35 +94,6 @@ export_catalog(
 )
 ```
 
-## Data processor service
-
-The container entrypoint exposes the real worker used by `POST /v1/data/subtask-jobs`:
-
-```bash
-pip install -e ".[service]"
-export OPENBOT_PROCESSOR_SECRET="replace-me"
-export OPENBOT_ANNOTATION_PROVIDER="cloudflare-workers-ai"
-export OPENBOT_ANNOTATION_URL="https://openbot-data-annotator.example.workers.dev"
-export OPENBOT_ANNOTATION_SECRET="replace-me"
-export OPENBOT_ANNOTATION_MODEL="@cf/moonshotai/kimi-k2.6"
-uvicorn openbot_data.service:app --host 0.0.0.0 --port 8080
-```
-
-```http
-POST /v1/process/subtasks
-Authorization: Bearer $OPENBOT_PROCESSOR_SECRET
-```
-
-The processor accepts an HTTP(S) video source and returns:
-
-- real video metadata and decoding failures;
-- timestamped evidence frames and contact sheets;
-- canonical action/object/source/target/state-change/outcome segments;
-- provider, model, prompt, sampling and usage provenance;
-- `confidence: null` until OpenBot has a calibrated evaluation set.
-
-Remote input rejects credentials, private/loopback addresses, unsafe redirects, and downloads over the configured size limit. Model output remains `needs_review`; the public API is responsible for R2 persistence, immutable review revisions, approved export gating, and billing.
-
 ## Use cases
 
 - Prepare **teleoperation data** collected from ALOHA, Mobile ALOHA, VR, or SpaceMouse setups.
@@ -140,17 +112,11 @@ python -m twine check dist/*
 
 ## Status
 
-OpenBot Data is in hosted beta. The Python processor runs in Cloudflare Containers, the private annotation gateway runs on Workers AI, and `api.openbot.ai` reaches the processor through a Cloudflare service binding. Production has passed a real public robot-video smoke test from Queue through review, approval, private R2 export, and authenticated download. Machine output still requires explicit human/API approval before export.
-
-### Cloudflare deployment
-
-```bash
-npm install
-npx wrangler deploy --config wrangler.annotator.jsonc
-npx wrangler deploy --config wrangler.processor.jsonc
-```
-
-The annotator requires `OPENBOT_ANNOTATION_SECRET`. The processor requires both `OPENBOT_PROCESSOR_SECRET` and `OPENBOT_ANNOTATION_SECRET`; its Worker configuration supplies the private annotation endpoint and model. Never place either secret in `vars` or source control.
+OpenBot Data is an early local Python toolkit. Hosted upload, annotation, review,
+export, billing, Workers, and Container infrastructure belong to the main
+[OpenBot](https://github.com/openbotai/OpenBot) product repository. Use the
+separate [`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package to call
+the hosted API.
 
 ## Roadmap
 
@@ -158,10 +124,6 @@ The annotator requires `OPENBOT_ANNOTATION_SECRET`. The processor requires both 
 - [x] Preview frame extraction
 - [x] Manifest and report generation
 - [x] JSON/CSV catalog export
-- [x] Timestamped frame sampling and contact sheets
-- [x] Authenticated subtask processor service and provider-neutral structured adapter
-- [x] Cloudflare Containers deployment and private Workers AI annotation gateway
-- [x] Queue -> processor -> R2 -> review -> approved export production smoke
 - [ ] LeRobot dataset format reader
 - [ ] RLDS / HDF5 ingestion helpers
 - [ ] Per-episode quality scoring
