@@ -1,7 +1,7 @@
 [project]
 name = "openbot-data"
 version = "0.0.1.post2"
-description = "Clean, label, and organize robot data for training and evaluation."
+description = "Inspect robot video datasets and generate manifests, previews, and catalogs."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }

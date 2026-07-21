@@ -44,77 +44,90 @@ def extract_timestamped_frames(
     frames_dir = Path(output_dir) / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
     cap = cv2.VideoCapture(str(source))
-    if not cap.isOpened():
-        return {"error": f"Cannot open video: {source}"}
+    try:
+        if not cap.isOpened():
+            return {"error": f"Cannot open video: {source}"}
 
-    fps = float(cap.get(cv2.CAP_PROP_FPS))
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    if fps <= 0 or frame_count <= 0:
-        cap.release()
-        return {"error": f"Video has invalid timing metadata: {source}"}
+        fps = float(cap.get(cv2.CAP_PROP_FPS))
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if fps <= 0 or frame_count <= 0:
+            return {"error": f"Video has invalid timing metadata: {source}"}
 
-    duration = frame_count / fps
-    requested = max(1, int(duration * sample_fps) + 1)
-    sample_count = min(max_frames, requested, frame_count)
-    if sample_count == 1:
-        timestamps = [0.0]
-    else:
-        timestamps = [duration * index / (sample_count - 1) for index in range(sample_count)]
+        duration = frame_count / fps
+        requested = max(1, int(duration * sample_fps) + 1)
+        sample_count = min(max_frames, requested, frame_count)
+        if sample_count == 1:
+            timestamps = [0.0]
+        else:
+            timestamps = [duration * index / (sample_count - 1) for index in range(sample_count)]
 
-    extracted: List[PreviewFrame] = []
-    output_id = _video_output_id(source)
-    for index, timestamp in enumerate(timestamps):
-        frame_number = min(frame_count - 1, int(round(timestamp * fps)))
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-        ok, frame = cap.read()
-        if not ok:
-            continue
+        extracted: List[PreviewFrame] = []
+        failures: List[Dict[str, Any]] = []
+        output_id = _video_output_id(source)
+        for index, timestamp in enumerate(timestamps):
+            frame_number = min(frame_count - 1, int(round(timestamp * fps)))
+            if not cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number):
+                failures.append({"frame_number": frame_number, "reason": "seek_failed"})
+                continue
+            ok, frame = cap.read()
+            if not ok:
+                failures.append({"frame_number": frame_number, "reason": "decode_failed"})
+                continue
 
-        height, width = frame.shape[:2]
-        scale = min(1.0, max_edge / max(width, height))
-        if scale < 1.0:
-            frame = cv2.resize(
+            height, width = frame.shape[:2]
+            scale = min(1.0, max_edge / max(width, height))
+            if scale < 1.0:
+                frame = cv2.resize(
+                    frame,
+                    (max(1, int(width * scale)), max(1, int(height * scale))),
+                    interpolation=cv2.INTER_AREA,
+                )
+
+            label = f"{timestamp:.2f}s"
+            cv2.rectangle(frame, (0, 0), (max(90, len(label) * 14), 30), (0, 0, 0), -1)
+            cv2.putText(
                 frame,
-                (max(1, int(width * scale)), max(1, int(height * scale))),
-                interpolation=cv2.INTER_AREA,
+                label,
+                (8, 21),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA,
+            )
+            frame_id = f"{output_id}_frame{index:03d}.jpg"
+            frame_path = frames_dir / frame_id
+            if not cv2.imwrite(str(frame_path), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 88]):
+                failures.append({"frame_number": frame_number, "reason": "write_failed"})
+                continue
+            extracted.append(
+                PreviewFrame(
+                    frame_id=frame_id,
+                    video_path=str(source),
+                    frame_number=frame_number,
+                    timestamp=round(timestamp, 3),
+                    path=str(frame_path),
+                )
             )
 
-        label = f"{timestamp:.2f}s"
-        cv2.rectangle(frame, (0, 0), (max(90, len(label) * 14), 30), (0, 0, 0), -1)
-        cv2.putText(
-            frame,
-            label,
-            (8, 21),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (255, 255, 255),
-            2,
-            cv2.LINE_AA,
-        )
-        frame_id = f"{output_id}_frame{index:03d}.jpg"
-        frame_path = frames_dir / frame_id
-        if not cv2.imwrite(str(frame_path), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 88]):
-            continue
-        extracted.append(
-            PreviewFrame(
-                frame_id=frame_id,
-                video_path=str(source),
-                frame_number=frame_number,
-                timestamp=round(timestamp, 3),
-                path=str(frame_path),
-            )
-        )
-
-    cap.release()
-    return {
-        "video_path": str(source),
-        "duration_seconds": round(duration, 3),
-        "fps": round(fps, 3),
-        "frame_count": frame_count,
-        "sample_fps": sample_fps,
-        "extracted_frames": len(extracted),
-        "frames": [asdict(frame) for frame in extracted],
-    }
+        result = {
+            "video_path": str(source),
+            "duration_seconds": round(duration, 3),
+            "fps": round(fps, 3),
+            "frame_count": frame_count,
+            "sample_fps": sample_fps,
+            "requested_frames": sample_count,
+            "extracted_frames": len(extracted),
+            "failed_frames": failures,
+            "status": "complete" if not failures else "partial",
+            "frames": [asdict(frame) for frame in extracted],
+        }
+        if not extracted:
+            result["error"] = f"No timestamped frames could be extracted: {source}"
+            result["status"] = "failed"
+        return result
+    finally:
+        cap.release()
 
 
 def build_contact_sheets(
@@ -137,11 +150,18 @@ def build_contact_sheets(
 
     for sheet_index, offset in enumerate(range(0, len(frames), per_sheet)):
         batch = frames[offset : offset + per_sheet]
-        decoded = [cv2.imread(str(frame["path"])) for frame in batch]
-        decoded = [image for image in decoded if image is not None]
-        if not decoded:
+        decoded_batch = []
+        failed_frame_ids = []
+        for frame in batch:
+            image = cv2.imread(str(frame["path"]))
+            if image is None:
+                failed_frame_ids.append(str(frame.get("frame_id", "unknown")))
+            else:
+                decoded_batch.append((frame, image))
+        if not decoded_batch:
             continue
 
+        decoded = [image for _, image in decoded_batch]
         ratios = [image.shape[0] / max(1, image.shape[1]) for image in decoded]
         tile_height = max(1, int(tile_width * max(ratios)))
         canvas = cv2.copyMakeBorder(
@@ -175,7 +195,8 @@ def build_contact_sheets(
             {
                 "id": f"contact_sheet_{sheet_index:03d}",
                 "path": str(path),
-                "frame_ids": [str(frame["frame_id"]) for frame in batch],
+                "frame_ids": [str(frame["frame_id"]) for frame, _ in decoded_batch],
+                "failed_frame_ids": failed_frame_ids,
             }
         )
 
@@ -210,69 +231,79 @@ def extract_preview_frames(
     previews_dir.mkdir(parents=True, exist_ok=True)
 
     cap = cv2.VideoCapture(str(video_path))
+    try:
+        if not cap.isOpened():
+            return {"error": f"Cannot open video: {video_path}", "status": "failed"}
 
-    if not cap.isOpened():
-        return {"error": f"Cannot open video: {video_path}"}
+        if max_frames <= 0:
+            return {"error": "max_frames must be greater than 0", "status": "failed"}
 
-    if max_frames <= 0:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        if fps <= 0:
+            fps = 30.0
+
+        if total_frames <= 0:
+            return {"error": f"Video has no readable frames: {video_path}", "status": "failed"}
+
+        video_name = video_path.stem
+        video_output_id = _video_output_id(video_path)
+
+        sample_count = min(max_frames, total_frames)
+        if sample_count == 1:
+            frame_indices = [0]
+        else:
+            frame_indices = [
+                int(round(i * (total_frames - 1) / (sample_count - 1)))
+                for i in range(sample_count)
+            ]
+
+        extracted_frames: List[PreviewFrame] = []
+        failures: List[Dict[str, Any]] = []
+
+        for frame_idx in frame_indices:
+            if not cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx):
+                failures.append({"frame_number": frame_idx, "reason": "seek_failed"})
+                continue
+            ret, frame = cap.read()
+            if not ret:
+                failures.append({"frame_number": frame_idx, "reason": "decode_failed"})
+                continue
+
+            timestamp = frame_idx / fps
+            frame_id = f"{video_output_id}_preview{len(extracted_frames):02d}.jpg"
+            frame_path = previews_dir / frame_id
+            if not cv2.imwrite(str(frame_path), frame):
+                failures.append({"frame_number": frame_idx, "reason": "write_failed"})
+                continue
+
+            extracted_frames.append(
+                PreviewFrame(
+                    frame_id=frame_id,
+                    video_path=str(video_path),
+                    frame_number=frame_idx,
+                    timestamp=round(timestamp, 2),
+                    path=str(frame_path),
+                )
+            )
+
+        result = {
+            "video_path": str(video_path),
+            "video_name": video_name,
+            "total_frames": total_frames,
+            "fps": fps,
+            "requested_frames": sample_count,
+            "extracted_frames": len(extracted_frames),
+            "failed_frames": failures,
+            "status": "complete" if not failures else "partial",
+            "frames": [asdict(f) for f in extracted_frames],
+        }
+        if not extracted_frames:
+            result["error"] = f"No preview frames could be extracted: {video_path}"
+            result["status"] = "failed"
+        return result
+    finally:
         cap.release()
-        return {"error": "max_frames must be greater than 0"}
-
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    if fps <= 0:
-        fps = 30.0
-
-    if total_frames <= 0:
-        cap.release()
-        return {"error": f"Video has no readable frames: {video_path}"}
-
-    video_name = video_path.stem
-    video_output_id = _video_output_id(video_path)
-
-    sample_count = min(max_frames, total_frames)
-    if sample_count == 1:
-        frame_indices = [0]
-    else:
-        frame_indices = [
-            int(round(i * (total_frames - 1) / (sample_count - 1)))
-            for i in range(sample_count)
-        ]
-
-    extracted_frames: List[PreviewFrame] = []
-
-    for frame_idx in frame_indices:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
-        ret, frame = cap.read()
-
-        if not ret:
-            continue
-
-        timestamp = frame_idx / fps
-        frame_id = f"{video_output_id}_preview{len(extracted_frames):02d}.jpg"
-        frame_path = previews_dir / frame_id
-
-        cv2.imwrite(str(frame_path), frame)
-
-        extracted_frame = PreviewFrame(
-            frame_id=frame_id,
-            video_path=str(video_path),
-            frame_number=frame_idx,
-            timestamp=round(timestamp, 2),
-            path=str(frame_path)
-        )
-        extracted_frames.append(extracted_frame)
-
-    cap.release()
-
-    return {
-        "video_path": str(video_path),
-        "video_name": video_name,
-        "total_frames": total_frames,
-        "fps": fps,
-        "extracted_frames": len(extracted_frames),
-        "frames": [asdict(f) for f in extracted_frames]
-    }
 
 
 def inspect_dataset(
@@ -309,12 +340,14 @@ def inspect_dataset(
         if not video_info["is_valid"]:
             all_videos.append({
                 **video_info,
-                "previews": []
+                "previews": [],
+                "preview_status": "skipped_invalid_video",
+                "preview_error": video_info.get("error"),
+                "preview_failures": [],
             })
             continue
 
         video_path = video_info["path"]
-        video_name = Path(video_path).stem
 
         preview_result = extract_preview_frames(
             video_path,
@@ -322,12 +355,15 @@ def inspect_dataset(
             max_frames=10
         )
 
-        if "error" not in preview_result:
-            all_previews.extend(preview_result["frames"])
+        frames = preview_result.get("frames", [])
+        all_previews.extend(frames)
 
         all_videos.append({
             **video_info,
-            "previews": preview_result.get("frames", []) if "error" not in preview_result else []
+            "previews": frames,
+            "preview_status": preview_result.get("status", "failed"),
+            "preview_error": preview_result.get("error"),
+            "preview_failures": preview_result.get("failed_frames", []),
         })
 
     # Generate manifest
@@ -338,6 +374,9 @@ def inspect_dataset(
         "total_videos": len(all_videos),
         "valid_videos": sum(1 for v in all_videos if v["is_valid"]),
         "total_previews": len(all_previews),
+        "preview_failures": sum(
+            len(video.get("preview_failures", [])) for video in all_videos
+        ),
         "videos": all_videos
     }
 
@@ -356,6 +395,12 @@ def inspect_dataset(
         "total_duration": round(sum(v["duration"] for v in all_videos if v["is_valid"]), 2),
         "total_size_mb": round(sum(v["size_mb"] for v in all_videos), 2),
         "total_previews": len(all_previews),
+        "videos_with_preview_errors": sum(
+            1 for video in all_videos if video.get("preview_error")
+        ),
+        "preview_failures": sum(
+            len(video.get("preview_failures", [])) for video in all_videos
+        ),
         "resolutions": [
             list(resolution)
             for resolution in sorted({(v["width"], v["height"]) for v in all_videos if v["is_valid"]})

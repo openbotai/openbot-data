@@ -12,7 +12,7 @@ from openbot_data.catalog import export_catalog, SUPPORTED_FORMATS
 
 app = typer.Typer(
     name="openbot-data",
-    help="Clean, label, and organize robot data for training and evaluation.",
+    help="Inspect robot video datasets and generate reviewable metadata.",
     add_completion=False
 )
 
@@ -28,6 +28,10 @@ def scan(
     import json
 
     result = scan_directory(path)
+
+    if "error" in result:
+        typer.echo(f"Error: {result['error']}", err=True)
+        raise typer.Exit(1)
 
     if output:
         output_path = Path(output)
