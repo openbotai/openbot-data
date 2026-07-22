@@ -1,10 +1,15 @@
 """
 OpenBot Data — Inspect robot video data before training.
 
-OpenBot Data 0.0.1.post2 provides basic robot video inspection and dataset metadata generation.
+OpenBot Data provides basic robot video inspection and dataset metadata generation.
 """
 
-__version__ = "0.0.1.post2"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("openbot-data")
+except PackageNotFoundError:  # pragma: no cover - raw source tree without installation
+    __version__ = "0+unknown"
 
 from openbot_data.video import scan_directory, scan_video
 from openbot_data.extract import (

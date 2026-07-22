@@ -1,6 +1,6 @@
 [project]
 name = "openbot-data"
-version = "0.0.1.post2"
+dynamic = ["version"]
 description = "Inspect robot video datasets and generate manifests, previews, and catalogs."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -69,10 +69,14 @@ packages = ["openbot_data"]
 
 [tool.hatch.build.targets.sdist]
 include = [
+  "/CHANGELOG.md",
+  "/docs",
   "/LICENSE",
   "/README.md",
+  "/VERSION",
   "/openbot_data",
   "/pyproject.toml",
+  "/scripts",
   "/tests",
 ]
 exclude = [
@@ -82,3 +86,7 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.hatch.version]
+path = "VERSION"
+pattern = "^(?P<version>[^\\s]+)$"

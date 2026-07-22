@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Single-source package versioning with CI and release-tag validation.
+
 ## 0.0.1.post2
 
 ### Added

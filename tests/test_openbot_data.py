@@ -1,5 +1,6 @@
 import csv
 import json
+from importlib.metadata import version
 from pathlib import Path
 
 import cv2
@@ -36,7 +37,7 @@ def make_video(path: Path, frames: int = 6) -> None:
 
 
 def test_public_api_exports_expected_functions() -> None:
-    assert openbot_data.__version__ == "0.0.1.post2"
+    assert openbot_data.__version__ == version("openbot-data")
     assert set(openbot_data.__all__) == {
         "extract_preview_frames",
         "extract_timestamped_frames",
@@ -194,7 +195,7 @@ def test_cli_version_and_inspect_command(tmp_path: Path) -> None:
     runner = CliRunner()
     version_result = runner.invoke(app, ["version"])
     assert version_result.exit_code == 0
-    assert "OpenBot Data v0.0.1.post2" in version_result.output
+    assert f"OpenBot Data v{version('openbot-data')}" in version_result.output
 
     video_dir = tmp_path / "videos"
     output_dir = tmp_path / "dataset"

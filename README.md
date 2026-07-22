@@ -22,8 +22,6 @@ Requires Python 3.9+.
 
 ## What it does
 
-Current version: `0.0.1.post2`
-
 - **Scan robot video directories** — recursively find `.mp4`, `.mov`, `.avi`, `.mkv`, `.webm` files.
 - **Read video metadata** — duration, fps, resolution, frame count, file size, validity.
 - **Extract preview frames** — uniformly sample frames for quick human inspection.
@@ -105,10 +103,15 @@ export_catalog(
 
 ```bash
 pip install -e ".[dev]"
+python scripts/check_version.py
 pytest
 python -m build
 python -m twine check dist/*
 ```
+
+`VERSION` is the package version source of truth. To release, update `VERSION`
+and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
+`v<version>`. The release workflow validates the tag before publishing to PyPI.
 
 ## Status
 
@@ -124,9 +127,10 @@ the hosted API.
 - [x] Preview frame extraction
 - [x] Manifest and report generation
 - [x] JSON/CSV catalog export
-- [ ] LeRobot dataset format reader
-- [ ] RLDS / HDF5 ingestion helpers
-- [ ] Per-episode quality scoring
+- [ ] [`0.0.2`: local dataset preflight](docs/version-0.0.2.md), including a
+      versioned manifest, deterministic audit findings, and local LeRobot discovery
+- [ ] Later: RLDS / HDF5 ingestion helpers
+- [ ] Later: calibrated quality evaluation after a labeled validation set exists
 
 ## License
 
