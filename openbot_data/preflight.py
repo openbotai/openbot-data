@@ -184,7 +184,7 @@ def _read_episode_parquet(
     if not parquet_paths:
         return []
     try:
-        import pyarrow.parquet as parquet  # type: ignore[import-untyped]
+        import pyarrow.parquet as parquet  # type: ignore[import-not-found]
     except ImportError:
         findings.append(
             _finding(

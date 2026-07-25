@@ -22,8 +22,10 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: python scripts/check_version.py --tag "${GITHUB_REF_NAME}"
       - run: pytest -q
-      - run: ruff check openbot_data tests examples
-      - run: mypy openbot_data
+      - if: matrix.python-version == '3.9'
+        run: ruff check openbot_data tests examples
+      - if: matrix.python-version == '3.9'
+        run: mypy openbot_data
 
   build:
     name: Build distributions
