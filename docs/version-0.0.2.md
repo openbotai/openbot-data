@@ -1,11 +1,12 @@
 # OpenBot Data 0.0.2 — Local Dataset Preflight
 
-> Status: Planned
-> Current package: `0.0.1.post2`
-> Target package: `0.0.2`
+> Status: Implemented and locally validated; tag/publication pending
+> Previous package: `0.0.1.post2`
+> Current source version: `0.0.2`
 
 This document is the release contract for the local `openbot-data` Python package.
-It describes planned work, not functionality available in the current package.
+The functionality below is implemented in source; a tag or package publication is
+still a separate release action.
 
 ## Goal
 
@@ -57,6 +58,8 @@ Add read-only discovery for local LeRobot v2.1 and v3 layouts:
 - detect supported local layouts with `--format auto|video|lerobot`;
 - list episodes, episode indexes, declared tasks, and available video keys;
 - connect episode metadata to its local video files;
+- resolve v3 shared shards from relational video metadata and the declared
+  `info.video_path` template rather than assuming v2 filenames;
 - report missing metadata, missing video streams, and invalid episode references;
 - expose a Python `read_lerobot(...)` entry point and optional `lerobot` extra.
 
@@ -75,6 +78,7 @@ At minimum, audit:
 - missing LeRobot episode metadata or referenced video;
 - inconsistent camera resolution or FPS within one stream;
 - duplicate content when SHA-256 checking is enabled.
+- symlink targets that escape the dataset root.
 
 `0.0.2` must not invent an aggregate “quality score” or model confidence. It may
 report counts by severity and rule code only.
@@ -97,18 +101,29 @@ audit = audit_dataset("./dataset", input_format="auto")
 episodes = read_lerobot("./lerobot_dataset")
 ```
 
+Advanced callers can create one immutable `DatasetSnapshot` with
+`prepare_dataset(...)` and pass it to both `inspect_dataset(..., snapshot=...)`
+and `audit_dataset(..., snapshot=...)`. Integrity is explicit:
+`metadata|sample|full`.
+
 Compatibility requirements:
 
 - existing calls without new arguments keep their `0.0.1` behavior;
 - `--fail-on error` exits non-zero only when an error finding exists;
 - malformed input produces structured findings instead of an unhandled traceback;
 - JSON output is the canonical machine-readable format.
+- `path_base` and `path_bases` make dataset and inspection-root paths
+  unambiguous without exposing machine-local absolute paths.
+- packaged manifest/audit JSON Schemas are available through `schema_path(...)`.
 
 ### 5. Documentation and fixtures
 
 Ship small fixtures covering a plain video directory and representative local
 LeRobot v2.1/v3 metadata. Document every finding code and provide one complete
 manifest and audit example without machine-specific paths.
+
+The implemented code registry is [`audit-findings.md`](audit-findings.md), with
+canonical examples under [`examples/`](examples/).
 
 ## Release acceptance criteria
 
@@ -119,8 +134,24 @@ The version is complete only when:
 - local LeRobot v2.1 and v3 fixtures discover the expected episodes/video keys;
 - missing/corrupt input returns the documented rule code and CLI exit status;
 - SHA-256 duplicate detection is opt-in and tested;
-- Python 3.9–3.12 CI, package build, and Twine metadata checks pass;
+- Python 3.9–3.12 matrix, package build, and Twine metadata checks pass;
 - the README examples run from a clean installation.
+
+## Acceptance coverage
+
+The source acceptance suite is organized as follows:
+
+- `tests/test_openbot_data.py`: backward-compatible scan, inspect, preview, and
+  catalog behavior;
+- `tests/test_preflight.py`: deterministic manifest, LeRobot v2.1/v3 discovery,
+  checksum opt-in behavior, CLI exit policy, and canonical examples;
+- `tests/test_acceptance_v002.py`: shipped fixtures, every documented finding
+  code, malformed input, stream consistency, all `--fail-on` policies, and the
+  runnable public-API demo;
+- `examples/local_preflight.py`: end-to-end local preflight demo executed by the
+  acceptance suite.
+
+The complete suite is required on every supported Python interpreter.
 
 ## Explicit non-goals
 

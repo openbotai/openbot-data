@@ -1,15 +1,21 @@
 """
-Frame extraction module for OpenBot Data v0.0.1.
+Frame extraction module for OpenBot Data.
 Extracts preview frames from videos for inspection.
 """
 
+from __future__ import annotations
+
 import hashlib
-import cv2
-import json
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, Any, List
-from dataclasses import dataclass, asdict
-from tqdm import tqdm
+from typing import Any, Dict, List, Optional
+
+import cv2
+from tqdm import tqdm  # type: ignore[import-untyped]
+
+from openbot_data.errors import DatasetArgumentError, DatasetNotFoundError
+from openbot_data.models import DatasetSnapshot
+from openbot_data.serialization import write_json_atomic
 
 
 @dataclass
@@ -74,19 +80,26 @@ def extract_timestamped_frames(
                 failures.append({"frame_number": frame_number, "reason": "decode_failed"})
                 continue
 
-            height, width = frame.shape[:2]
+            frame_array: Any = frame
+            height, width = frame_array.shape[:2]
             scale = min(1.0, max_edge / max(width, height))
             if scale < 1.0:
-                frame = cv2.resize(
-                    frame,
+                frame_array = cv2.resize(
+                    frame_array,
                     (max(1, int(width * scale)), max(1, int(height * scale))),
                     interpolation=cv2.INTER_AREA,
                 )
 
             label = f"{timestamp:.2f}s"
-            cv2.rectangle(frame, (0, 0), (max(90, len(label) * 14), 30), (0, 0, 0), -1)
+            cv2.rectangle(
+                frame_array,
+                (0, 0),
+                (max(90, len(label) * 14), 30),
+                (0, 0, 0),
+                -1,
+            )
             cv2.putText(
-                frame,
+                frame_array,
                 label,
                 (8, 21),
                 cv2.FONT_HERSHEY_SIMPLEX,
@@ -97,7 +110,11 @@ def extract_timestamped_frames(
             )
             frame_id = f"{output_id}_frame{index:03d}.jpg"
             frame_path = frames_dir / frame_id
-            if not cv2.imwrite(str(frame_path), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 88]):
+            if not cv2.imwrite(
+                str(frame_path),
+                frame_array,
+                [int(cv2.IMWRITE_JPEG_QUALITY), 88],
+            ):
                 failures.append({"frame_number": frame_number, "reason": "write_failed"})
                 continue
             extracted.append(
@@ -186,7 +203,10 @@ def build_contact_sheets(
             x = (item_index % columns) * tile_width
             y_pad = (tile_height - resized.shape[0]) // 2
             x_pad = (tile_width - resized.shape[1]) // 2
-            canvas[y + y_pad : y + y_pad + resized.shape[0], x + x_pad : x + x_pad + resized.shape[1]] = resized
+            canvas[
+                y + y_pad : y + y_pad + resized.shape[0],
+                x + x_pad : x + x_pad + resized.shape[1],
+            ] = resized
 
         path = sheets_dir / f"contact_sheet_{sheet_index:03d}.jpg"
         if not cv2.imwrite(str(path), canvas, [int(cv2.IMWRITE_JPEG_QUALITY), 88]):
@@ -211,7 +231,8 @@ def _video_output_id(video_path: Path) -> str:
 def extract_preview_frames(
     video_path: str,
     output_dir: str,
-    max_frames: int = 10
+    max_frames: int = 10,
+    output_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Extract a few preview frames from a video.
@@ -224,16 +245,16 @@ def extract_preview_frames(
     Returns:
         Dictionary with extraction results
     """
-    video_path = Path(video_path)
-    output_dir = Path(output_dir)
+    source_path = Path(video_path)
+    output_path = Path(output_dir)
 
-    previews_dir = output_dir / "previews"
+    previews_dir = output_path / "previews"
     previews_dir.mkdir(parents=True, exist_ok=True)
 
-    cap = cv2.VideoCapture(str(video_path))
+    cap = cv2.VideoCapture(str(source_path))
     try:
         if not cap.isOpened():
-            return {"error": f"Cannot open video: {video_path}", "status": "failed"}
+            return {"error": f"Cannot open video: {source_path}", "status": "failed"}
 
         if max_frames <= 0:
             return {"error": "max_frames must be greater than 0", "status": "failed"}
@@ -244,10 +265,10 @@ def extract_preview_frames(
             fps = 30.0
 
         if total_frames <= 0:
-            return {"error": f"Video has no readable frames: {video_path}", "status": "failed"}
+            return {"error": f"Video has no readable frames: {source_path}", "status": "failed"}
 
-        video_name = video_path.stem
-        video_output_id = _video_output_id(video_path)
+        video_name = source_path.stem
+        video_output_id = output_id or _video_output_id(source_path)
 
         sample_count = min(max_frames, total_frames)
         if sample_count == 1:
@@ -273,14 +294,15 @@ def extract_preview_frames(
             timestamp = frame_idx / fps
             frame_id = f"{video_output_id}_preview{len(extracted_frames):02d}.jpg"
             frame_path = previews_dir / frame_id
-            if not cv2.imwrite(str(frame_path), frame):
+            frame_array: Any = frame
+            if not cv2.imwrite(str(frame_path), frame_array):
                 failures.append({"frame_number": frame_idx, "reason": "write_failed"})
                 continue
 
             extracted_frames.append(
                 PreviewFrame(
                     frame_id=frame_id,
-                    video_path=str(video_path),
+                    video_path=str(source_path),
                     frame_number=frame_idx,
                     timestamp=round(timestamp, 2),
                     path=str(frame_path),
@@ -288,7 +310,7 @@ def extract_preview_frames(
             )
 
         result = {
-            "video_path": str(video_path),
+            "video_path": str(source_path),
             "video_name": video_name,
             "total_frames": total_frames,
             "fps": fps,
@@ -299,7 +321,7 @@ def extract_preview_frames(
             "frames": [asdict(f) for f in extracted_frames],
         }
         if not extracted_frames:
-            result["error"] = f"No preview frames could be extracted: {video_path}"
+            result["error"] = f"No preview frames could be extracted: {source_path}"
             result["status"] = "failed"
         return result
     finally:
@@ -308,87 +330,142 @@ def extract_preview_frames(
 
 def inspect_dataset(
     video_dir: str,
-    output_dir: str
+    output_dir: str,
+    input_format: str = "video",
+    checksum: Optional[str] = None,
+    *,
+    integrity: str = "sample",
+    follow_symlinks: bool = False,
+    snapshot: DatasetSnapshot | None = None,
 ) -> Dict[str, Any]:
     """
     Inspect a robot video dataset and generate manifest.
 
     Args:
-        video_dir: Path to video directory
+        video_dir: Path to a video directory or local LeRobot dataset.
         output_dir: Path to output directory
+        input_format: Input format: ``video``, ``lerobot``, or ``auto``.
+        checksum: Optional checksum algorithm. Only ``sha256`` is supported.
 
     Returns:
         Dictionary with inspection results
     """
-    from openbot_data.video import scan_directory
+    from openbot_data import __version__
+    from openbot_data.preflight import (
+        MANIFEST_SCHEMA_VERSION,
+        dataset_fingerprint,
+        prepare_dataset,
+    )
 
-    scan_result = scan_directory(video_dir)
+    try:
+        prepared = snapshot or prepare_dataset(
+            video_dir,
+            input_format=input_format,
+            checksum=checksum,
+            integrity=integrity,
+            follow_symlinks=follow_symlinks,
+        )
+    except (DatasetArgumentError, DatasetNotFoundError) as exc:
+        return {"error": str(exc), "videos": []}
 
-    if "error" in scan_result:
-        return scan_result
+    output_root = Path(output_dir).resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
 
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    metadata_dir = output_dir / "metadata"
+    metadata_dir = output_root / "metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
-    all_previews = []
-    all_videos = []
+    all_previews: List[Dict[str, Any]] = []
+    all_videos: List[Dict[str, Any]] = []
 
-    for video_info in tqdm(scan_result["videos"], desc="Extracting previews"):
-        if not video_info["is_valid"]:
+    for video_record in tqdm(prepared.videos, desc="Extracting previews"):
+        source_path = video_record.source_path
+        public_video = video_record.as_dict()
+        if not video_record.is_valid:
             all_videos.append({
-                **video_info,
+                **public_video,
                 "previews": [],
                 "preview_status": "skipped_invalid_video",
-                "preview_error": video_info.get("error"),
+                "preview_error": video_record.error,
                 "preview_failures": [],
             })
             continue
 
-        video_path = video_info["path"]
-
         preview_result = extract_preview_frames(
-            video_path,
-            str(output_dir),
-            max_frames=10
+            str(source_path),
+            str(output_root),
+            max_frames=10,
+            output_id=_stable_video_output_id(video_record.path),
         )
 
-        frames = preview_result.get("frames", [])
+        frames = []
+        for frame in preview_result.get("frames", []):
+            frame_path = Path(str(frame["path"])).resolve()
+            normalized = dict(frame)
+            normalized["path_base"] = "inspection"
+            normalized["path"] = frame_path.relative_to(output_root).as_posix()
+            normalized["video_path_base"] = "dataset"
+            normalized["video_path"] = video_record.path
+            frames.append(normalized)
         all_previews.extend(frames)
 
+        preview_error = preview_result.get("error")
+        if preview_error is not None:
+            preview_error = str(preview_error).replace(str(source_path), video_record.path)
+
         all_videos.append({
-            **video_info,
+            **public_video,
             "previews": frames,
             "preview_status": preview_result.get("status", "failed"),
-            "preview_error": preview_result.get("error"),
+            "preview_error": preview_error,
             "preview_failures": preview_result.get("failed_frames", []),
         })
 
-    # Generate manifest
+    fingerprint_payload = {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "input_format": prepared.input_format,
+        "codebase_version": prepared.codebase_version,
+        "episodes": [episode.as_dict() for episode in prepared.episodes],
+        "video_keys": list(prepared.video_keys),
+        "videos": [
+            {
+                key: value
+                for key, value in video.items()
+                if key not in {"previews", "preview_status", "preview_error", "preview_failures"}
+            }
+            for video in all_videos
+        ],
+    }
     manifest = {
-        "version": "0.0.1",
-        "source_dir": str(video_dir),
-        "output_dir": str(output_dir),
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "tool_version": __version__,
+        "input_format": prepared.input_format,
+        "codebase_version": prepared.codebase_version,
+        "dataset_fingerprint": dataset_fingerprint(fingerprint_payload),
+        "path_bases": {
+            "dataset": {"resolution": "caller_supplied_dataset_root"},
+            "inspection": {"resolution": "manifest_parent_parent"},
+        },
+        "episodes": [episode.as_dict() for episode in prepared.episodes],
+        "video_keys": list(prepared.video_keys),
+        "discovery_findings": [dict(item) for item in prepared.findings],
         "total_videos": len(all_videos),
         "valid_videos": sum(1 for v in all_videos if v["is_valid"]),
         "total_previews": len(all_previews),
         "preview_failures": sum(
             len(video.get("preview_failures", [])) for video in all_videos
         ),
-        "videos": all_videos
+        "videos": all_videos,
     }
 
     manifest_path = metadata_dir / "manifest.json"
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2)
+    write_json_atomic(manifest_path, manifest)
 
-    # Generate basic report
     report = {
-        "version": "0.0.1",
-        "source_dir": str(video_dir),
-        "output_dir": str(output_dir),
+        "schema_version": "openbot.dataset_report.v1",
+        "tool_version": __version__,
+        "input_format": prepared.input_format,
+        "dataset_fingerprint": manifest["dataset_fingerprint"],
+        "path_bases": manifest["path_bases"],
         "total_videos": len(all_videos),
         "valid_videos": sum(1 for v in all_videos if v["is_valid"]),
         "invalid_videos": sum(1 for v in all_videos if not v["is_valid"]),
@@ -403,17 +480,26 @@ def inspect_dataset(
         ),
         "resolutions": [
             list(resolution)
-            for resolution in sorted({(v["width"], v["height"]) for v in all_videos if v["is_valid"]})
-        ]
+            for resolution in sorted(
+                {(v["width"], v["height"]) for v in all_videos if v["is_valid"]}
+            )
+        ],
     }
 
     report_path = metadata_dir / "report.json"
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
+    write_json_atomic(report_path, report)
 
     return {
         "manifest_path": str(manifest_path),
         "report_path": str(report_path),
         "total_videos": len(all_videos),
-        "total_previews": len(all_previews)
+        "total_previews": len(all_previews),
+        "dataset_fingerprint": manifest["dataset_fingerprint"],
+        "input_format": prepared.input_format,
     }
+
+
+def _stable_video_output_id(relative_path: str) -> str:
+    path = Path(relative_path)
+    digest = hashlib.sha1(path.as_posix().encode("utf-8")).hexdigest()[:8]
+    return f"{path.stem}_{digest}"

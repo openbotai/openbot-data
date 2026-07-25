@@ -2,7 +2,8 @@
 
 > Inspect, catalog, and prepare robot video data for embodied AI and robot learning.
 
-[Data product](https://openbot.ai/data) · [Data API documentation](https://openbot.ai/api/docs#data-recipe) · [Source repository](https://github.com/openbotai/openbot-data)
+[Library documentation](docs/README.md) · [API reference](docs/api-reference.md) ·
+[Data product](https://openbot.ai/data) · [Source repository](https://github.com/openbotai/openbot-data)
 
 OpenBot Data is an early Python toolkit for working with **robot data** — especially
 **egocentric video** and **teleoperation data** collected from wrist cameras,
@@ -20,6 +21,23 @@ pip install openbot-data
 
 Requires Python 3.9+.
 
+## Runnable demo
+
+Clone the repository, install the package, and run the complete local preflight
+against a video directory or local LeRobot repository:
+
+```bash
+pip install -e .
+python examples/local_preflight.py ./robot_videos --out ./openbot-preflight --integrity sample
+```
+
+The demo uses the public Python API and writes
+`inspection/metadata/manifest.json`, `inspection/metadata/report.json`, and
+`audit.json`. Add `--format lerobot` for a local LeRobot v2.1/v3 repository,
+`--integrity full` to decode every frame, or `--no-checksum` to skip SHA-256
+duplicate detection. The demo discovers and hashes the dataset once, then shares
+one immutable `DatasetSnapshot` across both renderers.
+
 ## What it does
 
 - **Scan robot video directories** — recursively find `.mp4`, `.mov`, `.avi`, `.mkv`, `.webm` files.
@@ -28,6 +46,8 @@ Requires Python 3.9+.
 - **Generate manifests** — `manifest.json` with per-video metadata and preview paths.
 - **Generate quality reports** — `report.json` with aggregate duration, size, and resolutions.
 - **Export dataset catalogs** — JSON or CSV for dataset registries, documentation, and SEO-friendly catalog pages.
+- **Discover local LeRobot data** — read-only episode and video-stream discovery for v2.1/v3 layouts.
+- **Audit before training or upload** — stable error/warning codes without an uncalibrated quality score.
 
 ## CLI
 
@@ -42,6 +62,8 @@ openbot-data scan ./robot_videos --output scan.json
 
 ```bash
 openbot-data inspect ./robot_videos --out ./openbot_dataset
+openbot-data inspect ./lerobot_dataset --format lerobot --out ./openbot_dataset
+openbot-data audit ./robot_videos --out ./audit.json --fail-on error
 ```
 
 Output structure:
@@ -70,7 +92,15 @@ page such as [OpenBot.ai Datasets](https://openbot.ai/datasets).
 ## Python API
 
 ```python
-from openbot_data import scan_directory, inspect_dataset, export_catalog
+from openbot_data import (
+    audit_dataset,
+    export_catalog,
+    inspect_dataset,
+    prepare_dataset,
+    read_lerobot,
+    scan_directory,
+    schema_path,
+)
 
 # Scan a directory
 scan = scan_directory("./robot_videos")
@@ -90,6 +120,18 @@ export_catalog(
     output_path="./catalog.json",
     fmt="json",
 )
+
+# Discover/hash once and reuse the immutable snapshot across renderers
+snapshot = prepare_dataset("./robot_videos", checksum="sha256", integrity="sample")
+inspection = inspect_dataset("./robot_videos", "./inspection", snapshot=snapshot)
+audit = audit_dataset("./robot_videos", snapshot=snapshot)
+
+# Discover episodes and camera streams in a local LeRobot repository
+lerobot = read_lerobot("./lerobot_dataset")
+
+# Packaged JSON Schemas are stable independently of the package version
+with schema_path("manifest") as manifest_schema:
+    print(manifest_schema)
 ```
 
 ## Use cases
@@ -105,9 +147,13 @@ export_catalog(
 pip install -e ".[dev]"
 python scripts/check_version.py
 pytest
+scripts/test_matrix.sh
 python -m build
 python -m twine check dist/*
 ```
+
+The local matrix script requires [`uv`](https://docs.astral.sh/uv/) and tests
+Python 3.9–3.12 without requiring a repository CI workflow.
 
 `VERSION` is the package version source of truth. To release, update `VERSION`
 and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
@@ -127,10 +173,15 @@ the hosted API.
 - [x] Preview frame extraction
 - [x] Manifest and report generation
 - [x] JSON/CSV catalog export
-- [ ] [`0.0.2`: local dataset preflight](docs/version-0.0.2.md), including a
+- [x] [`0.0.2`: local dataset preflight](docs/version-0.0.2.md), including a
       versioned manifest, deterministic audit findings, and local LeRobot discovery
 - [ ] Later: RLDS / HDF5 ingestion helpers
 - [ ] Later: calibrated quality evaluation after a labeled validation set exists
+
+Audit codes are documented in [`docs/audit-findings.md`](docs/audit-findings.md).
+Canonical manifests use explicit `path_base`/`path_bases` fields; they never
+serialize private source paths. Symlinks are skipped by default, and even when
+`follow_symlinks=True` a target outside the dataset root is rejected.
 
 ## License
 

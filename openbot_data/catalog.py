@@ -6,12 +6,11 @@ sharing, and linking from documentation or dataset registries.
 """
 
 import csv
-import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict
 
+from openbot_data.serialization import write_json_atomic
 from openbot_data.video import scan_directory
-
 
 SUPPORTED_FORMATS = {"json", "csv"}
 
@@ -76,14 +75,15 @@ def export_catalog(
             "summary": summary,
             "videos": rows,
         }
-        with open(out_path, "w") as f:
-            json.dump(catalog, f, indent=2)
+        write_json_atomic(out_path, catalog)
     else:  # csv
         fieldnames = list(rows[0].keys()) if rows else []
-        with open(out_path, "w", newline="") as f:
+        temporary = out_path.with_suffix(out_path.suffix + ".tmp")
+        with open(temporary, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
+        temporary.replace(out_path)
 
     return {
         "output_path": str(out_path),

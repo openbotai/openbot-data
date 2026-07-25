@@ -1,0 +1,59 @@
+{
+  "codebase_version": null,
+  "dataset_fingerprint": "8a423913065cdda2acc2d3e424f66e8c15194b103241438723a3e157e379c0ad",
+  "discovery_findings": [],
+  "episodes": [],
+  "input_format": "video",
+  "path_bases": {
+    "dataset": {
+      "resolution": "caller_supplied_dataset_root"
+    },
+    "inspection": {
+      "resolution": "manifest_parent_parent"
+    }
+  },
+  "preview_failures": 0,
+  "schema_version": "openbot.dataset_manifest.v1",
+  "tool_version": "0.0.2",
+  "total_previews": 1,
+  "total_videos": 1,
+  "valid_videos": 1,
+  "video_keys": [
+    "camera"
+  ],
+  "videos": [
+    {
+      "duration": 1.0,
+      "decode_valid": true,
+      "decoded_frame_count": 1,
+      "error": null,
+      "filename": "episode.avi",
+      "fps": 5.0,
+      "frame_count": 5,
+      "height": 16,
+      "integrity_level": "sample",
+      "is_valid": true,
+      "metadata_valid": true,
+      "path_base": "dataset",
+      "path": "camera/episode.avi",
+      "preview_error": null,
+      "preview_failures": [],
+      "preview_status": "complete",
+      "previews": [
+        {
+          "frame_id": "episode_8f5afe9f_preview00.jpg",
+          "frame_number": 0,
+          "path_base": "inspection",
+          "path": "previews/episode_8f5afe9f_preview00.jpg",
+          "timestamp": 0.0,
+          "video_path_base": "dataset",
+          "video_path": "camera/episode.avi"
+        }
+      ],
+      "size_bytes": 6500,
+      "size_mb": 0.01,
+      "stream": "camera",
+      "width": 16
+    }
+  ]
+}

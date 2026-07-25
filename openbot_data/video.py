@@ -2,10 +2,13 @@
 Video processing module for OpenBot Data.
 """
 
-import cv2
-from pathlib import Path
-from typing import Dict, Any, Optional
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import cv2
+
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 
 @dataclass
@@ -79,7 +82,13 @@ def scan_video(video_path: str) -> VideoInfo:
         else:
             duration = 0
 
-        is_valid = width > 0 and height > 0 and frame_count > 0
+        is_valid = (
+            width > 0
+            and height > 0
+            and frame_count > 0
+            and fps > 0
+            and duration > 0
+        )
 
         return VideoInfo(
             path=str(path),
@@ -112,7 +121,7 @@ def scan_video(video_path: str) -> VideoInfo:
             cap.release()
 
 
-def scan_directory(directory: str) -> Dict[str, Any]:
+def scan_directory(directory: str, *, absolute_paths: bool = False) -> Dict[str, Any]:
     """
     Scan a directory for video files.
 
@@ -122,7 +131,7 @@ def scan_directory(directory: str) -> Dict[str, Any]:
     Returns:
         Dictionary with scan results
     """
-    path = Path(directory)
+    path = Path(directory).resolve()
 
     if not path.exists() or not path.is_dir():
         return {
@@ -130,14 +139,18 @@ def scan_directory(directory: str) -> Dict[str, Any]:
             "videos": []
         }
 
-    video_extensions = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
-    video_files = []
+    video_files: List[Dict[str, Any]] = []
 
     for f in sorted(path.rglob("*")):
-        if f.is_file() and f.suffix.lower() in video_extensions:
+        if (
+            f.is_file()
+            and not f.is_symlink()
+            and f.resolve().is_relative_to(path)
+            and f.suffix.lower() in VIDEO_EXTENSIONS
+        ):
             info = scan_video(str(f))
             video_files.append({
-                "path": str(f),
+                "path": str(f) if absolute_paths else f.relative_to(path).as_posix(),
                 "filename": f.name,
                 "width": info.width,
                 "height": info.height,
@@ -151,11 +164,11 @@ def scan_directory(directory: str) -> Dict[str, Any]:
 
     total_videos = len(video_files)
     valid_videos = sum(1 for v in video_files if v["is_valid"])
-    total_size_mb = sum(v["size_mb"] for v in video_files)
-    total_duration = sum(v["duration"] for v in video_files if v["is_valid"])
+    total_size_mb = sum(float(v["size_mb"]) for v in video_files)
+    total_duration = sum(float(v["duration"]) for v in video_files if bool(v["is_valid"]))
 
     return {
-        "directory": str(path),
+        "directory": str(path) if absolute_paths else ".",
         "total_videos": total_videos,
         "valid_videos": valid_videos,
         "invalid_videos": total_videos - valid_videos,

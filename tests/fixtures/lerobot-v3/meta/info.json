@@ -1,0 +1,10 @@
+{
+  "codebase_version": "v3.0",
+  "total_episodes": 1,
+  "video_path": "videos/{video_key}/chunk-{chunk_index:03d}/file-{file_index:03d}.avi",
+  "features": {
+    "observation.images.top": {
+      "dtype": "video"
+    }
+  }
+}

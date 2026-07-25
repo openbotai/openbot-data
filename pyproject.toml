@@ -34,6 +34,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Topic :: Scientific/Engineering :: Image Processing"
 ]
@@ -45,9 +46,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+lerobot = [
+  "pyarrow>=17.0.0",
+]
 dev = [
   "build>=1.0.0",
+  "jsonschema>=4.18.0",
   "pytest>=7.0.0",
+  "ruff>=0.6.0",
+  "mypy>=1.11.0,<1.19",
   "twine>=6.2.0",
 ]
 
@@ -71,6 +78,7 @@ packages = ["openbot_data"]
 include = [
   "/CHANGELOG.md",
   "/docs",
+  "/examples",
   "/LICENSE",
   "/README.md",
   "/VERSION",
@@ -86,6 +94,17 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_unused_configs = true
 
 [tool.hatch.version]
 path = "VERSION"

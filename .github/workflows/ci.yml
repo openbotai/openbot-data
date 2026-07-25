@@ -30,6 +30,14 @@ jobs:
       - name: Check version metadata
         run: python scripts/check_version.py
 
+      - name: Lint
+        if: matrix.python-version == '3.9'
+        run: ruff check openbot_data tests examples
+
+      - name: Type check
+        if: matrix.python-version == '3.9'
+        run: mypy openbot_data
+
       - name: Run tests
         run: pytest -v
 

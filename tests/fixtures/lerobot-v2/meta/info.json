@@ -1,0 +1,9 @@
+{
+  "codebase_version": "v2.1",
+  "total_episodes": 1,
+  "features": {
+    "observation.images.top": {
+      "dtype": "video"
+    }
+  }
+}

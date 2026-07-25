@@ -38,7 +38,7 @@ def make_video(path: Path, frames: int = 6) -> None:
 
 def test_public_api_exports_expected_functions() -> None:
     assert openbot_data.__version__ == version("openbot-data")
-    assert set(openbot_data.__all__) == {
+    assert {
         "extract_preview_frames",
         "extract_timestamped_frames",
         "build_contact_sheets",
@@ -46,7 +46,10 @@ def test_public_api_exports_expected_functions() -> None:
         "scan_directory",
         "scan_video",
         "export_catalog",
-    }
+        "audit_dataset",
+        "detect_input_format",
+        "read_lerobot",
+    } <= set(openbot_data.__all__)
 
 
 def test_scan_directory_reports_missing_directory(tmp_path: Path) -> None:
@@ -75,9 +78,15 @@ def test_inspect_dataset_generates_manifest_report_and_previews(tmp_path: Path) 
     manifest = json.loads(manifest_path.read_text())
     report = json.loads(report_path.read_text())
     assert manifest["valid_videos"] == 1
+    assert manifest["schema_version"] == "openbot.dataset_manifest.v1"
+    assert manifest["path_bases"]["dataset"]["resolution"] == "caller_supplied_dataset_root"
+    assert manifest["path_bases"]["inspection"]["resolution"] == "manifest_parent_parent"
     assert manifest["total_previews"] > 0
     assert report["resolutions"] == [[16, 16]]
-    assert all(Path(frame["path"]).exists() for frame in manifest["videos"][0]["previews"])
+    assert all(
+        (output_dir / frame["path"]).exists()
+        for frame in manifest["videos"][0]["previews"]
+    )
 
 
 def test_preview_frame_names_do_not_collide_for_same_basename(tmp_path: Path) -> None:
@@ -217,6 +226,9 @@ def test_export_catalog_json(tmp_path: Path) -> None:
     assert catalog["summary"]["total_videos"] == 1
     assert catalog["summary"]["valid_videos"] == 1
     assert catalog["videos"][0]["filename"] == "clip.avi"
+    assert catalog["summary"]["source_dir"] == "."
+    assert catalog["videos"][0]["path"] == "clip.avi"
+    assert str(tmp_path) not in output_path.read_text()
 
 
 def test_export_catalog_csv(tmp_path: Path) -> None:
