@@ -1,12 +1,12 @@
 # OpenBot Data 0.0.2 — Local Dataset Preflight
 
-> Status: Implemented and locally validated; tag/publication pending
+> Status: Released and publicly verified
 > Previous package: `0.0.1.post2`
 > Current source version: `0.0.2`
 
 This document is the release contract for the local `openbot-data` Python package.
-The functionality below is implemented in source; a tag or package publication is
-still a separate release action.
+The functionality below shipped in `openbot-data==0.0.2`. Future work is tracked
+separately in the [`0.0.3` plan](version-0.0.3.md).
 
 ## Goal
 

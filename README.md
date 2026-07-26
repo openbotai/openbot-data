@@ -175,10 +175,16 @@ the hosted API.
 - [x] JSON/CSV catalog export
 - [x] [`0.0.2`: local dataset preflight](docs/version-0.0.2.md), including a
       versioned manifest, deterministic audit findings, and local LeRobot discovery
-- [ ] Later: RLDS / HDF5 ingestion helpers
-- [ ] Later: calibrated quality evaluation after a labeled validation set exists
+- [ ] [`0.0.3`: LeRobot compatibility and dataset change control](docs/version-0.0.3.md),
+      centered on diagnostic outcome parity, readiness profiles, conservative
+      copy-on-write repair, merge safety, portable snapshots, and semantic diff
+- [ ] Later: read-only robomimic/HDF5 and RLDS/Open X adapters
+- [ ] Later: advanced episode-quality signals and any aggregate score only after
+      labeled downstream validation exists
 
 Audit codes are documented in [`docs/audit-findings.md`](docs/audit-findings.md).
+The research and differentiation decisions behind `0.0.3` are documented in
+[`docs/reference-libraries.md`](docs/reference-libraries.md).
 Canonical manifests use explicit `path_base`/`path_bases` fields; they never
 serialize private source paths. Symlinks are skipped by default, and even when
 `follow_symlinks=True` a target outside the dataset root is rejected.

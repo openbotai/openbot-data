@@ -13,6 +13,11 @@ does not call the Hosted OpenBot API.
 - [Audit finding codes](audit-findings.md): stable machine-readable validation
   codes and severities.
 - [0.0.2 release contract](version-0.0.2.md): scope and acceptance criteria.
+- [0.0.3 plan](version-0.0.3.md): LeRobot compatibility, readiness profiles,
+  verified remediation, merge safety, portable snapshots, semantic diff, and
+  release acceptance criteria.
+- [Reference libraries and differentiation](reference-libraries.md):
+  LeRobot, `lerobot-doctor`, `robovet`, and adjacent-library decisions.
 - [Canonical manifest](examples/manifest.json) and
   [canonical audit](examples/audit.json): complete JSON examples without local
   machine paths.
