@@ -46,6 +46,7 @@ def test_public_api_exports_expected_functions() -> None:
         "scan_directory",
         "scan_video",
         "export_catalog",
+        "build_catalog_evidence",
         "audit_dataset",
         "detect_input_format",
         "read_lerobot",

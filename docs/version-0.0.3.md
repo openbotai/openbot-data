@@ -1,6 +1,7 @@
 # OpenBot Data 0.0.3 — LeRobot Preflight and Dataset Change Control
 
-> Status: Planned; not implemented
+> Status: Planned overall; the `catalog-evidence-v1` handoff is implemented,
+> but the full `0.0.3` release gate is not complete
 > Baseline package: `0.0.2`
 > Primary compatibility target: `lerobot==0.6.0`, dataset format `v3.0`
 > Research: [reference libraries and differentiation](reference-libraries.md)
@@ -69,7 +70,8 @@ LeRobot tool instead of being reimplemented.
 - structured remediation plans and narrowly scoped copy-on-write repair;
 - before/after verification of delegated LeRobot operations;
 - evidence locations that another CLI, viewer, Catalog, or API can consume;
-- optional artifacts for later OpenBot Catalog and Hosted Data registration.
+- a versioned Catalog evidence handoff that OpenBot Catalog can score without
+  copying scoring rules into this package;
 
 ### OpenBot Data does not own
 
@@ -432,6 +434,120 @@ evidence — without presenting an uncalibrated universal 0–100 number as trut
 Any later aggregate score must be profile-specific, decomposable, versioned, and
 validated against labeled downstream outcomes.
 
+#### Scoring decision and Open Data Eval reference
+
+[Open Data Eval](https://github.com/Varun-Nair/open-data-eval) is an open-source
+evaluation project and interactive scorecard, not a peer-reviewed paper. Its
+progressive `metadata -> file -> frame -> content -> downstream` evidence
+model, explicit missing values, and declared-versus-observed file checks are
+useful references for future reporting.
+
+Its public scorecard helps users compare known catalog datasets. OpenBot Data
+`0.0.3` has a different primary job: determine whether an arbitrary local or
+revision-pinned robot dataset satisfies a declared format, policy, training, or
+publication contract. Therefore `0.0.3` does not add:
+
+- a dataset total score, percentage, grade, badge, leaderboard, or ranking;
+- general-purpose normalized dimension scores;
+- a scorecard-specific schema or an independent scoring scan;
+- a fixed use-case-fit percentage inferred only from modality presence.
+
+The required outputs remain deterministic findings, `READY`/`BLOCKED`/`PARTIAL`
+readiness, explicit scan coverage, raw advisory measurements, and evidence
+locations. A fatal compatibility issue cannot be averaged away by strong values
+in unrelated dimensions.
+
+`0.0.3` does not adopt its universal-looking presentation thresholds or
+metadata heuristics as OpenBot truth. In particular:
+
+- `30 FPS` or a `1080p` short edge does not by itself establish robot-training
+  quality;
+- video hours do not replace episode, transition, task, success, embodiment, or
+  environment coverage;
+- modality presence does not establish temporal alignment, semantic validity,
+  annotation accuracy, or policy compatibility;
+- pool-relative diversity and download-efficiency rankings are not stable
+  portable scores;
+- ISO/IEC 5259-2 field mappings are treated as design references, not
+  certification or evidence that the heuristic thresholds are calibrated.
+
+#### Shared dynamic scoring boundary with OpenBot Catalog
+
+The website and `openbot-data` must not maintain separate scoring formulas.
+`openbot-data` owns the dynamic audit evidence; the OpenBot Catalog API owns the
+only public score calculation.
+
+The `0.0.3` handoff is a versioned `catalog-evidence-v1` artifact derived from a
+completed audit. It carries:
+
+- immutable dataset identity and resolved Hub commit or local snapshot
+  fingerprint;
+- audit profile, rule-pack version, integrity level, checked time, and actual
+  coverage;
+- schema, manifest, signal, annotation, scale, sample, integrity, and
+  profile-readiness facts;
+- evidence maturity (`official_claim`, `metadata_verified`,
+  `sample_verified`, or `pipeline_tested`);
+- source/evidence locators and unresolved checks.
+
+It deliberately does not carry an Overall score or normalized dimension score.
+Catalog ingestion converts this evidence into a reviewable candidate and runs
+the server-owned `CatalogEvaluationV1` evaluator. Import, candidate edit, and
+publish must overwrite any caller-supplied evaluation.
+
+The dynamic lifecycle is:
+
+```text
+openbot-data audit or official-source refresh
+-> versioned facts/evidence
+-> Catalog candidate and server-side score recomputation
+-> human review and published revision
+-> website reads the published API evaluation
+```
+
+This makes a score change traceable to changed evidence, a rule-pack version,
+or a new reviewed revision. It does not permit a background scan to overwrite a
+published Catalog entry, and it does not change the canonical `openbot-data`
+`READY`/`BLOCKED`/`PARTIAL` audit result.
+
+The handoff implementation is available through:
+
+```bash
+openbot-data catalog-evidence ./dataset \
+  --dataset-id org/dataset \
+  --checked-at 2026-07-28T12:00:00Z \
+  --out catalog-evidence.json
+```
+
+and:
+
+```python
+from openbot_data import build_catalog_evidence
+
+evidence = build_catalog_evidence(
+    "./dataset",
+    dataset_id="org/dataset",
+    checked_at="2026-07-28T12:00:00Z",
+    output_path="catalog-evidence.json",
+)
+```
+
+The local handoff defaults to SHA-256 content identity, sanitizes the public
+source locator, and packages a Draft 2020-12 JSON Schema. A Hub handoff is
+accepted only with an immutable resolved revision. The evidence fingerprint
+excludes the audit timestamp but includes dataset identity, coverage, facts,
+findings, and unresolved checks. This lets the same evidence be refreshed
+without inventing a score change.
+
+For parity across Python and the Catalog API, the evidence fingerprint hashes a
+canonical typed tree rather than relying on one runtime's JSON number or object
+ordering behavior. Every value has a null, boolean, string, number, array, or
+object tag; object keys are sorted by UTF-8 bytes; safe integers use decimal
+strings; and non-integral numbers use IEEE-754 float64 big-endian hexadecimal
+bytes. Non-finite values and integers outside the JavaScript safe range are
+invalid evidence. The compact, non-ASCII-preserving JSON tree is hashed with
+SHA-256. The existing dataset manifest fingerprint remains unchanged.
+
 ### P0.10 Verified remediation and conservative repair
 
 Every actionable finding includes:
@@ -640,6 +756,13 @@ versions.
 - skipped capabilities and sample coverage cannot be rendered as `READY`;
 - deterministic blockers, empirical recommendations, and advisory quality
   signals are visually and structurally distinct;
+- no report or canonical artifact emits a dataset total score, normalized
+  dimension grade, badge, leaderboard rank, or modality-only fitness percentage;
+- the `catalog-evidence-v1` artifact is deterministic, contains
+  evidence and coverage rather than scores, and changes when a covered audited
+  fact changes;
+- Catalog handoff fixtures prove that caller-supplied evaluation fields are not
+  part of the `openbot-data` artifact contract;
 - every finding has a stable code, location, evidence, impact, fixability, and
   remediation reference;
 - structural findings are grouped by affected episode, frame range, feature,
@@ -749,11 +872,13 @@ Stable findings cover:
 6. Add revision-pinned Hub metadata resolution.
 7. Add readiness profiles, episode-level triage, canonical Markdown, and stable
    gate exit behavior.
-8. Add remediation plans and the conservative copy-on-write repair executor.
-9. Add merge compatibility and post-operation verification.
-10. Add official LeRobot 0.6.0 conformance, competitor-outcome comparison, and
+8. Add the deterministic `catalog-evidence-v1` handoff without adding a package
+   scoring formula.
+9. Add remediation plans and the conservative copy-on-write repair executor.
+10. Add merge compatibility and post-operation verification.
+11. Add official LeRobot 0.6.0 conformance, competitor-outcome comparison, and
     negative fixtures.
-11. Consider P1 only after the full release gate passes.
+12. Consider P1 only after the full release gate passes.
 
 ## References
 
@@ -768,6 +893,9 @@ Stable findings cover:
 - [Policy/dataset feature mismatch failure](https://github.com/huggingface/lerobot/issues/2731)
 - [`lerobot-doctor`](https://github.com/jashshah999/lerobot-doctor)
 - [`robovet`](https://github.com/RonaldSit/robovet)
+- [Open Data Eval scorecard](https://varun-nair.github.io/open-data-eval/scorecard/)
+- [Open Data Eval metadata evaluator](https://github.com/Varun-Nair/open-data-eval/blob/main/eval/metadata_eval.py)
+- [Open Data Eval file evaluator](https://github.com/Varun-Nair/open-data-eval/blob/main/eval/file_eval.py)
 - [Auditing action-only demonstration curation metrics](https://arxiv.org/abs/2606.05588)
 - [Demo-SCORE](https://arxiv.org/abs/2503.03707)
 - [robomimic datasets](https://robomimic.github.io/docs/datasets/overview.html)

@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/catalog-evidence-v1.json",
+  "title": "OpenBot Catalog Evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset",
+    "audit",
+    "tool",
+    "checked_at",
+    "evidence_maturity",
+    "coverage",
+    "facts",
+    "findings",
+    "unresolved_checks",
+    "evidence_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {"const": "catalog-evidence-v1"},
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_kind",
+        "source_locator",
+        "resolved_revision",
+        "snapshot_fingerprint"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "source_kind": {"enum": ["local", "hf_hub"]},
+        "source_locator": {"type": "string", "minLength": 1},
+        "resolved_revision": {"type": ["string", "null"]},
+        "snapshot_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "profile_id",
+        "rule_pack_version",
+        "integrity_level"
+      ],
+      "properties": {
+        "schema_version": {"const": "openbot.dataset_audit.v1"},
+        "profile_id": {"type": "string", "minLength": 1},
+        "rule_pack_version": {"type": "string", "minLength": 1},
+        "integrity_level": {"enum": ["metadata", "sample", "full"]}
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "openbot-data"},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "checked_at": {"type": "string", "format": "date-time"},
+    "evidence_maturity": {
+      "enum": [
+        "official_claim",
+        "metadata_verified",
+        "sample_verified",
+        "pipeline_tested"
+      ]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["integrity_level", "checksum", "episodes", "videos", "capabilities"],
+      "properties": {
+        "integrity_level": {"enum": ["metadata", "sample", "full"]},
+        "checksum": {"enum": ["sha256", null]},
+        "episodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["discovered", "with_declared_length"],
+          "properties": {
+            "discovered": {"type": "integer", "minimum": 0},
+            "with_declared_length": {"type": "integer", "minimum": 0}
+          }
+        },
+        "videos": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "discovered",
+            "metadata_checked",
+            "decode_checked",
+            "decode_passed",
+            "checksummed",
+            "declared_frames",
+            "decoded_frames"
+          ],
+          "properties": {
+            "discovered": {"type": "integer", "minimum": 0},
+            "metadata_checked": {"type": "integer", "minimum": 0},
+            "decode_checked": {"type": "integer", "minimum": 0},
+            "decode_passed": {"type": "integer", "minimum": 0},
+            "checksummed": {"type": "integer", "minimum": 0},
+            "declared_frames": {"type": "integer", "minimum": 0},
+            "decoded_frames": {"type": "integer", "minimum": 0}
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dataset_discovery",
+            "media_metadata",
+            "media_decode",
+            "content_checksum",
+            "policy_readiness",
+            "annotation_quality",
+            "downstream_pipeline"
+          ],
+          "properties": {
+            "dataset_discovery": {"$ref": "#/$defs/capabilityStatus"},
+            "media_metadata": {"$ref": "#/$defs/capabilityStatus"},
+            "media_decode": {"$ref": "#/$defs/capabilityStatus"},
+            "content_checksum": {"$ref": "#/$defs/capabilityStatus"},
+            "policy_readiness": {"$ref": "#/$defs/capabilityStatus"},
+            "annotation_quality": {"$ref": "#/$defs/capabilityStatus"},
+            "downstream_pipeline": {"$ref": "#/$defs/capabilityStatus"}
+          }
+        }
+      }
+    },
+    "facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset.schema",
+        "repository.manifest_files",
+        "dataset.signals",
+        "dataset.annotation_fields",
+        "dataset.scale",
+        "dataset.sample",
+        "dataset.integrity",
+        "dataset.profile_readiness"
+      ],
+      "properties": {
+        "dataset.schema": {"$ref": "#/$defs/fact"},
+        "repository.manifest_files": {"$ref": "#/$defs/fact"},
+        "dataset.signals": {"$ref": "#/$defs/fact"},
+        "dataset.annotation_fields": {"$ref": "#/$defs/fact"},
+        "dataset.scale": {"$ref": "#/$defs/fact"},
+        "dataset.sample": {"$ref": "#/$defs/fact"},
+        "dataset.integrity": {"$ref": "#/$defs/fact"},
+        "dataset.profile_readiness": {"$ref": "#/$defs/fact"}
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/finding"}
+    },
+    "unresolved_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "reason", "required_for"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1},
+          "required_for": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "evidence_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "capabilityStatus": {
+      "enum": ["complete", "partial", "skipped", "unavailable"]
+    },
+    "evidenceLevel": {
+      "enum": [
+        "official_claim",
+        "metadata_verified",
+        "sample_verified",
+        "pipeline_tested"
+      ]
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "evidence_level", "source_locator"],
+      "properties": {
+        "value": true,
+        "evidence_level": {"$ref": "#/$defs/evidenceLevel"},
+        "source_locator": {"type": "string", "minLength": 1}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["code", "severity", "message", "evidence"],
+      "properties": {
+        "code": {"type": "string"},
+        "severity": {"enum": ["error", "warning", "info"]},
+        "message": {"type": "string"},
+        "path": {"type": "string"},
+        "evidence": {"type": "object"}
+      }
+    }
+  }
+}

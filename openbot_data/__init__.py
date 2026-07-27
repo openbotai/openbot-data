@@ -12,6 +12,7 @@ except PackageNotFoundError:  # pragma: no cover - raw source tree without insta
     __version__ = "0+unknown"
 
 from openbot_data.catalog import export_catalog
+from openbot_data.catalog_evidence import build_catalog_evidence
 from openbot_data.errors import DatasetArgumentError, DatasetNotFoundError, OpenBotDataError
 from openbot_data.extract import (
     build_contact_sheets,
@@ -37,6 +38,7 @@ __all__ = [
     "build_contact_sheets",
     "inspect_dataset",
     "export_catalog",
+    "build_catalog_evidence",
     "audit_dataset",
     "detect_input_format",
     "read_lerobot",

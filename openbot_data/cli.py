@@ -8,6 +8,11 @@ from typing import Optional
 import typer
 
 from openbot_data.catalog import SUPPORTED_FORMATS, export_catalog
+from openbot_data.catalog_evidence import (
+    CATALOG_EVIDENCE_PROFILE,
+    build_catalog_evidence,
+)
+from openbot_data.errors import OpenBotDataError
 from openbot_data.extract import inspect_dataset
 from openbot_data.preflight import audit_dataset
 from openbot_data.serialization import write_json_atomic
@@ -167,6 +172,79 @@ def catalog(
     typer.echo(f"Catalog exported to {result['output_path']}")
     typer.echo(f"  format: {result['format']}")
     typer.echo(f"  videos: {result['total_videos']}")
+
+
+@app.command("catalog-evidence")
+def catalog_evidence(
+    dataset_dir: str = typer.Argument(..., help="Local dataset or revision-pinned checkout"),
+    dataset_id: str = typer.Option(..., "--dataset-id", help="Portable Catalog dataset ID"),
+    checked_at: str = typer.Option(
+        ...,
+        "--checked-at",
+        help="Timezone-aware RFC 3339 time for the completed audit",
+    ),
+    output: str = typer.Option(..., "--out", "-o", help="Output evidence JSON path"),
+    source_kind: str = typer.Option(
+        "local",
+        "--source-kind",
+        help="Source kind: local or hf_hub",
+    ),
+    source_locator: Optional[str] = typer.Option(
+        None,
+        "--source-locator",
+        help="Portable public source locator; absolute local paths are rejected",
+    ),
+    resolved_revision: Optional[str] = typer.Option(
+        None,
+        "--resolved-revision",
+        help="Immutable resolved Hub revision; required for hf_hub",
+    ),
+    input_format: str = typer.Option(
+        "auto",
+        "--format",
+        "-f",
+        help="Input format: auto, video, or lerobot",
+    ),
+    integrity: str = typer.Option(
+        "sample",
+        "--integrity",
+        help="Decode validation: metadata, sample, or full",
+    ),
+    profile_id: str = typer.Option(
+        CATALOG_EVIDENCE_PROFILE,
+        "--profile",
+        help="Versioned audit profile identifier",
+    ),
+    follow_symlinks: bool = typer.Option(
+        False,
+        "--follow-symlinks",
+        help="Allow media symlinks that still resolve inside the dataset root",
+    ),
+):
+    """Write score-free audit evidence for server-side Catalog evaluation."""
+    try:
+        result = build_catalog_evidence(
+            dataset_dir,
+            dataset_id=dataset_id,
+            checked_at=checked_at,
+            source_kind=source_kind,
+            source_locator=source_locator,
+            resolved_revision=resolved_revision,
+            input_format=input_format,
+            checksum="sha256",
+            integrity=integrity,
+            follow_symlinks=follow_symlinks,
+            profile_id=profile_id,
+            output_path=output,
+        )
+    except (OpenBotDataError, ValueError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    readiness = result["facts"]["dataset.profile_readiness"]["value"]["status"]
+    typer.echo(f"Catalog evidence saved to {output}")
+    typer.echo(f"  evidence maturity: {result['evidence_maturity']}")
+    typer.echo(f"  profile readiness: {readiness}")
+    typer.echo(f"  evidence fingerprint: {result['evidence_fingerprint']}")
 
 
 @app.command()

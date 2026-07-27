@@ -12,6 +12,7 @@ def schema_path(name: str) -> AbstractContextManager[Path]:
     supported = {
         "manifest": "dataset-manifest-v1.schema.json",
         "audit": "dataset-audit-v1.schema.json",
+        "catalog_evidence": "catalog-evidence-v1.schema.json",
     }
     try:
         filename = supported[name]
