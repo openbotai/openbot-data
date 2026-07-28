@@ -38,6 +38,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - run: python -m pip install -e ".[dev,lerobot,hub]"
       - run: python -m pip install "lerobot[dataset]==0.6.0"
       - run: pytest -q tests/test_official_lerobot_conformance.py
