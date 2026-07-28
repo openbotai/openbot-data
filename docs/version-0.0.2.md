@@ -20,9 +20,9 @@ The package remains a local inspection tool. Hosted uploads, asynchronous jobs,
 private artifacts, review, and billing belong to the OpenBot API and
 `openbot-sdk`.
 
-## Current `0.0.1.post2` baseline
+## `0.0.1.post2` baseline carried into `0.0.2`
 
-The current package already provides:
+Before `0.0.2`, the package already provided:
 
 - recursive robot-video discovery and basic video metadata;
 - validity checks for readable frames, dimensions, FPS, and duration;

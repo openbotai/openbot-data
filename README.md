@@ -19,7 +19,9 @@ evaluation.
 pip install openbot-data
 ```
 
-Requires Python 3.9+.
+PyPI currently installs the released `0.0.2` package. The source tree is the
+`0.0.3` release candidate: its P0 interfaces and local release gates pass, but it
+has not been published. Requires Python 3.9+.
 
 ## Runnable demo
 
@@ -48,6 +50,13 @@ one immutable `DatasetSnapshot` across both renderers.
 - **Export dataset catalogs** — JSON or CSV for dataset registries, documentation, and SEO-friendly catalog pages.
 - **Discover local LeRobot data** — read-only episode and video-stream discovery for v2.1/v3 layouts.
 - **Audit before training or upload** — stable error/warning codes without an uncalibrated quality score.
+- **Snapshot and diff datasets** — portable component fingerprints and semantic change classes.
+- **Gate ACT and SmolVLA readiness** — distinguish `READY`, `BLOCKED`, and incomplete `PARTIAL` evidence.
+- **Audit pinned Hub revisions** — resolve branches/tags to immutable commits under hard download budgets.
+- **Repair conservatively** — plan and apply only unambiguous derived metadata changes to a new copy.
+- **Verify official merges** — check compatibility before merge, then reconcile lineage, loader, audit, and diff evidence.
+- **Hand off score-free Catalog evidence** — emit versioned facts, coverage,
+  findings, and unresolved checks for server-side evaluation.
 
 ## CLI
 
@@ -89,11 +98,59 @@ openbot-data catalog ./robot_videos --out ./catalog.csv --format csv
 The catalog is designed to be checked into GitHub or linked from a dataset registry
 page such as [OpenBot.ai Datasets](https://openbot.ai/datasets).
 
+### Build Catalog evidence from a completed local audit
+
+```bash
+openbot-data catalog-evidence ./robot_videos \
+  --dataset-id org/dataset \
+  --checked-at 2026-07-28T12:00:00Z \
+  --out ./catalog-evidence.json
+```
+
+The artifact contains no Overall score or normalized dimension score. OpenBot
+Catalog remains responsible for evaluation, review, and publication.
+
+### Snapshot, diff, and readiness
+
+```bash
+openbot-data snapshot ./lerobot_dataset \
+  --format lerobot --integrity full --out ./dataset.snapshot.json
+
+openbot-data diff ./baseline.snapshot.json ./dataset.snapshot.json \
+  --out ./dataset.diff.json --fail-on breaking
+
+openbot-data readiness ./lerobot_dataset \
+  --profile lerobot-smolvla --integrity full \
+  --out ./readiness.json --markdown ./readiness.md
+```
+
+### Repair and merge verification
+
+```bash
+openbot-data repair plan ./dataset --integrity full --out ./repair.plan.json
+openbot-data repair apply ./dataset \
+  --plan ./repair.plan.json --output ./dataset.repaired
+
+openbot-data merge-check ./dataset-a ./dataset-b --out ./merge.plan.json
+openbot-data verify-merge ./merged \
+  --input ./dataset-a.snapshot.json \
+  --input ./dataset-b.snapshot.json \
+  --operation-record ./official-operation.json \
+  --out ./merge.receipt.json
+```
+
+Physical merge stays with `lerobot-edit-dataset` from
+`lerobot[dataset]==0.6.0`; OpenBot only plans and verifies it.
+
 ## Python API
 
 ```python
 from openbot_data import (
     audit_dataset,
+    build_catalog_evidence,
+    build_dataset_snapshot,
+    diff_dataset_snapshots,
+    evaluate_dataset_readiness,
     export_catalog,
     inspect_dataset,
     prepare_dataset,
@@ -129,6 +186,27 @@ audit = audit_dataset("./robot_videos", snapshot=snapshot)
 # Discover episodes and camera streams in a local LeRobot repository
 lerobot = read_lerobot("./lerobot_dataset")
 
+# Produce score-free evidence for server-side Catalog evaluation
+evidence = build_catalog_evidence(
+    "./robot_videos",
+    dataset_id="org/dataset",
+    checked_at="2026-07-28T12:00:00Z",
+    output_path="./catalog-evidence.json",
+)
+
+portable = build_dataset_snapshot(
+    "./lerobot_dataset",
+    input_format="lerobot",
+    integrity="full",
+)
+readiness = evaluate_dataset_readiness(
+    "./lerobot_dataset",
+    profile="lerobot-act",
+    integrity="full",
+    dataset_snapshot=portable,
+)
+change = diff_dataset_snapshots(portable, portable)
+
 # Packaged JSON Schemas are stable independently of the package version
 with schema_path("manifest") as manifest_schema:
     print(manifest_schema)
@@ -161,11 +239,14 @@ and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
 
 ## Status
 
-OpenBot Data is an early local Python toolkit. Hosted upload, annotation, review,
-export, billing, Workers, and Container infrastructure belong to the main
-[OpenBot](https://github.com/openbotai/OpenBot) product repository. Use the
-separate [`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package to call
-the hosted API.
+The released PyPI package is `0.0.2`; the current source version is `0.0.3` and
+its local release gate passes. No tag, GitHub Release, or PyPI publication has
+been performed. OpenBot Data remains an early local Python toolkit. Hosted upload,
+annotation, review, export, billing, Workers, and Container infrastructure
+belong to the main [OpenBot](https://github.com/openbotai/OpenBot) product
+repository. Use the separate
+[`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package to call the
+hosted API.
 
 ## Roadmap
 
@@ -175,9 +256,13 @@ the hosted API.
 - [x] JSON/CSV catalog export
 - [x] [`0.0.2`: local dataset preflight](docs/version-0.0.2.md), including a
       versioned manifest, deterministic audit findings, and local LeRobot discovery
-- [ ] [`0.0.3`: LeRobot compatibility and dataset change control](docs/version-0.0.3.md),
-      centered on diagnostic outcome parity, readiness profiles, conservative
-      copy-on-write repair, merge safety, portable snapshots, and semantic diff
+- [x] [`0.0.3`: LeRobot compatibility and dataset change control](docs/version-0.0.3.md),
+      with correctness closure, explicit v2.1/v3 adapters, layered validation,
+      portable snapshots, semantic diff, revision-pinned Hub audit, readiness
+      profiles, evidence triage, conservative repair, and merge verification.
+      P0 interfaces, the package version, clean install, Python matrix,
+      artifacts, official conformance, and local release checks pass. Public
+      release remains a separate explicit action.
 - [ ] Later: read-only robomimic/HDF5 and RLDS/Open X adapters
 - [ ] Later: advanced episode-quality signals and any aggregate score only after
       labeled downstream validation exists

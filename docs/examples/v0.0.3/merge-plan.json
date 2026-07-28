@@ -1,0 +1,410 @@
+{
+  "checks": [
+    {
+      "check": "format_and_version",
+      "evidence": {
+        "adapters": [
+          "lerobot_v30",
+          "lerobot_v30"
+        ],
+        "compatibility_targets": [
+          "lerobot==0.6.0",
+          "lerobot==0.6.0"
+        ],
+        "dataset_format_versions": [
+          "v3.0",
+          "v3.0"
+        ],
+        "input_formats": [
+          "lerobot",
+          "lerobot"
+        ]
+      },
+      "status": "direct",
+      "summary": "All inputs use one verified LeRobot storage contract."
+    },
+    {
+      "check": "features",
+      "evidence": {
+        "feature_keys": [
+          [
+            "action",
+            "episode_index",
+            "frame_index",
+            "index",
+            "observation.state",
+            "task_index",
+            "timestamp"
+          ],
+          [
+            "action",
+            "episode_index",
+            "frame_index",
+            "index",
+            "observation.state",
+            "task_index",
+            "timestamp"
+          ]
+        ],
+        "mismatches": []
+      },
+      "status": "direct",
+      "summary": "Feature keys, dtypes, shapes, and declared semantics agree."
+    },
+    {
+      "check": "action_state_contract",
+      "evidence": {
+        "conflicts": [],
+        "missing": [],
+        "roles": {
+          "action": [
+            {
+              "features": {
+                "action": {
+                  "coordinates": {
+                    "info.coordinate_system": "joint"
+                  },
+                  "names": [
+                    "joint_a",
+                    "joint_b"
+                  ],
+                  "normalization": {
+                    "info.normalization": "mean_std"
+                  }
+                }
+              },
+              "top_coordinates": {},
+              "top_normalization": {}
+            },
+            {
+              "features": {
+                "action": {
+                  "coordinates": {
+                    "info.coordinate_system": "joint"
+                  },
+                  "names": [
+                    "joint_a",
+                    "joint_b"
+                  ],
+                  "normalization": {
+                    "info.normalization": "mean_std"
+                  }
+                }
+              },
+              "top_coordinates": {},
+              "top_normalization": {}
+            }
+          ],
+          "state": [
+            {
+              "features": {
+                "observation.state": {
+                  "coordinates": {
+                    "info.coordinate_system": "joint"
+                  },
+                  "names": [
+                    "joint_a",
+                    "joint_b"
+                  ],
+                  "normalization": {
+                    "info.normalization": "mean_std"
+                  }
+                }
+              },
+              "top_coordinates": {},
+              "top_normalization": {}
+            },
+            {
+              "features": {
+                "observation.state": {
+                  "coordinates": {
+                    "info.coordinate_system": "joint"
+                  },
+                  "names": [
+                    "joint_a",
+                    "joint_b"
+                  ],
+                  "normalization": {
+                    "info.normalization": "mean_std"
+                  }
+                }
+              },
+              "top_coordinates": {},
+              "top_normalization": {}
+            }
+          ]
+        }
+      },
+      "status": "direct",
+      "summary": "Action and state coordinate/normalization contracts agree."
+    },
+    {
+      "check": "timing_and_media",
+      "evidence": {
+        "cameras": [
+          [],
+          []
+        ],
+        "codec": [
+          {},
+          {}
+        ],
+        "conflicts": [],
+        "delta_horizons": [
+          {},
+          {}
+        ],
+        "fps": [
+          10.0,
+          10.0
+        ],
+        "missing": [],
+        "transforms": []
+      },
+      "status": "direct",
+      "summary": "FPS, horizons, cameras, codec metadata, and media coverage agree."
+    },
+    {
+      "check": "tasks",
+      "evidence": {
+        "normalized_tasks": [
+          [
+            "pick cube"
+          ],
+          [
+            "place cube"
+          ]
+        ],
+        "task_remap": {},
+        "tasks": [
+          [
+            "pick cube"
+          ],
+          [
+            "place cube"
+          ]
+        ]
+      },
+      "status": "direct",
+      "summary": "Task identities can be unioned without remapping."
+    },
+    {
+      "check": "embodiment",
+      "evidence": {
+        "embodiments": [
+          "openbot-test-arm",
+          "openbot-test-arm"
+        ]
+      },
+      "status": "direct",
+      "summary": "Robot or embodiment provenance agrees."
+    },
+    {
+      "check": "duplicates",
+      "evidence": {
+        "content_digest_counts": [
+          1,
+          1
+        ],
+        "missing_checksums": [],
+        "overlaps": [],
+        "snapshot_fingerprints": [
+          "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+          "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88"
+        ]
+      },
+      "status": "direct",
+      "summary": "No exact duplicate input payload was found."
+    },
+    {
+      "check": "index_shard_video_collisions",
+      "evidence": {
+        "cross_input_episode_index_overlap": [
+          {
+            "indexes": [
+              0
+            ],
+            "left_input": 1,
+            "right_input": 2
+          }
+        ],
+        "cross_input_path_overlap": [
+          {
+            "group": "data",
+            "left_input": 1,
+            "paths": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "right_input": 2
+          }
+        ],
+        "inputs": [
+          {
+            "contiguous": true,
+            "duplicate_indexes": [],
+            "duplicate_paths": {},
+            "episode_indexes": [
+              0
+            ],
+            "expected_total": 1,
+            "input": 1,
+            "malformed_video_ranges": [],
+            "video_range_collisions": []
+          },
+          {
+            "contiguous": true,
+            "duplicate_indexes": [],
+            "duplicate_paths": {},
+            "episode_indexes": [
+              0
+            ],
+            "expected_total": 1,
+            "input": 2,
+            "malformed_video_ranges": [],
+            "video_range_collisions": []
+          }
+        ],
+        "official_tool_reindexes_output": true
+      },
+      "status": "direct",
+      "summary": "Input indexes and ranges are internally valid; the official tool will reindex."
+    },
+    {
+      "check": "license",
+      "evidence": {
+        "licenses": [
+          null,
+          null
+        ],
+        "profile": "lerobot-act"
+      },
+      "status": "direct",
+      "summary": "The selected non-publication profile does not assert license compatibility."
+    },
+    {
+      "check": "source_lineage",
+      "evidence": {
+        "duplicate_source_identities": [],
+        "sources": [
+          {
+            "kind": "local",
+            "locator": "dataset://.",
+            "requested_revision": null,
+            "resolved_revision": null
+          },
+          {
+            "kind": "local",
+            "locator": "dataset://.",
+            "requested_revision": null,
+            "resolved_revision": null
+          }
+        ]
+      },
+      "status": "direct",
+      "summary": "Input source identities are distinct and traceable by snapshot fingerprint."
+    }
+  ],
+  "decision": "direct",
+  "fingerprint_version": "openbot.dataset_merge_plan.fingerprint.v1",
+  "inputs": [
+    {
+      "format": {
+        "adapter": "lerobot_v30",
+        "dataset_format_version": "v3.0",
+        "input_format": "lerobot"
+      },
+      "ordinal": 1,
+      "snapshot_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+      "source": {
+        "kind": "local",
+        "locator": "dataset://.",
+        "requested_revision": null,
+        "resolved_revision": null
+      },
+      "totals": {
+        "data_shards": 1,
+        "duration_seconds": 0.2,
+        "episodes": 1,
+        "features": 7,
+        "frames": 2,
+        "media_shards": 0,
+        "metadata_shards": 3,
+        "size_bytes": 6717,
+        "tasks": 1,
+        "video_streams": 0
+      }
+    },
+    {
+      "format": {
+        "adapter": "lerobot_v30",
+        "dataset_format_version": "v3.0",
+        "input_format": "lerobot"
+      },
+      "ordinal": 2,
+      "snapshot_fingerprint": "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88",
+      "source": {
+        "kind": "local",
+        "locator": "dataset://.",
+        "requested_revision": null,
+        "resolved_revision": null
+      },
+      "totals": {
+        "data_shards": 1,
+        "duration_seconds": 0.2,
+        "episodes": 1,
+        "features": 7,
+        "frames": 2,
+        "media_shards": 0,
+        "metadata_shards": 3,
+        "size_bytes": 6727,
+        "tasks": 1,
+        "video_streams": 0
+      }
+    }
+  ],
+  "official_operation": {
+    "command": [
+      "uvx",
+      "--from",
+      "lerobot[dataset]==0.6.0",
+      "lerobot-edit-dataset",
+      "--new_repo_id",
+      "OPENBOT_MERGED_OUTPUT",
+      "--new_root",
+      "OPENBOT_MERGED_ROOT",
+      "--operation.type",
+      "merge",
+      "--operation.repo_ids",
+      "[\"OPENBOT_INPUT_001\",\"OPENBOT_INPUT_002\"]",
+      "--operation.roots",
+      "[\"OPENBOT_INPUT_ROOT_001\",\"OPENBOT_INPUT_ROOT_002\"]",
+      "--push_to_hub",
+      "false"
+    ],
+    "input_ids": [
+      "OPENBOT_INPUT_001",
+      "OPENBOT_INPUT_002"
+    ],
+    "operation": "merge",
+    "output_id": "OPENBOT_MERGED_OUTPUT",
+    "package": "lerobot==0.6.0",
+    "preconditions_satisfied": true,
+    "tool": "lerobot-edit-dataset",
+    "will_execute": false
+  },
+  "plan_fingerprint": "3b346cf1297101f436a674b978be15a6d3a9077eac686e66cbef2f72b8592802",
+  "profile": "lerobot-act",
+  "schema_version": "openbot.dataset_merge_plan.v1",
+  "summary": {
+    "checks": 10,
+    "direct": 10,
+    "incompatible": 0,
+    "transform_required": 0,
+    "unknown": 0
+  },
+  "task_remap": {},
+  "tool": {
+    "name": "openbot-data",
+    "version": "0.0.2"
+  }
+}

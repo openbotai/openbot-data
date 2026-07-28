@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_merge_receipt.v1.json",
+  "title": "OpenBot Dataset Merge Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fingerprint_version",
+    "profile",
+    "verification_status",
+    "summary",
+    "input_snapshots",
+    "merge_plan",
+    "official_operation",
+    "post_snapshot",
+    "post_audit",
+    "loader_smoke",
+    "lineage",
+    "semantic_diffs",
+    "checks",
+    "tool",
+    "receipt_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {"const": "openbot.dataset_merge_receipt.v1"},
+    "fingerprint_version": {
+      "const": "openbot.dataset_merge_receipt.fingerprint.v1"
+    },
+    "profile": {"type": "string", "minLength": 1},
+    "verification_status": {"enum": ["verified", "unverified"]},
+    "summary": {"$ref": "#/$defs/receiptSummary"},
+    "input_snapshots": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "#/$defs/snapshot"}
+    },
+    "merge_plan": {"$ref": "#/$defs/mergePlan"},
+    "official_operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recorded", "record"],
+      "properties": {
+        "recorded": {"type": "boolean"},
+        "record": {"type": ["object", "null"]}
+      }
+    },
+    "post_snapshot": {"$ref": "#/$defs/snapshot"},
+    "post_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requested_integrity", "report"],
+      "properties": {
+        "status": {"$ref": "#/$defs/checkStatus"},
+        "requested_integrity": {"const": "full"},
+        "report": {"type": ["object", "null"]},
+        "error": {"type": "string", "minLength": 1}
+      }
+    },
+    "loader_smoke": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"$ref": "#/$defs/checkStatus"},
+        "evidence": true
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "expected", "recorded"],
+      "properties": {
+        "status": {"$ref": "#/$defs/checkStatus"},
+        "expected": {"type": "object"},
+        "recorded": {"type": ["object", "null"]},
+        "mismatches": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "semantic_diffs": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/verificationCheck"}
+    },
+    "tool": {"$ref": "#/$defs/tool"},
+    "receipt_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "checkStatus": {"enum": ["passed", "failed", "unverified"]},
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "openbot-data"},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "receiptSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checks", "passed", "failed", "unverified"],
+      "properties": {
+        "checks": {"type": "integer", "minimum": 1},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0}
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "required": ["schema_version", "snapshot_fingerprint"],
+      "properties": {
+        "schema_version": {"const": "openbot.dataset_snapshot.v1"},
+        "snapshot_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "mergePlan": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "decision",
+        "plan_fingerprint",
+        "official_operation"
+      ],
+      "properties": {
+        "schema_version": {"const": "openbot.dataset_merge_plan.v1"},
+        "decision": {
+          "enum": ["direct", "transform_required", "incompatible", "unknown"]
+        },
+        "plan_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "official_operation": {
+          "type": "object",
+          "required": ["will_execute"],
+          "properties": {"will_execute": {"const": false}}
+        }
+      }
+    },
+    "verificationCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "status", "summary", "evidence"],
+      "properties": {
+        "check": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/checkStatus"},
+        "summary": {"type": "string", "minLength": 1},
+        "evidence": {"type": "object"}
+      }
+    }
+  }
+}

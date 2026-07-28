@@ -1,0 +1,363 @@
+{
+  "advisory_signals": [],
+  "audit_rule_pack_version": "openbot.dataset_audit.rules.v1",
+  "blocking_findings": [],
+  "coverage": {
+    "capabilities": [
+      {
+        "capability": "advisory.measurements",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "alignment.data_relations",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "alignment.episode_ranges",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "alignment.task_foreign_keys",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "alignment.timestamps",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "alignment.video_relations",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "content.checksum",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "data.indexes",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "data.inventory",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "data.parquet_footer",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "data.parquet_rows",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "data.parquet_schema",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "format.contract",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "media.declared_contract",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "media.decode",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "media.inventory",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "media.metadata",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 0
+      },
+      {
+        "capability": "metadata.episode_indexes",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "meta/episodes/chunk-000/file-000.parquet"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "metadata.episodes",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "metadata.info",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "metadata.stats",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [],
+        "reason": "Optional file missing.",
+        "reason_code": "optional_file_missing",
+        "selected": [],
+        "status": "unavailable",
+        "total": 1
+      },
+      {
+        "capability": "metadata.tasks",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "metadata.totals",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [
+          "meta/info.json"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "source.identity",
+        "checked": 1,
+        "integrity": "full",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "stats.recomputed",
+        "checked": 2,
+        "integrity": "full",
+        "omitted": [],
+        "reason": "Statistics were recomputed but no stored values exist to compare.",
+        "reason_code": "stored_stats_unavailable",
+        "selected": [
+          "action",
+          "observation.state"
+        ],
+        "status": "partial",
+        "total": 2
+      },
+      {
+        "capability": "stats.stored",
+        "checked": 0,
+        "integrity": "full",
+        "omitted": [
+          "meta/stats.json"
+        ],
+        "reason": "Optional normalization statistics are absent.",
+        "reason_code": "optional_file_missing",
+        "selected": [],
+        "status": "unavailable",
+        "total": 1
+      }
+    ],
+    "missing_capabilities": [],
+    "requested_integrity": "full",
+    "required_integrity": "full",
+    "selection": {
+      "cameras": [],
+      "data_shards": [
+        "data/chunk-000/file-000.parquet"
+      ],
+      "episodes": [
+        0
+      ],
+      "media_shards": [],
+      "metadata_shards": [
+        "meta/episodes/chunk-000/file-000.parquet",
+        "meta/info.json",
+        "meta/tasks.parquet"
+      ]
+    },
+    "totals": {
+      "cameras": 0,
+      "data_shards": 1,
+      "episodes": 1,
+      "media_shards": 0,
+      "metadata_shards": 3
+    }
+  },
+  "fingerprint_version": "openbot.dataset_readiness.fingerprint.v1",
+  "profile": {
+    "contract_source": "built_in",
+    "id": "lerobot-core",
+    "metadata_source": "snapshot_format_metadata",
+    "source_reference": "https://huggingface.co/docs/lerobot/v0.6.0/en/lerobot-dataset-v3",
+    "source_version": "lerobot==0.6.0",
+    "version": "1"
+  },
+  "readiness_fingerprint": "e7f19d55ba62080ec8516d9d6e7d2d6ca1c4fc1323916764fd7c1eda65a8e5c1",
+  "remediation": [
+    "openbot://remediation/LEROBOT_STATS_MISSING"
+  ],
+  "schema_version": "openbot.dataset_readiness.v1",
+  "snapshot_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+  "status": "READY",
+  "tool": {
+    "name": "openbot-data",
+    "version": "0.0.2"
+  },
+  "triage": [
+    {
+      "advisories": [],
+      "blocking_findings": [],
+      "group": {
+        "kind": "shard",
+        "location": {
+          "path": "meta/stats.json"
+        }
+      },
+      "warnings": [
+        {
+          "code": "LEROBOT_STATS_MISSING",
+          "evidence": {
+            "required_by_base_loader": false
+          },
+          "fixability": "manual",
+          "impact": "normalization_contract_is_unverified",
+          "layer": "metadata",
+          "location": {},
+          "message": "Optional normalization statistics are missing.",
+          "path": "meta/stats.json",
+          "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+          "rule_id": "lerobot.stats.missing",
+          "severity": "warning"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "code": "LEROBOT_STATS_MISSING",
+      "evidence": {
+        "required_by_base_loader": false
+      },
+      "fixability": "manual",
+      "impact": "normalization_contract_is_unverified",
+      "layer": "metadata",
+      "location": {},
+      "message": "Optional normalization statistics are missing.",
+      "path": "meta/stats.json",
+      "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+      "rule_id": "lerobot.stats.missing",
+      "severity": "warning"
+    }
+  ]
+}

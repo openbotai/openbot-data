@@ -1,0 +1,32 @@
+{
+  "baseline_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+  "candidate_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+  "changes": [],
+  "classification": "unchanged",
+  "component_status": {
+    "coverage": "unchanged",
+    "data_inventory": "unchanged",
+    "episodes": "unchanged",
+    "features": "unchanged",
+    "format": "unchanged",
+    "media_inventory": "unchanged",
+    "metadata_inventory": "unchanged",
+    "source": "unchanged",
+    "tasks": "unchanged",
+    "totals": "unchanged",
+    "video_streams": "unchanged"
+  },
+  "diff_fingerprint": "94be62e8d067688d5d4e64acbb60cd25661c2b247f66bf9e08b215ad75c7fe0d",
+  "fingerprint_version": "openbot.dataset_diff.fingerprint.v1",
+  "schema_version": "openbot.dataset_diff.v1",
+  "summary": {
+    "breaking": 0,
+    "changes": 0,
+    "material": 0,
+    "non_breaking": 0
+  },
+  "tool": {
+    "name": "openbot-data",
+    "version": "0.0.2"
+  }
+}

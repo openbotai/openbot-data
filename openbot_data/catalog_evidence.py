@@ -5,28 +5,35 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import struct
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import unquote, urlsplit, urlunsplit
 
 from openbot_data import __version__
+from openbot_data.audit import AUDIT_RULE_PACK_VERSION
 from openbot_data.models import DatasetSnapshot
 from openbot_data.preflight import (
-    AUDIT_SCHEMA_VERSION,
-    MANIFEST_SCHEMA_VERSION,
     audit_dataset,
-    dataset_fingerprint,
     prepare_dataset,
 )
+from openbot_data.readiness import evaluate_dataset_readiness
 from openbot_data.serialization import write_json_atomic
+from openbot_data.snapshot import build_dataset_snapshot
 
 CATALOG_EVIDENCE_SCHEMA_VERSION = "catalog-evidence-v1"
-CATALOG_EVIDENCE_PROFILE = "openbot-data-catalog-handoff-v1"
-CATALOG_EVIDENCE_RULE_PACK = AUDIT_SCHEMA_VERSION
+CATALOG_EVIDENCE_PROFILE = "lerobot-core"
+CATALOG_EVIDENCE_RULE_PACK = AUDIT_RULE_PACK_VERSION
 SUPPORTED_SOURCE_KINDS = {"local", "hf_hub"}
 JS_SAFE_INTEGER_MAX = (2**53) - 1
+_HUB_COMMIT = re.compile(r"^[a-f0-9]{40}$")
+_HF_ACCESS_TOKEN = re.compile(r"hf_[A-Za-z0-9]{16,}")
+_BEARER_CREDENTIAL = re.compile(
+    r"(?:^|[\s/:])bearer(?:%20|\s)+[A-Za-z0-9._~+/=-]+",
+    re.IGNORECASE,
+)
 
 
 def _utf8(value: str) -> bytes:
@@ -120,6 +127,12 @@ def _public_source_locator(
     locator = locator.strip()
     if not locator:
         raise ValueError("source_locator must not be empty")
+    decoded_locator = unquote(locator)
+    if (
+        _HF_ACCESS_TOKEN.search(decoded_locator)
+        or _BEARER_CREDENTIAL.search(decoded_locator)
+    ):
+        raise ValueError("source_locator must not contain credentials")
     parsed = urlsplit(locator)
     if parsed.username is not None or parsed.password is not None:
         raise ValueError("source_locator must not contain credentials")
@@ -130,38 +143,59 @@ def _public_source_locator(
     return locator
 
 
-def _snapshot_fingerprint(snapshot: DatasetSnapshot) -> str:
-    payload = {
-        "schema_version": MANIFEST_SCHEMA_VERSION,
-        "input_format": snapshot.input_format,
-        "codebase_version": snapshot.codebase_version,
-        "episodes": [episode.as_dict() for episode in snapshot.episodes],
-        "video_keys": list(snapshot.video_keys),
-        "videos": [video.as_dict() for video in snapshot.videos],
+def _capability_map(audit: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    coverage = audit.get("coverage")
+    raw_capabilities = (
+        coverage.get("capabilities", [])
+        if isinstance(coverage, dict)
+        else []
+    )
+    return {
+        str(item["capability"]): dict(item)
+        for item in raw_capabilities
+        if isinstance(item, dict) and isinstance(item.get("capability"), str)
     }
-    return dataset_fingerprint(payload)
 
 
-def _capability_status(checked: int, total: int, *, skipped: bool = False) -> str:
-    if skipped:
-        return "skipped"
-    if total == 0:
+def _canonical_capability_status(
+    capabilities: Dict[str, Dict[str, Any]],
+    capability: str,
+) -> str:
+    status = capabilities.get(capability, {}).get("status", "unavailable")
+    if status not in {"complete", "partial", "skipped", "unavailable"}:
         return "unavailable"
-    if checked == total:
-        return "complete"
-    if checked == 0:
-        return "unavailable"
-    return "partial"
+    return str(status)
 
 
-def _evidence_level(snapshot: DatasetSnapshot, integrity: str) -> str:
+def _evidence_level(
+    snapshot: DatasetSnapshot,
+    integrity: str,
+    audit: Dict[str, Any],
+) -> str:
+    capabilities = _capability_map(audit)
     if (
         integrity in {"sample", "full"}
-        and snapshot.videos
-        and all(video.decode_valid is True for video in snapshot.videos)
+        and (
+            _canonical_capability_status(capabilities, "media.decode")
+            == "complete"
+            or _canonical_capability_status(
+                capabilities,
+                "data.parquet_footer",
+            )
+            == "complete"
+        )
     ):
         return "sample_verified"
-    if snapshot.videos and all(video.metadata_valid for video in snapshot.videos):
+    if (
+        _canonical_capability_status(capabilities, "format.contract")
+        == "complete"
+        and (
+            _canonical_capability_status(capabilities, "metadata.info")
+            == "complete"
+            or _canonical_capability_status(capabilities, "media.metadata")
+            == "complete"
+        )
+    ):
         return "metadata_verified"
     return "official_claim"
 
@@ -187,13 +221,22 @@ def _manifest_paths(snapshot: DatasetSnapshot) -> list[str]:
     return [candidate for candidate in candidates if (snapshot.root / candidate).is_file()]
 
 
-def _coverage(snapshot: DatasetSnapshot, checksum: Optional[str], integrity: str) -> Dict[str, Any]:
+def _coverage(
+    snapshot: DatasetSnapshot,
+    checksum: Optional[str],
+    integrity: str,
+    *,
+    snapshot_artifact: Dict[str, Any],
+    audit: Dict[str, Any],
+    readiness: Dict[str, Any],
+) -> Dict[str, Any]:
     total_videos = len(snapshot.videos)
     metadata_checked = sum(video.metadata_valid for video in snapshot.videos)
     decode_checked = sum(video.decode_valid is not None for video in snapshot.videos)
     decode_passed = sum(video.decode_valid is True for video in snapshot.videos)
     checksum_count = sum(video.checksum_sha256 is not None for video in snapshot.videos)
     decoded_frames = sum(video.decoded_frame_count or 0 for video in snapshot.videos)
+    capabilities = _capability_map(audit)
     return {
         "integrity_level": integrity,
         "checksum": checksum,
@@ -213,22 +256,32 @@ def _coverage(snapshot: DatasetSnapshot, checksum: Optional[str], integrity: str
             "decoded_frames": decoded_frames,
         },
         "capabilities": {
-            "dataset_discovery": "complete",
-            "media_metadata": _capability_status(metadata_checked, total_videos),
-            "media_decode": _capability_status(
-                decode_checked,
-                total_videos,
-                skipped=integrity == "metadata",
+            "dataset_discovery": _canonical_capability_status(
+                capabilities,
+                "format.contract",
             ),
-            "content_checksum": _capability_status(
-                checksum_count,
-                total_videos,
-                skipped=checksum is None,
+            "media_metadata": _canonical_capability_status(
+                capabilities,
+                "media.metadata",
             ),
-            "policy_readiness": "skipped",
-            "annotation_quality": "skipped",
+            "media_decode": _canonical_capability_status(
+                capabilities,
+                "media.decode",
+            ),
+            "content_checksum": _canonical_capability_status(
+                capabilities,
+                "content.checksum",
+            ),
+            "policy_readiness": "complete",
+            "annotation_quality": _canonical_capability_status(
+                capabilities,
+                "metadata.tasks",
+            ),
             "downstream_pipeline": "skipped",
         },
+        "snapshot_contract": dict(snapshot_artifact["coverage"]),
+        "audit_contract": dict(audit["coverage"]),
+        "readiness_contract": dict(readiness["coverage"]),
     }
 
 
@@ -236,17 +289,13 @@ def _unresolved_checks(
     snapshot: DatasetSnapshot,
     checksum: Optional[str],
     integrity: str,
+    readiness: Dict[str, Any],
 ) -> list[Dict[str, str]]:
     checks = [
         {
             "code": "CATALOG_GOVERNANCE_UNVERIFIED",
             "reason": "A local audit does not establish license or access terms.",
             "required_for": "governance",
-        },
-        {
-            "code": "CATALOG_POLICY_PROFILE_NOT_RUN",
-            "reason": "No policy-specific training-readiness profile was executed.",
-            "required_for": "policy_training",
         },
         {
             "code": "CATALOG_DOWNSTREAM_PIPELINE_NOT_RUN",
@@ -260,6 +309,17 @@ def _unresolved_checks(
                 "code": "CATALOG_FULL_INTEGRITY_NOT_RUN",
                 "reason": "The audit did not decode every declared media frame.",
                 "required_for": "full_integrity",
+            }
+        )
+    if readiness["status"] != "READY":
+        checks.append(
+            {
+                "code": "CATALOG_PROFILE_NOT_READY",
+                "reason": (
+                    "The declared readiness profile completed with status "
+                    f"{readiness['status']}."
+                ),
+                "required_for": str(readiness["profile"]["id"]),
             }
         )
     if checksum is None:
@@ -311,8 +371,16 @@ def build_catalog_evidence(
         raise ValueError("dataset_id must not be empty")
     if normalized_source_kind not in SUPPORTED_SOURCE_KINDS:
         raise ValueError(f"source_kind must be one of {sorted(SUPPORTED_SOURCE_KINDS)}")
-    if normalized_source_kind == "hf_hub" and not normalized_revision:
-        raise ValueError("resolved_revision is required for hf_hub evidence")
+    if (
+        normalized_source_kind == "hf_hub"
+        and (
+            normalized_revision is None
+            or _HUB_COMMIT.fullmatch(normalized_revision) is None
+        )
+    ):
+        raise ValueError(
+            "resolved_revision must be an immutable 40-character Hub commit"
+        )
     normalized_checked_at = _checked_at(checked_at)
     normalized_locator = _public_source_locator(
         normalized_source_kind,
@@ -332,19 +400,65 @@ def build_catalog_evidence(
         integrity=integrity,
         follow_symlinks=follow_symlinks,
     )
-    audit = audit_dataset(path, snapshot=snapshot)
-    maturity = _evidence_level(snapshot, integrity)
-    coverage = _coverage(snapshot, checksum, integrity)
+    audit = audit_dataset(
+        path,
+        input_format=input_format,
+        checksum=checksum,
+        integrity=integrity,
+        follow_symlinks=follow_symlinks,
+        snapshot=snapshot,
+    )
+    actual_rule_pack = str(audit["rule_pack_version"])
+    if rule_pack_version.strip() != actual_rule_pack:
+        raise ValueError(
+            "rule_pack_version must match the rule pack that produced the audit"
+        )
+    snapshot_artifact = build_dataset_snapshot(
+        path,
+        input_format=input_format,
+        checksum=checksum,
+        integrity=integrity,
+        follow_symlinks=follow_symlinks,
+        source_kind=normalized_source_kind,
+        source_locator=normalized_locator,
+        resolved_revision=normalized_revision,
+        snapshot=snapshot,
+    )
+    readiness = evaluate_dataset_readiness(
+        path,
+        profile=profile_id,
+        input_format=input_format,
+        checksum=checksum,
+        integrity=integrity,
+        follow_symlinks=follow_symlinks,
+        prepared=snapshot,
+        dataset_snapshot=snapshot_artifact,
+        audit_result=audit,
+        source_kind=normalized_source_kind,
+        source_locator=normalized_locator,
+        resolved_revision=normalized_revision,
+    )
+    maturity = _evidence_level(snapshot, integrity, audit)
+    coverage = _coverage(
+        snapshot,
+        checksum,
+        integrity,
+        snapshot_artifact=snapshot_artifact,
+        audit=audit,
+        readiness=readiness,
+    )
     tasks = sorted({task for episode in snapshot.episodes for task in episode.tasks})
     signal_categories = ["video_observation"] if snapshot.videos else []
     manifest_paths = _manifest_paths(snapshot)
-    profile_status = "BLOCKED" if audit["summary"]["error"] else "PARTIAL"
 
     facts = {
         "dataset.schema": _fact(
             {
-                "input_format": snapshot.input_format,
-                "dataset_format_version": snapshot.codebase_version,
+                "input_format": snapshot_artifact["format"]["input_format"],
+                "adapter": snapshot_artifact["format"]["adapter"],
+                "dataset_format_version": snapshot_artifact["format"][
+                    "dataset_format_version"
+                ],
                 "video_streams": list(snapshot.video_keys),
             },
             "metadata_verified",
@@ -413,20 +527,25 @@ def build_catalog_evidence(
         ),
         "dataset.profile_readiness": _fact(
             {
-                "profile_id": profile_id.strip(),
-                "status": profile_status,
+                "profile_id": readiness["profile"]["id"],
+                "profile_version": readiness["profile"]["version"],
+                "status": readiness["status"],
                 "blocking_findings": [
-                    finding["code"]
-                    for finding in audit["findings"]
-                    if finding["severity"] == "error"
+                    finding["code"] for finding in readiness["blocking_findings"]
                 ],
+                "warning_findings": [
+                    finding["code"] for finding in readiness["warnings"]
+                ],
+                "missing_capabilities": list(
+                    readiness["coverage"]["missing_capabilities"]
+                ),
             },
             maturity,
-            "openbot://audit/profile-readiness",
+            "openbot://readiness/profile",
         ),
     }
     findings = [dict(finding) for finding in audit["findings"]]
-    unresolved = _unresolved_checks(snapshot, checksum, integrity)
+    unresolved = _unresolved_checks(snapshot, checksum, integrity, readiness)
     fingerprint_payload = {
         "schema_version": CATALOG_EVIDENCE_SCHEMA_VERSION,
         "dataset": {
@@ -434,12 +553,14 @@ def build_catalog_evidence(
             "source_kind": normalized_source_kind,
             "source_locator": normalized_locator,
             "resolved_revision": normalized_revision,
-            "snapshot_fingerprint": _snapshot_fingerprint(snapshot),
+            "snapshot_fingerprint": snapshot_artifact[
+                "snapshot_fingerprint"
+            ],
         },
         "audit": {
             "schema_version": audit["schema_version"],
-            "profile_id": profile_id.strip(),
-            "rule_pack_version": rule_pack_version.strip(),
+            "profile_id": readiness["profile"]["id"],
+            "rule_pack_version": actual_rule_pack,
             "integrity_level": integrity,
         },
         "evidence_maturity": maturity,

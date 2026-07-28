@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import builtins
 import io
 import json
@@ -24,17 +26,84 @@ DOCUMENTED_FINDING_CODES = {
     "DATASET_NOT_FOUND",
     "DATASET_INVALID_ARGUMENT",
     "DATASET_PATH_OUTSIDE_ROOT",
+    "DATASET_SYMLINK_SKIPPED",
+    "DATASET_SYMLINK_BROKEN",
+    "HUB_PARTIAL_COVERAGE",
+    "HUB_DOWNLOAD_BUDGET_EXHAUSTED",
+    "HUB_PUBLICATION_METADATA_MISSING",
     "LEROBOT_INFO_MISSING",
+    "LEROBOT_CODEBASE_VERSION_MISSING",
+    "LEROBOT_CODEBASE_VERSION_INVALID",
+    "LEROBOT_CODEBASE_VERSION_UNTESTED",
+    "LEROBOT_CODEBASE_VERSION_UNSUPPORTED",
+    "LEROBOT_V21_MIGRATION_RECOMMENDED",
+    "LEROBOT_LAYOUT_VERSION_MISMATCH",
     "LEROBOT_METADATA_INVALID",
+    "LEROBOT_TASKS_MISSING",
+    "LEROBOT_TASKS_UNREADABLE",
+    "LEROBOT_TASK_INVALID",
+    "LEROBOT_STATS_INVALID",
     "LEROBOT_EPISODES_MISSING",
     "LEROBOT_EPISODES_UNREADABLE",
     "LEROBOT_DEPENDENCY_MISSING",
     "LEROBOT_EPISODE_INVALID",
     "LEROBOT_EPISODE_INDEX_INVALID",
+    "LEROBOT_EPISODE_LENGTH_INVALID",
+    "LEROBOT_EPISODE_INDEX_DUPLICATE",
+    "LEROBOT_EPISODE_INDEX_NON_CONTIGUOUS",
     "LEROBOT_EPISODE_COUNT_MISMATCH",
+    "LEROBOT_FRAME_COUNT_MISMATCH",
+    "LEROBOT_TASK_COUNT_MISMATCH",
+    "LEROBOT_VIDEO_COUNT_MISMATCH",
+    "LEROBOT_DATA_SHARD_COUNT_MISMATCH",
+    "LEROBOT_EPISODE_RANGE_INVALID",
+    "LEROBOT_EPISODE_RANGE_LENGTH_MISMATCH",
+    "LEROBOT_EPISODE_RANGE_GAP",
+    "LEROBOT_EPISODE_RANGE_OVERLAP",
+    "LEROBOT_EPISODE_RANGE_OUT_OF_BOUNDS",
+    "LEROBOT_DATA_PATH_TEMPLATE_INVALID",
+    "LEROBOT_DATA_RELATION_MISSING",
+    "LEROBOT_DATA_RELATION_INVALID",
+    "LEROBOT_DATA_MISSING",
+    "LEROBOT_DATA_UNREADABLE",
+    "LEROBOT_PARQUET_UNFINALIZED",
+    "LEROBOT_PARQUET_SCHEMA_UNREADABLE",
+    "LEROBOT_PARQUET_ROW_GROUP_UNREADABLE",
+    "LEROBOT_PARQUET_ROW_INVALID",
+    "LEROBOT_FEATURE_COLUMN_MISSING",
+    "LEROBOT_FEATURE_COLUMN_UNDECLARED",
+    "LEROBOT_FEATURE_DTYPE_MISMATCH",
+    "LEROBOT_FEATURE_SHAPE_MISMATCH",
+    "LEROBOT_FEATURE_NULLABILITY_MISMATCH",
+    "LEROBOT_DATA_ROW_COUNT_MISMATCH",
+    "LEROBOT_EPISODE_ROW_COUNT_MISMATCH",
+    "LEROBOT_FRAME_INDEX_DUPLICATE",
+    "LEROBOT_FRAME_INDEX_NON_CONTIGUOUS",
+    "LEROBOT_GLOBAL_INDEX_DUPLICATE",
+    "LEROBOT_GLOBAL_INDEX_NON_CONTIGUOUS",
+    "LEROBOT_NUMERIC_NON_FINITE",
+    "LEROBOT_TASK_REFERENCE_INVALID",
+    "LEROBOT_TIMESTAMP_NON_MONOTONIC",
+    "LEROBOT_TIMESTAMP_OFF_GRID",
     "LEROBOT_VIDEO_MISSING",
+    "LEROBOT_VIDEO_COVERAGE_MISSING",
+    "LEROBOT_VIDEO_RESOLUTION_MISMATCH",
+    "LEROBOT_VIDEO_FPS_MISMATCH",
+    "LEROBOT_VIDEO_CHANNELS_MISMATCH",
     "LEROBOT_VIDEO_RELATION_MISSING",
+    "LEROBOT_VIDEO_RELATION_INVALID",
+    "LEROBOT_VIDEO_PATH_TEMPLATE_INVALID",
+    "LEROBOT_VIDEO_PATH_INVALID",
+    "LEROBOT_VIDEO_SEGMENT_BOUNDS_INVALID",
+    "LEROBOT_VIDEO_SEGMENT_OVERLAP",
+    "LEROBOT_VIDEO_SEGMENT_OUT_OF_RANGE",
     "LEROBOT_VIDEOS_MISSING",
+    "LEROBOT_STATS_MISSING",
+    "LEROBOT_STATS_FIELD_MISSING",
+    "LEROBOT_STATS_SHAPE_MISMATCH",
+    "LEROBOT_STATS_COUNT_MISMATCH",
+    "LEROBOT_STATS_NON_FINITE",
+    "LEROBOT_STATS_VALUE_MISMATCH",
     "VIDEO_UNREADABLE",
     "VIDEO_INVALID_FPS",
     "VIDEO_INVALID_DURATION",
@@ -63,7 +132,11 @@ def make_video(
     if not writer.isOpened():
         pytest.fail("OpenCV video writer is required for the acceptance fixtures")
     for frame_index in range(frames):
-        frame = np.full((size[1], size[0], 3), frame_index * 30, dtype=np.uint8)
+        frame = np.full(
+            (size[1], size[0], 3),
+            (frame_index * 30) % 256,
+            dtype=np.uint8,
+        )
         writer.write(frame)
     writer.release()
 
@@ -320,6 +393,86 @@ def test_preview_failure_is_reported_for_otherwise_valid_video(
     assert "VIDEO_UNREADABLE" not in result_codes
 
 
+def test_sample_integrity_probes_start_middle_and_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class SampleCapture:
+        def __init__(self) -> None:
+            self.positions: list[int] = []
+
+        def isOpened(self) -> bool:
+            return True
+
+        def set(self, prop: int, value: float) -> bool:
+            assert prop == cv2.CAP_PROP_POS_FRAMES
+            self.positions.append(int(value))
+            return True
+
+        def read(self) -> tuple[bool, object]:
+            return True, object()
+
+        def release(self) -> None:
+            return None
+
+    capture = SampleCapture()
+    monkeypatch.setattr(cv2, "VideoCapture", lambda _path: capture)
+
+    valid, decoded = preflight._decode_probe(Path("episode.avi"), "sample", 10)
+
+    assert valid is True
+    assert decoded == 3
+    assert capture.positions == [0, 4, 9]
+
+
+def test_sample_integrity_fails_when_the_final_probe_cannot_decode(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class CorruptTailCapture:
+        position = 0
+
+        def isOpened(self) -> bool:
+            return True
+
+        def set(self, _prop: int, value: float) -> bool:
+            self.position = int(value)
+            return True
+
+        def read(self) -> tuple[bool, object | None]:
+            return self.position != 9, None
+
+        def release(self) -> None:
+            return None
+
+    monkeypatch.setattr(cv2, "VideoCapture", lambda _path: CorruptTailCapture())
+
+    valid, decoded = preflight._decode_probe(Path("episode.avi"), "sample", 10)
+
+    assert valid is False
+    assert decoded == 2
+
+
+def test_failed_sample_audit_reports_actual_successful_probe_count(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "videos"
+    make_video(root / "episode.avi", frames=10)
+    monkeypatch.setattr(
+        preflight,
+        "_decode_probe",
+        lambda _path, _integrity, _expected_frames: (False, 2),
+    )
+
+    result = audit_dataset(str(root), integrity="sample")
+    finding = next(
+        item
+        for item in result["findings"]
+        if item["code"] == "VIDEO_PREVIEW_DECODE_FAILED"
+    )
+
+    assert finding["evidence"]["decoded_frame_count"] == 2
+
+
 def test_inconsistent_stream_and_opt_in_duplicate_findings(tmp_path: Path) -> None:
     root = tmp_path / "videos"
     first = root / "camera" / "first.avi"
@@ -449,6 +602,9 @@ def test_snapshot_reuse_and_packaged_json_schemas(tmp_path: Path) -> None:
     manifest = json.loads(Path(inspection["manifest_path"]).read_text())
 
     assert audit["summary"]["videos"] == 1
+    assert snapshot.checksum == "sha256"
+    assert snapshot.integrity == "full"
+    assert snapshot.follow_symlinks is False
     assert manifest["videos"][0]["integrity_level"] == "full"
     assert manifest["videos"][0]["path_base"] == "dataset"
     assert manifest["videos"][0]["previews"][0]["path_base"] == "inspection"
@@ -458,6 +614,34 @@ def test_snapshot_reuse_and_packaged_json_schemas(tmp_path: Path) -> None:
             assert payload["$schema"] == "https://json-schema.org/draft/2020-12/schema"
             instance = manifest if name == "manifest" else audit
             jsonschema.Draft202012Validator(payload).validate(instance)
+
+
+def test_snapshot_reuse_rejects_incompatible_render_requests(tmp_path: Path) -> None:
+    root = tmp_path / "videos"
+    other_root = tmp_path / "other-videos"
+    output = tmp_path / "inspection"
+    make_video(root / "camera/episode.avi")
+    make_video(other_root / "camera/episode.avi")
+    snapshot = prepare_dataset(str(root), integrity="metadata")
+
+    requests = [
+        (str(other_root), {}),
+        (str(root), {"input_format": "lerobot"}),
+        (str(root), {"checksum": "sha256"}),
+        (str(root), {"integrity": "full"}),
+        (str(root), {"follow_symlinks": True}),
+    ]
+    for path, kwargs in requests:
+        result = audit_dataset(path, snapshot=snapshot, **kwargs)
+        assert codes(result) == {"DATASET_INVALID_ARGUMENT"}
+
+    inspection = inspect_dataset(
+        str(root),
+        str(output),
+        checksum="sha256",
+        snapshot=snapshot,
+    )
+    assert "snapshot checksum coverage" in inspection["error"]
 
 
 def test_runnable_demo_uses_public_api_and_writes_expected_outputs(tmp_path: Path) -> None:

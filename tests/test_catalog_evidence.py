@@ -7,7 +7,14 @@ import numpy as np
 import pytest
 from typer.testing import CliRunner
 
-from openbot_data import build_catalog_evidence, schema_path
+from openbot_data import (
+    audit_dataset,
+    build_catalog_evidence,
+    build_dataset_snapshot,
+    evaluate_dataset_readiness,
+    prepare_dataset,
+    schema_path,
+)
 from openbot_data.catalog_evidence import (
     canonical_evidence_sha256,
     canonical_evidence_tree,
@@ -126,7 +133,16 @@ def test_catalog_evidence_is_deterministic_valid_and_score_free(tmp_path: Path) 
     assert first["dataset"]["snapshot_fingerprint"]
     assert first["evidence_maturity"] == "sample_verified"
     assert first["coverage"]["videos"]["checksummed"] == 1
-    assert first["facts"]["dataset.profile_readiness"]["value"]["status"] == "PARTIAL"
+    profile_fact = first["facts"]["dataset.profile_readiness"]["value"]
+    assert profile_fact["status"] == "BLOCKED"
+    assert profile_fact["profile_id"] == "lerobot-core"
+    assert profile_fact["blocking_findings"]
+    assert first["coverage"]["snapshot_contract"]
+    assert first["coverage"]["audit_contract"]
+    assert (
+        first["coverage"]["readiness_contract"]["missing_capabilities"]
+        == profile_fact["missing_capabilities"]
+    )
     assert {
         "score",
         "overall",
@@ -164,12 +180,86 @@ def test_catalog_evidence_fingerprint_changes_with_covered_fact(tmp_path: Path) 
     assert first["facts"]["dataset.scale"]["value"] != second["facts"]["dataset.scale"]["value"]
 
 
+def test_catalog_evidence_projects_canonical_snapshot_audit_and_readiness(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "dataset"
+    make_video(dataset / "episode.avi")
+    prepared = prepare_dataset(
+        str(dataset),
+        checksum="sha256",
+        integrity="full",
+    )
+    audit = audit_dataset(
+        str(dataset),
+        checksum="sha256",
+        integrity="full",
+        snapshot=prepared,
+    )
+    snapshot = build_dataset_snapshot(
+        str(dataset),
+        checksum="sha256",
+        integrity="full",
+        snapshot=prepared,
+    )
+    readiness = evaluate_dataset_readiness(
+        str(dataset),
+        profile="lerobot-act",
+        checksum="sha256",
+        integrity="full",
+        prepared=prepared,
+        dataset_snapshot=snapshot,
+        audit_result=audit,
+    )
+
+    evidence = build_catalog_evidence(
+        str(dataset),
+        dataset_id="fixture",
+        checked_at="2026-07-28T00:00:00Z",
+        integrity="full",
+        profile_id="lerobot-act",
+    )
+    profile_fact = evidence["facts"]["dataset.profile_readiness"]["value"]
+
+    assert evidence["dataset"]["snapshot_fingerprint"] == snapshot[
+        "snapshot_fingerprint"
+    ]
+    assert evidence["coverage"]["snapshot_contract"] == snapshot["coverage"]
+    assert evidence["coverage"]["audit_contract"] == audit["coverage"]
+    assert evidence["coverage"]["readiness_contract"] == readiness["coverage"]
+    assert profile_fact["status"] == readiness["status"] == "BLOCKED"
+    assert profile_fact["blocking_findings"] == [
+        finding["code"] for finding in readiness["blocking_findings"]
+    ]
+
+
+def test_catalog_evidence_metadata_integrity_reuses_matching_snapshot_request(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "dataset"
+    make_video(dataset / "camera/episode.avi")
+
+    evidence = build_catalog_evidence(
+        str(dataset),
+        dataset_id="fixture",
+        checked_at="2026-07-28T00:00:00Z",
+        checksum=None,
+        integrity="metadata",
+    )
+
+    assert evidence["coverage"]["integrity_level"] == "metadata"
+    assert evidence["coverage"]["capabilities"]["media_decode"] == "skipped"
+    assert "DATASET_INVALID_ARGUMENT" not in {
+        finding["code"] for finding in evidence["findings"]
+    }
+
+
 @pytest.mark.parametrize(
     ("kwargs", "message"),
     [
         (
             {"source_kind": "hf_hub"},
-            "resolved_revision is required",
+            "immutable 40-character",
         ),
         (
             {"source_locator": "/private/dataset"},
@@ -177,6 +267,15 @@ def test_catalog_evidence_fingerprint_changes_with_covered_fact(tmp_path: Path) 
         ),
         (
             {"source_locator": "https://user:secret@example.com/dataset"},
+            "must not contain credentials",
+        ),
+        (
+            {
+                "source_locator": (
+                    "hf://datasets/org/name/"
+                    "hf_abcdefghijklmnop"
+                )
+            },
             "must not contain credentials",
         ),
         (

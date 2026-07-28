@@ -355,15 +355,27 @@ def inspect_dataset(
         MANIFEST_SCHEMA_VERSION,
         dataset_fingerprint,
         prepare_dataset,
+        validate_snapshot_request,
     )
 
     try:
-        prepared = snapshot or prepare_dataset(
-            video_dir,
-            input_format=input_format,
-            checksum=checksum,
-            integrity=integrity,
-            follow_symlinks=follow_symlinks,
+        prepared = (
+            validate_snapshot_request(
+                snapshot,
+                video_dir,
+                input_format,
+                checksum,
+                integrity,
+                follow_symlinks,
+            )
+            if snapshot is not None
+            else prepare_dataset(
+                video_dir,
+                input_format=input_format,
+                checksum=checksum,
+                integrity=integrity,
+                follow_symlinks=follow_symlinks,
+            )
         )
     except (DatasetArgumentError, DatasetNotFoundError) as exc:
         return {"error": str(exc), "videos": []}

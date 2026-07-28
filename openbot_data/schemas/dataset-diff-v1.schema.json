@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_diff.v1.json",
+  "title": "OpenBot Dataset Diff v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fingerprint_version",
+    "baseline_fingerprint",
+    "candidate_fingerprint",
+    "classification",
+    "summary",
+    "component_status",
+    "changes",
+    "tool",
+    "diff_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {"const": "openbot.dataset_diff.v1"},
+    "fingerprint_version": {"const": "openbot.dataset_diff.fingerprint.v1"},
+    "baseline_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "candidate_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "classification": {
+      "enum": ["breaking", "material", "non_breaking", "unchanged"]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changes", "breaking", "material", "non_breaking"],
+      "properties": {
+        "changes": {"type": "integer", "minimum": 0},
+        "breaking": {"type": "integer", "minimum": 0},
+        "material": {"type": "integer", "minimum": 0},
+        "non_breaking": {"type": "integer", "minimum": 0}
+      }
+    },
+    "component_status": {
+      "type": "object",
+      "additionalProperties": {"enum": ["changed", "unchanged"]}
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "classification",
+          "component",
+          "kind",
+          "path",
+          "before",
+          "after"
+        ],
+        "properties": {
+          "classification": {
+            "enum": ["breaking", "material", "non_breaking"]
+          },
+          "component": {"type": "string"},
+          "kind": {"type": "string"},
+          "path": {"type": "string"},
+          "before": true,
+          "after": true
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "openbot-data"},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "diff_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

@@ -50,6 +50,8 @@ class VideoRecord:
     decoded_frame_count: int | None = None
     error: str | None = None
     checksum_sha256: str | None = None
+    raw_fps: float | None = field(default=None, repr=False, compare=False)
+    raw_duration: float | None = field(default=None, repr=False, compare=False)
 
     @property
     def is_valid(self) -> bool:
@@ -85,6 +87,18 @@ class VideoRecord:
 
 
 @dataclass(frozen=True)
+class DatasetArtifact:
+    """One file observation captured during the prepared discovery pass."""
+
+    kind: str
+    path: str
+    size_bytes: int
+    checksum_sha256: str | None = None
+    row_count: int | None = None
+    columns: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class DatasetSnapshot:
     """Immutable discovery result shared by manifest, preview and audit renderers."""
 
@@ -95,6 +109,20 @@ class DatasetSnapshot:
     video_keys: tuple[str, ...]
     videos: tuple[VideoRecord, ...]
     findings: tuple[dict[str, Any], ...]
+    checksum: str | None = None
+    integrity: str = "sample"
+    follow_symlinks: bool = False
+    adapter_result: Any | None = field(default=None, repr=False, compare=False)
+    artifacts: tuple[DatasetArtifact, ...] = field(
+        default=(),
+        repr=False,
+        compare=False,
+    )
+    validation_result: Any | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
 
     def as_legacy_dict(self) -> dict[str, Any]:
         """Return the old internal shape while renderers migrate to typed records."""

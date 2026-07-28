@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_repair_receipt.v1.json",
+  "title": "OpenBot Dataset Repair Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fingerprint_version",
+    "plan_fingerprint",
+    "status",
+    "verified",
+    "hashes",
+    "before_snapshot",
+    "after_snapshot",
+    "diff",
+    "audit_before",
+    "audit_after",
+    "executed_steps",
+    "resolved_findings",
+    "unresolved_findings",
+    "loader_verification",
+    "verification_checks",
+    "tool_versions",
+    "receipt_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "openbot.dataset_repair_receipt.v1"
+    },
+    "fingerprint_version": {
+      "const": "openbot.dataset_repair_receipt.fingerprint.v1"
+    },
+    "plan_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": ["verified", "unverified", "failed"]
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "before_tree_sha256",
+        "after_tree_sha256",
+        "expected_after_tree_sha256",
+        "source_after_apply_tree_sha256"
+      ],
+      "properties": {
+        "before_tree_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "after_tree_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "expected_after_tree_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "source_after_apply_tree_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "before_snapshot": {
+      "type": "object",
+      "required": ["schema_version", "snapshot_fingerprint"]
+    },
+    "after_snapshot": {
+      "type": "object",
+      "required": ["schema_version", "snapshot_fingerprint"]
+    },
+    "diff": {
+      "type": "object",
+      "required": ["schema_version", "diff_fingerprint"]
+    },
+    "audit_before": {
+      "type": "object",
+      "required": ["schema_version", "findings"]
+    },
+    "audit_after": {
+      "type": "object",
+      "required": ["schema_version", "findings"]
+    },
+    "executed_steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/executedStep"
+      }
+    },
+    "resolved_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity"]
+      }
+    },
+    "unresolved_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity"]
+      }
+    },
+    "loader_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "runner", "details"],
+      "properties": {
+        "status": {
+          "enum": ["passed", "failed", "unavailable"]
+        },
+        "runner": {
+          "type": ["string", "null"]
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    },
+    "verification_checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_output_hash",
+        "planned_values",
+        "source_unchanged",
+        "audit_error_free",
+        "loader_passed"
+      ],
+      "properties": {
+        "expected_output_hash": {
+          "type": "boolean"
+        },
+        "planned_values": {
+          "type": "boolean"
+        },
+        "source_unchanged": {
+          "type": ["boolean", "null"]
+        },
+        "audit_error_free": {
+          "type": "boolean"
+        },
+        "loader_passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tool_versions": {
+      "$ref": "#/$defs/toolVersions"
+    },
+    "receipt_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "verified"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "verified": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "verified": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "executedStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operation",
+        "artifact",
+        "json_pointer",
+        "before",
+        "after",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^repair\\.info\\.total_(episodes|frames|tasks|videos)$"
+        },
+        "operation": {
+          "const": "set_derived_json_value"
+        },
+        "artifact": {
+          "const": "meta/info.json"
+        },
+        "json_pointer": {
+          "enum": [
+            "/total_episodes",
+            "/total_frames",
+            "/total_tasks",
+            "/total_videos"
+          ]
+        },
+        "before": true,
+        "after": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "const": "executed"
+        }
+      }
+    },
+    "toolVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "openbot_data",
+        "dataset_adapter",
+        "official_loader_target"
+      ],
+      "properties": {
+        "openbot_data": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "official_loader_target": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}

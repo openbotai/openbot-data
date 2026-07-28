@@ -3,8 +3,9 @@
 > Research snapshot: 2026-07-26
 > Scope: planning input for `openbot-data 0.0.3`
 > Evidence boundary: upstream stable source, official documentation, and published
-> package metadata were reviewed. A comparative runtime benchmark is still a
-> release-gate task, not a completed result.
+> package metadata were reviewed. The critical stale-counter workflow was also
+> executed on 2026-07-28 against pinned `lerobot-doctor==0.2.0`,
+> `robovet==0.2.2`, and the `openbot-data 0.0.3` candidate.
 
 ## Decision
 
@@ -156,11 +157,11 @@ The important v3 properties are:
 
 Sources:
 
-- [LeRobotDataset v3.0](https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3)
-- [LeRobot v3 porting guide](https://huggingface.co/docs/lerobot/main/porting_datasets_v3)
+- [LeRobotDataset v3.0](https://huggingface.co/docs/lerobot/v0.6.0/lerobot-dataset-v3)
+- [LeRobot v3 porting guide](https://huggingface.co/docs/lerobot/v0.6.0/porting_datasets_v3)
 - [LeRobot 0.6.0 release](https://github.com/huggingface/lerobot/releases/tag/v0.6.0)
 - [LeRobot 0.6.0 dataset paths and metadata types](https://github.com/huggingface/lerobot/blob/v0.6.0/src/lerobot/datasets/utils.py#L82-L160)
-- [LeRobot Dataset Tools](https://huggingface.co/docs/lerobot/main/using_dataset_tools)
+- [LeRobot Dataset Tools](https://huggingface.co/docs/lerobot/v0.6.0/using_dataset_tools)
 
 ### Contract drift to handle explicitly
 
@@ -198,7 +199,7 @@ the official `LeRobotDataset`.
 Official edit, migration, merge, conversion, re-encoding, visualization,
 annotation, training, and evaluation remain LeRobot execution responsibilities.
 The official
-[`lerobot-edit-dataset`](https://huggingface.co/docs/lerobot/main/using_dataset_tools)
+[`lerobot-edit-dataset`](https://huggingface.co/docs/lerobot/v0.6.0/using_dataset_tools)
 already exposes delete, split, merge, add/remove feature, image-to-video, and
 re-encode operations, including copy-to-a-new-dataset forms. OpenBot therefore
 must not reimplement those payload mutations, but it does own their safety
@@ -236,7 +237,7 @@ episode length, or normalization inputs for a selected policy. The
 [`merge-check` command](https://github.com/jashshah999/lerobot-doctor#merge-check)
 exists because two individually valid datasets can be incompatible with each
 other. LeRobot's
-[official merge documentation](https://huggingface.co/docs/lerobot/main/using_dataset_tools#merge-datasets)
+[official merge documentation](https://huggingface.co/docs/lerobot/v0.6.0/using_dataset_tools#merge-datasets)
 requires identical features, so OpenBot must check that precondition before
 delegating the actual merge.
 
@@ -268,7 +269,7 @@ the handoff instead of silently mutating those payloads.
 [idle-frame trim](https://github.com/jashshah999/lerobot-doctor#trim-remove-idle-frames),
 but trimming changes synchronized tabular rows, timestamps, episode relations,
 statistics, and every camera window in the relational
-[LeRobot v3 storage model](https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3).
+[LeRobot v3 storage model](https://huggingface.co/docs/lerobot/v0.6.0/lerobot-dataset-v3).
 Whether an idle interval is useless also depends on task phase and action
 semantics. P0 therefore detects candidate spans and produces a non-executing,
 evidence-rich plan that names every synchronized artifact affected. P1 may
@@ -280,7 +281,7 @@ A generic 0–100 score is not P0 validity. `robovet` itself describes its
 Signals such as range, smoothness, or idleness cannot be interpreted identically
 for joint-space, end-effector, absolute, relative, and delta actions; LeRobot
 documents these distinct
-[action representations](https://huggingface.co/docs/lerobot/main/action_representations).
+[action representations](https://huggingface.co/docs/lerobot/v0.6.0/action_representations).
 P0 may expose a bounded set of low-cost signals such as exact duplication,
 constant dimensions, and static spans, but only as raw, non-ranking advisories.
 P1 may add advanced per-signal metrics, thresholds, coverage, and ranked
@@ -336,6 +337,35 @@ This dependency decision does not remove capability scope: policy readiness,
 merge compatibility, finding-level triage/remediation, and deterministic
 copy-on-write repair are OpenBot P0 requirements implemented behind OpenBot's
 own contracts.
+
+## Pinned outcome-comparison evidence
+
+The release comparison uses one official LeRobot 0.6.0 v3.0 dataset, then
+changes only `meta/info.json#/total_frames` from the actual 12 rows to 999. The
+result is normalized to the user decision rather than tool-specific rule names:
+
+| Tool | Pinned version | Clean fixture | Stale counter | Critical evidence |
+|---|---:|---|---|---|
+| `lerobot-doctor` | `0.2.0` | exit 0, non-blocking | exit 1, blocking | actual 12 frames vs declared 999 |
+| `robovet` | `0.2.2` | exit 0, non-blocking | exit 1, blocking | `META-501`, `META-502` |
+| `openbot-data` | `0.0.3` candidate | no error findings | exit 2 with `--fail-on error` | `LEROBOT_FRAME_COUNT_MISMATCH`, `LEROBOT_STATS_COUNT_MISMATCH` |
+
+The portable evidence is frozen in
+`tests/fixtures/competitor-outcomes-v003.json`; its test reconstructs the clean
+and corrupted inputs and proves that the OpenBot candidate keeps the same
+blocking outcome. Counts and labels intentionally differ because outcome parity
+does not mean cloning another package's rules.
+
+### Deliberately different or unsupported behavior
+
+| Competitor behavior | OpenBot substitute in `0.0.3` | Acceptance evidence |
+|---|---|---|
+| in-place repair plus adjacent backups | deterministic plan, distinct copy-on-write destination, source fingerprint check, post-audit, snapshot diff, and receipt | repair schemas, `tests/test_repair.py`, official-loader repair conformance |
+| automatic or directly executable idle trimming | raw span evidence plus `openbot.idle_trim_plan.v1`; human review is mandatory and the plan enumerates every synchronized contract | `tests/test_readiness.py`; readiness trim-plan evidence |
+| universal episode score or automatic ranking | raw duplicate, constant-dimension, range, duration, coverage, and idle-span measurements with explicit thresholds; no aggregate validity score | `tests/test_readiness.py`, `openbot_data/triage.py` |
+| package-owned merge executor | exact pinned official LeRobot command, pre-merge compatibility, full post-audit, loader smoke, lineage reconciliation, and semantic diff | merge schemas, `tests/test_merge.py`, official 0.6.0 merge conformance |
+| HTML as the primary report | stable versioned JSON plus deterministic Markdown projections suitable for CI and review | schema-validated examples and CLI projection tests |
+| competitor package as a runtime engine | OpenBot-owned adapters/rules and a fixed external comparison fixture; competitors remain isolated release-test inputs | `tests/test_competitor_outcomes.py` and this document |
 
 ## `0.0.3` incorporation boundary
 

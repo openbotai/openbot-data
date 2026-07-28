@@ -1,0 +1,31 @@
+{
+  "id": "lerobot-core",
+  "version": "1",
+  "source_version": "lerobot==0.6.0",
+  "source_reference": "https://huggingface.co/docs/lerobot/v0.6.0/en/lerobot-dataset-v3",
+  "required_integrity": "full",
+  "input_formats": ["lerobot"],
+  "adapters": ["lerobot_v30"],
+  "dataset_versions": ["v3.0", "3.0"],
+  "required_capabilities": [
+    "format.contract",
+    "metadata.info",
+    "metadata.episodes",
+    "metadata.totals",
+    "metadata.episode_indexes",
+    "data.inventory",
+    "data.parquet_footer",
+    "data.parquet_schema",
+    "data.parquet_rows",
+    "data.indexes",
+    "alignment.data_relations",
+    "alignment.episode_ranges",
+    "alignment.timestamps",
+    "alignment.task_foreign_keys"
+  ],
+  "required_features": [],
+  "any_feature_groups": [],
+  "metadata_requirements": [],
+  "advisory_metadata": [],
+  "thresholds": {}
+}

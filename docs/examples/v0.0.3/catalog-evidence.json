@@ -1,0 +1,1064 @@
+{
+  "audit": {
+    "integrity_level": "full",
+    "profile_id": "lerobot-core",
+    "rule_pack_version": "openbot.dataset_audit.rules.v1",
+    "schema_version": "openbot.dataset_audit.v1"
+  },
+  "checked_at": "2026-07-28T12:00:00Z",
+  "coverage": {
+    "audit_contract": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ]
+    },
+    "capabilities": {
+      "annotation_quality": "complete",
+      "content_checksum": "complete",
+      "dataset_discovery": "complete",
+      "downstream_pipeline": "skipped",
+      "media_decode": "complete",
+      "media_metadata": "complete",
+      "policy_readiness": "complete"
+    },
+    "checksum": "sha256",
+    "episodes": {
+      "discovered": 1,
+      "with_declared_length": 1
+    },
+    "integrity_level": "full",
+    "readiness_contract": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ],
+      "missing_capabilities": [],
+      "requested_integrity": "full",
+      "required_integrity": "full",
+      "selection": {
+        "cameras": [],
+        "data_shards": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "episodes": [
+          0
+        ],
+        "media_shards": [],
+        "metadata_shards": [
+          "meta/episodes/chunk-000/file-000.parquet",
+          "meta/info.json",
+          "meta/tasks.parquet"
+        ]
+      },
+      "totals": {
+        "cameras": 0,
+        "data_shards": 1,
+        "episodes": 1,
+        "media_shards": 0,
+        "metadata_shards": 3
+      }
+    },
+    "snapshot_contract": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ],
+      "checksum": "sha256",
+      "completed_capabilities": [
+        "advisory.measurements",
+        "alignment.data_relations",
+        "alignment.episode_ranges",
+        "alignment.task_foreign_keys",
+        "alignment.timestamps",
+        "alignment.video_relations",
+        "content.checksum",
+        "data.indexes",
+        "data.inventory",
+        "data.parquet_footer",
+        "data.parquet_rows",
+        "data.parquet_schema",
+        "format.contract",
+        "media.declared_contract",
+        "media.decode",
+        "media.inventory",
+        "media.metadata",
+        "metadata.episode_indexes",
+        "metadata.episodes",
+        "metadata.info",
+        "metadata.inventory",
+        "metadata.tasks",
+        "metadata.totals",
+        "source.identity"
+      ],
+      "requested_integrity": "full",
+      "selection": {
+        "cameras": [],
+        "data_shards": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "episodes": [
+          0
+        ],
+        "media_shards": [],
+        "metadata_shards": [
+          "meta/episodes/chunk-000/file-000.parquet",
+          "meta/info.json",
+          "meta/tasks.parquet"
+        ]
+      },
+      "skipped_capabilities": [
+        {
+          "capability": "metadata.stats",
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing"
+        },
+        {
+          "capability": "stats.recomputed",
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable"
+        },
+        {
+          "capability": "stats.stored",
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing"
+        }
+      ],
+      "totals": {
+        "cameras": 0,
+        "data_shards": 1,
+        "episodes": 1,
+        "media_shards": 0,
+        "metadata_shards": 3
+      }
+    },
+    "videos": {
+      "checksummed": 0,
+      "declared_frames": 0,
+      "decode_checked": 0,
+      "decode_passed": 0,
+      "decoded_frames": 0,
+      "discovered": 0,
+      "metadata_checked": 0
+    }
+  },
+  "dataset": {
+    "id": "openbot/example-v003",
+    "resolved_revision": null,
+    "snapshot_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+    "source_kind": "local",
+    "source_locator": "dataset://."
+  },
+  "evidence_fingerprint": "5baa067f81a17d0c0cf6a88b5d44e8bec6e8b66ca89b38f57bcc0bb1b9f1d36b",
+  "evidence_maturity": "sample_verified",
+  "facts": {
+    "dataset.annotation_fields": {
+      "evidence_level": "metadata_verified",
+      "source_locator": "openbot://snapshot/annotations",
+      "value": {
+        "coverage": "metadata_only",
+        "task_labels": [
+          "pick cube"
+        ]
+      }
+    },
+    "dataset.integrity": {
+      "evidence_level": "sample_verified",
+      "source_locator": "openbot://audit/findings",
+      "value": {
+        "error_codes": [],
+        "summary": {
+          "error": 0,
+          "info": 0,
+          "videos": 0,
+          "warning": 1
+        },
+        "warning_codes": [
+          "LEROBOT_STATS_MISSING"
+        ]
+      }
+    },
+    "dataset.profile_readiness": {
+      "evidence_level": "sample_verified",
+      "source_locator": "openbot://readiness/profile",
+      "value": {
+        "blocking_findings": [],
+        "missing_capabilities": [],
+        "profile_id": "lerobot-core",
+        "profile_version": "1",
+        "status": "READY",
+        "warning_findings": [
+          "LEROBOT_STATS_MISSING"
+        ]
+      }
+    },
+    "dataset.sample": {
+      "evidence_level": "sample_verified",
+      "source_locator": "openbot://audit/coverage/videos",
+      "value": {
+        "checksummed": 0,
+        "declared_frames": 0,
+        "decode_checked": 0,
+        "decode_passed": 0,
+        "decoded_frames": 0,
+        "discovered": 0,
+        "metadata_checked": 0
+      }
+    },
+    "dataset.scale": {
+      "evidence_level": "metadata_verified",
+      "source_locator": "openbot://snapshot/scale",
+      "value": {
+        "duration_seconds": 0,
+        "episodes": 1,
+        "frames": 0,
+        "size_bytes": 0,
+        "videos": 0
+      }
+    },
+    "dataset.schema": {
+      "evidence_level": "metadata_verified",
+      "source_locator": "openbot://snapshot/schema",
+      "value": {
+        "adapter": "lerobot_v30",
+        "dataset_format_version": "v3.0",
+        "input_format": "lerobot",
+        "video_streams": []
+      }
+    },
+    "dataset.signals": {
+      "evidence_level": "sample_verified",
+      "source_locator": "openbot://snapshot/signals",
+      "value": {
+        "categories": [],
+        "video_streams": []
+      }
+    },
+    "repository.manifest_files": {
+      "evidence_level": "metadata_verified",
+      "source_locator": "openbot://snapshot/manifest-files",
+      "value": [
+        "meta/info.json",
+        "meta/tasks.parquet",
+        "meta/episodes/chunk-000/file-000.parquet"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "code": "LEROBOT_STATS_MISSING",
+      "evidence": {
+        "required_by_base_loader": false
+      },
+      "fixability": "manual",
+      "impact": "normalization_contract_is_unverified",
+      "layer": "metadata",
+      "location": {},
+      "message": "Optional normalization statistics are missing.",
+      "path": "meta/stats.json",
+      "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+      "rule_id": "lerobot.stats.missing",
+      "severity": "warning"
+    }
+  ],
+  "schema_version": "catalog-evidence-v1",
+  "tool": {
+    "name": "openbot-data",
+    "version": "0.0.2"
+  },
+  "unresolved_checks": [
+    {
+      "code": "CATALOG_DOWNSTREAM_PIPELINE_NOT_RUN",
+      "reason": "No training or loading pipeline smoke test was executed.",
+      "required_for": "pipeline_tested"
+    },
+    {
+      "code": "CATALOG_GOVERNANCE_UNVERIFIED",
+      "reason": "A local audit does not establish license or access terms.",
+      "required_for": "governance"
+    }
+  ]
+}

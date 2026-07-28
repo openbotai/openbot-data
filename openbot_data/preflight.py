@@ -4,15 +4,32 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import re
 from collections import defaultdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from string import Formatter
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 
 import cv2
 
+from openbot_data.adapters import DiscoveryRequest, read_lerobot_dataset
+from openbot_data.adapters._common import dataset_file_status
+from openbot_data.adapters.base import AdapterResult, thaw_value
+from openbot_data.audit import (
+    AUDIT_RULE_PACK_VERSION,
+    enrich_findings,
+    run_audit_rules,
+)
 from openbot_data.errors import DatasetArgumentError, DatasetNotFoundError
-from openbot_data.models import DatasetSnapshot, EpisodeRecord, VideoRecord
+from openbot_data.models import (
+    DatasetArtifact,
+    DatasetSnapshot,
+    EpisodeRecord,
+    VideoRecord,
+)
 from openbot_data.serialization import write_json_atomic
+from openbot_data.validation import validate_prepared_dataset
 from openbot_data.video import VIDEO_EXTENSIONS, scan_video
 
 MANIFEST_SCHEMA_VERSION = "openbot.dataset_manifest.v1"
@@ -20,9 +37,13 @@ AUDIT_SCHEMA_VERSION = "openbot.dataset_audit.v1"
 SUPPORTED_INPUT_FORMATS = {"auto", "video", "lerobot"}
 SUPPORTED_CHECKSUMS = {None, "sha256"}
 SUPPORTED_INTEGRITY_LEVELS = {"metadata", "sample", "full"}
+INTEGRITY_ORDER = {"metadata": 0, "sample": 1, "full": 2}
 DEFAULT_V3_VIDEO_PATH = (
     "videos/{video_key}/chunk-{chunk_index:03d}/file-{file_index:03d}.mp4"
 )
+V3_VIDEO_PATH_FIELDS = {"video_key", "chunk_index", "file_index"}
+_URI_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+_SHA256 = re.compile(r"^[a-f0-9]{64}$")
 
 
 def _safe_error(error: object, root: Path) -> str:
@@ -32,7 +53,7 @@ def _safe_error(error: object, root: Path) -> str:
 def _is_within_root(candidate: Path, root: Path) -> bool:
     try:
         candidate.resolve().relative_to(root.resolve())
-    except (OSError, ValueError):
+    except (OSError, RuntimeError, ValueError):
         return False
     return True
 
@@ -41,6 +62,72 @@ def _safe_media_path(candidate: Path, root: Path, *, follow_symlinks: bool) -> b
     if candidate.is_symlink() and not follow_symlinks:
         return False
     return candidate.is_file() and _is_within_root(candidate, root)
+
+
+def _append_unique_finding(
+    findings: List[Dict[str, Any]],
+    finding: Dict[str, Any],
+) -> None:
+    if finding not in findings:
+        findings.append(finding)
+
+
+def _relative_evidence_path(candidate: Path, root: Path) -> str:
+    try:
+        return candidate.relative_to(root).as_posix()
+    except ValueError:
+        return candidate.name
+
+
+def _media_reference_status(
+    candidate: Path,
+    root: Path,
+    findings: List[Dict[str, Any]],
+    path: str,
+    *,
+    follow_symlinks: bool,
+) -> str:
+    if candidate.is_symlink():
+        if not follow_symlinks:
+            _append_unique_finding(
+                findings,
+                _finding(
+                    "DATASET_SYMLINK_SKIPPED",
+                    "warning",
+                    "Dataset media symlink was skipped by the default policy.",
+                    path,
+                    {"follow_symlinks": False},
+                ),
+            )
+            return "skipped"
+        try:
+            candidate.resolve(strict=True)
+        except (OSError, RuntimeError):
+            _append_unique_finding(
+                findings,
+                _finding(
+                    "DATASET_SYMLINK_BROKEN",
+                    "error",
+                    "Dataset media symlink does not resolve to a file.",
+                    path,
+                ),
+            )
+            return "broken"
+    if not candidate.is_file():
+        return "missing"
+    if not _is_within_root(candidate, root):
+        _append_unique_finding(
+            findings,
+            _finding(
+                "DATASET_PATH_OUTSIDE_ROOT",
+                "error",
+                "Dataset media must resolve inside the dataset root.",
+                path,
+                {"symlink": candidate.is_symlink()},
+            ),
+        )
+        return "outside"
+    return "valid"
 
 
 def _discover_media_paths(
@@ -56,20 +143,15 @@ def _discover_media_paths(
     for candidate in search_root.rglob("*"):
         if candidate.suffix.lower() not in VIDEO_EXTENSIONS:
             continue
-        if not _safe_media_path(candidate, root, follow_symlinks=follow_symlinks):
-            try:
-                relative = candidate.relative_to(root).as_posix()
-            except ValueError:
-                relative = candidate.name
-            findings.append(
-                _finding(
-                    "DATASET_PATH_OUTSIDE_ROOT",
-                    "error",
-                    "Dataset media must resolve inside the dataset root.",
-                    relative,
-                    {"symlink": candidate.is_symlink()},
-                )
-            )
+        relative = _relative_evidence_path(candidate, root)
+        status = _media_reference_status(
+            candidate,
+            root,
+            findings,
+            relative,
+            follow_symlinks=follow_symlinks,
+        )
+        if status != "valid":
             continue
         paths.append(candidate)
     return sorted(set(paths))
@@ -91,6 +173,45 @@ def _finding(
     if path is not None:
         result["path"] = path
     return result
+
+
+def _append_metadata_path_policy_finding(
+    findings: List[Dict[str, Any]],
+    path: str,
+    status: str,
+) -> None:
+    if status == "skipped":
+        _append_unique_finding(
+            findings,
+            _finding(
+                "DATASET_SYMLINK_SKIPPED",
+                "warning",
+                "Dataset metadata symlink was skipped by the default policy.",
+                path,
+                {"follow_symlinks": False},
+            ),
+        )
+    elif status == "broken":
+        _append_unique_finding(
+            findings,
+            _finding(
+                "DATASET_SYMLINK_BROKEN",
+                "error",
+                "Dataset metadata symlink does not resolve to a regular file.",
+                path,
+            ),
+        )
+    elif status == "outside":
+        _append_unique_finding(
+            findings,
+            _finding(
+                "DATASET_PATH_OUTSIDE_ROOT",
+                "error",
+                "Dataset metadata must resolve inside the dataset root.",
+                path,
+                {"symlink": True},
+            ),
+        )
 
 
 def _read_json(
@@ -128,9 +249,29 @@ def _read_jsonl(
     paths: Iterable[Path],
     root: Path,
     findings: List[Dict[str, Any]],
+    *,
+    follow_symlinks: bool = False,
 ) -> List[Dict[str, Any]]:
     records: List[Dict[str, Any]] = []
     for path in sorted(paths):
+        relative = _relative_evidence_path(path, root)
+        status = dataset_file_status(
+            root,
+            relative,
+            follow_symlinks=follow_symlinks,
+        )
+        if status != "valid":
+            _append_metadata_path_policy_finding(findings, relative, status)
+            findings.append(
+                _finding(
+                    "LEROBOT_EPISODES_UNREADABLE",
+                    "error",
+                    "LeRobot episode metadata is not readable under the dataset path policy.",
+                    relative,
+                    {"reason": status},
+                )
+            )
+            continue
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
         except OSError as exc:
@@ -179,12 +320,14 @@ def _read_episode_parquet(
     paths: Iterable[Path],
     root: Path,
     findings: List[Dict[str, Any]],
+    *,
+    follow_symlinks: bool = False,
 ) -> List[Dict[str, Any]]:
     parquet_paths = sorted(paths)
     if not parquet_paths:
         return []
     try:
-        import pyarrow.parquet as parquet  # type: ignore[import-not-found]
+        import pyarrow.parquet as parquet  # type: ignore[import-not-found,import-untyped]
     except ImportError:
         findings.append(
             _finding(
@@ -198,6 +341,24 @@ def _read_episode_parquet(
         return []
     records: List[Dict[str, Any]] = []
     for path in parquet_paths:
+        relative = _relative_evidence_path(path, root)
+        status = dataset_file_status(
+            root,
+            relative,
+            follow_symlinks=follow_symlinks,
+        )
+        if status != "valid":
+            _append_metadata_path_policy_finding(findings, relative, status)
+            findings.append(
+                _finding(
+                    "LEROBOT_EPISODES_UNREADABLE",
+                    "error",
+                    "LeRobot episode parquet is not readable under the dataset path policy.",
+                    relative,
+                    {"reason": status},
+                )
+            )
+            continue
         try:
             parquet_file = parquet.ParquetFile(path)
             batches: Iterator[Any] = parquet_file.iter_batches(batch_size=1024)
@@ -237,6 +398,85 @@ def detect_input_format(path: str, input_format: str = "auto") -> str:
     return "video"
 
 
+def _validate_request_options(checksum: Optional[str], integrity: str) -> None:
+    if checksum not in SUPPORTED_CHECKSUMS:
+        raise DatasetArgumentError("checksum must be omitted or 'sha256'")
+    if integrity not in SUPPORTED_INTEGRITY_LEVELS:
+        raise DatasetArgumentError(
+            f"integrity must be one of {sorted(SUPPORTED_INTEGRITY_LEVELS)}"
+        )
+
+
+def validate_snapshot_request(
+    snapshot: DatasetSnapshot,
+    path: str,
+    input_format: str = "auto",
+    checksum: Optional[str] = None,
+    integrity: str = "sample",
+    follow_symlinks: bool = False,
+) -> DatasetSnapshot:
+    """Reject a prepared snapshot that cannot satisfy a rendering request."""
+    _validate_request_options(checksum, integrity)
+    root = Path(path).resolve()
+    if not root.is_dir():
+        raise DatasetNotFoundError(f"Directory not found: {path}")
+    if snapshot.checksum not in SUPPORTED_CHECKSUMS:
+        raise DatasetArgumentError("snapshot has unsupported checksum coverage")
+    if snapshot.integrity not in SUPPORTED_INTEGRITY_LEVELS:
+        raise DatasetArgumentError("snapshot has unsupported integrity coverage")
+    if snapshot.input_format not in {"video", "lerobot"}:
+        raise DatasetArgumentError("snapshot has unsupported input format")
+    if not isinstance(snapshot.follow_symlinks, bool):
+        raise DatasetArgumentError("snapshot has an invalid symlink policy")
+    for video in snapshot.videos:
+        if video.integrity_level not in SUPPORTED_INTEGRITY_LEVELS:
+            raise DatasetArgumentError(
+                "snapshot video has unsupported integrity coverage"
+            )
+        if (
+            INTEGRITY_ORDER[video.integrity_level]
+            < INTEGRITY_ORDER[snapshot.integrity]
+        ):
+            raise DatasetArgumentError(
+                "snapshot video coverage does not satisfy its declared integrity"
+            )
+        if (
+            snapshot.integrity in {"sample", "full"}
+            and video.decode_valid is None
+        ):
+            raise DatasetArgumentError(
+                "snapshot video has no decode result for its declared integrity"
+            )
+        if snapshot.checksum == "sha256" and (
+            not isinstance(video.checksum_sha256, str)
+            or _SHA256.fullmatch(video.checksum_sha256) is None
+        ):
+            raise DatasetArgumentError(
+                "snapshot video has no valid SHA-256 for its declared checksum"
+            )
+    if snapshot.root.resolve() != root:
+        raise DatasetArgumentError("snapshot root does not match the requested dataset")
+
+    resolved_format = detect_input_format(path, input_format)
+    if snapshot.input_format != resolved_format:
+        raise DatasetArgumentError(
+            "snapshot input format does not match the requested dataset format"
+        )
+    if checksum == "sha256" and snapshot.checksum != "sha256":
+        raise DatasetArgumentError(
+            "snapshot checksum coverage does not satisfy the requested checksum"
+        )
+    if INTEGRITY_ORDER.get(snapshot.integrity, -1) < INTEGRITY_ORDER[integrity]:
+        raise DatasetArgumentError(
+            "snapshot integrity does not satisfy the requested integrity level"
+        )
+    if snapshot.follow_symlinks != follow_symlinks:
+        raise DatasetArgumentError(
+            "snapshot symlink policy does not match the requested policy"
+        )
+    return snapshot
+
+
 def _video_key(relative_path: str) -> str:
     parts = Path(relative_path).parts
     if "videos" not in parts:
@@ -270,27 +510,215 @@ def _is_lerobot_v3(info: Dict[str, Any], episodes: Iterable[Dict[str, Any]]) -> 
     )
 
 
-def _normalize_declared_path(path: str) -> str | None:
-    normalized = Path(path).as_posix().lstrip("/")
-    if not normalized or ".." in Path(normalized).parts:
+def _normalize_declared_path(path: object) -> str | None:
+    if (
+        not isinstance(path, str)
+        or not path
+        or "\x00" in path
+        or "\\" in path
+        or path.startswith(("/", "//"))
+        or _URI_SCHEME.match(path)
+    ):
         return None
-    return normalized
+    candidate = PurePosixPath(path)
+    if candidate.is_absolute() or any(part in {"", ".", ".."} for part in candidate.parts):
+        return None
+    normalized = candidate.as_posix()
+    return normalized if normalized not in {"", "."} else None
+
+
+def _nonnegative_integer(value: object) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
+def _validate_v3_video_template(
+    info: Dict[str, Any],
+    findings: List[Dict[str, Any]],
+) -> str | None:
+    template = info.get("video_path", DEFAULT_V3_VIDEO_PATH)
+    reason: str | None = None
+    fields: set[str] = set()
+    if not isinstance(template, str):
+        reason = "non_string"
+    else:
+        try:
+            for _literal, field_name, format_spec, conversion in Formatter().parse(
+                template
+            ):
+                if field_name is not None:
+                    fields.add(field_name)
+                    if (
+                        "{" in (format_spec or "")
+                        or "}" in (format_spec or "")
+                        or conversion is not None
+                    ):
+                        reason = "nested_or_converted_placeholder"
+                        break
+            if reason is not None:
+                pass
+            elif not V3_VIDEO_PATH_FIELDS.issubset(fields):
+                reason = "missing_required_placeholder"
+            elif not fields.issubset(V3_VIDEO_PATH_FIELDS):
+                reason = "unknown_placeholder"
+            else:
+                example = template.format(
+                    video_key="camera",
+                    chunk_index=0,
+                    file_index=0,
+                )
+                if _normalize_declared_path(example) is None:
+                    reason = "invalid_path"
+        except (
+            AttributeError,
+            IndexError,
+            KeyError,
+            OverflowError,
+            TypeError,
+            ValueError,
+        ):
+            reason = "invalid_format"
+    if reason is None:
+        return template
+    findings.append(
+        _finding(
+            "LEROBOT_VIDEO_PATH_TEMPLATE_INVALID",
+            "error",
+            "LeRobot v3 video_path template is invalid.",
+            "meta/info.json",
+            {
+                "reason": reason,
+                "required_placeholders": sorted(V3_VIDEO_PATH_FIELDS),
+            },
+        )
+    )
+    return None
+
+
+def _segment_bounds(
+    from_timestamp: object,
+    to_timestamp: object,
+    episode_index: int,
+    video_key: str,
+    findings: List[Dict[str, Any]],
+) -> Tuple[float, float] | None:
+    values = {
+        "from_timestamp": from_timestamp,
+        "to_timestamp": to_timestamp,
+    }
+    missing = sorted(key for key, value in values.items() if value is None)
+    reason: str | None = "missing_pair" if missing else None
+    parsed: Dict[str, float] = {}
+    if reason is None:
+        for key, value in values.items():
+            if isinstance(value, bool):
+                reason = "non_numeric"
+                break
+            try:
+                parsed[key] = float(value)  # type: ignore[arg-type]
+            except (TypeError, ValueError, OverflowError):
+                reason = "non_numeric"
+                break
+        if reason is None and not all(math.isfinite(value) for value in parsed.values()):
+            reason = "non_finite"
+        elif reason is None and any(value < 0 for value in parsed.values()):
+            reason = "negative"
+        elif reason is None and parsed["from_timestamp"] >= parsed["to_timestamp"]:
+            reason = "not_ordered"
+    if reason is None:
+        return parsed["from_timestamp"], parsed["to_timestamp"]
+    evidence: Dict[str, Any] = {
+        "episode_index": episode_index,
+        "video_key": video_key,
+        "reason": reason,
+    }
+    if missing:
+        evidence["missing"] = missing
+    findings.append(
+        _finding(
+            "LEROBOT_VIDEO_SEGMENT_BOUNDS_INVALID",
+            "error",
+            "LeRobot video segment bounds must be finite, non-negative, and ordered.",
+            "meta/episodes",
+            evidence,
+        )
+    )
+    return None
+
+
+def _relation_indexes(
+    chunk: object,
+    file_index: object,
+    episode_index: int,
+    video_key: str,
+    findings: List[Dict[str, Any]],
+    *,
+    required: bool,
+) -> Tuple[int, int] | None:
+    relation_present = chunk is not None or file_index is not None
+    if not required and not relation_present:
+        return None
+    missing_fields = [
+        field
+        for field, value in (
+            ("chunk_index", chunk),
+            ("file_index", file_index),
+        )
+        if value is None
+    ]
+    if missing_fields:
+        findings.append(
+            _finding(
+                "LEROBOT_VIDEO_RELATION_MISSING",
+                "error",
+                "LeRobot v3 episode has no complete relational video shard reference.",
+                "meta/episodes",
+                {
+                    "episode_index": episode_index,
+                    "video_key": video_key,
+                    "missing": missing_fields,
+                },
+            )
+        )
+        return None
+    chunk_index = _nonnegative_integer(chunk)
+    normalized_file_index = _nonnegative_integer(file_index)
+    if chunk_index is not None and normalized_file_index is not None:
+        return chunk_index, normalized_file_index
+    invalid_fields = []
+    if chunk_index is None:
+        invalid_fields.append("chunk_index")
+    if normalized_file_index is None:
+        invalid_fields.append("file_index")
+    findings.append(
+        _finding(
+            "LEROBOT_VIDEO_RELATION_INVALID",
+            "error",
+            "LeRobot v3 video shard indexes must be non-negative integers.",
+            "meta/episodes",
+            {
+                "episode_index": episode_index,
+                "video_key": video_key,
+                "invalid_fields": invalid_fields,
+            },
+        )
+    )
+    return None
 
 
 def _v3_video_segments(
     raw: Dict[str, Any],
-    info: Dict[str, Any],
+    template: str | None,
     video_keys: Iterable[str],
     root: Path,
     episode_index: int,
     findings: List[Dict[str, Any]],
     *,
     follow_symlinks: bool,
-) -> List[Dict[str, Any]]:
-    template = info.get("video_path") or DEFAULT_V3_VIDEO_PATH
-    if not isinstance(template, str):
-        template = DEFAULT_V3_VIDEO_PATH
+) -> Tuple[List[Dict[str, Any]], List[str]]:
     segments: List[Dict[str, Any]] = []
+    matched_paths: List[str] = []
     nested_videos = raw.get("videos")
     for video_key in video_keys:
         chunk = raw.get(f"videos/{video_key}/chunk_index")
@@ -298,6 +726,7 @@ def _v3_video_segments(
         from_timestamp = raw.get(f"videos/{video_key}/from_timestamp")
         to_timestamp = raw.get(f"videos/{video_key}/to_timestamp")
         explicit_path: str | None = None
+        invalid_explicit_path = False
         if isinstance(nested_videos, dict):
             nested = nested_videos.get(video_key)
             if isinstance(nested, dict):
@@ -305,64 +734,124 @@ def _v3_video_segments(
                 file_index = nested.get("file_index", file_index)
                 from_timestamp = nested.get("from_timestamp", from_timestamp)
                 to_timestamp = nested.get("to_timestamp", to_timestamp)
-                if isinstance(nested.get("path"), str):
-                    explicit_path = str(nested["path"])
+                if "path" in nested:
+                    if isinstance(nested.get("path"), str):
+                        explicit_path = str(nested["path"])
+                    else:
+                        invalid_explicit_path = True
             elif isinstance(nested, str):
                 explicit_path = nested
+            elif video_key in nested_videos:
+                invalid_explicit_path = True
+
+        bounds = _segment_bounds(
+            from_timestamp,
+            to_timestamp,
+            episode_index,
+            video_key,
+            findings,
+        )
+        relation = _relation_indexes(
+            chunk,
+            file_index,
+            episode_index,
+            video_key,
+            findings,
+            required=explicit_path is None and not invalid_explicit_path,
+        )
+
+        if invalid_explicit_path:
+            findings.append(
+                _finding(
+                    "LEROBOT_VIDEO_PATH_INVALID",
+                    "error",
+                    "Episode video path must be a portable dataset-relative path.",
+                    "meta/episodes",
+                    {"episode_index": episode_index, "video_key": video_key},
+                )
+            )
+            continue
 
         if explicit_path is None:
+            if relation is None:
+                continue
+            if template is None:
+                continue
             try:
-                if chunk is None or file_index is None:
-                    raise KeyError("chunk_index/file_index")
                 explicit_path = template.format(
                     video_key=video_key,
-                    chunk_index=int(chunk),
-                    file_index=int(file_index),
+                    chunk_index=relation[0],
+                    file_index=relation[1],
                 )
-            except (KeyError, TypeError, ValueError, IndexError):
+            except (
+                AttributeError,
+                IndexError,
+                KeyError,
+                OverflowError,
+                TypeError,
+                ValueError,
+            ):
                 findings.append(
                     _finding(
-                        "LEROBOT_VIDEO_RELATION_MISSING",
+                        "LEROBOT_VIDEO_PATH_TEMPLATE_INVALID",
                         "error",
-                        "LeRobot v3 episode has no relational video shard reference.",
-                        "meta/episodes",
+                        "LeRobot v3 video_path template could not render a shard path.",
+                        "meta/info.json",
                         {"episode_index": episode_index, "video_key": video_key},
                     )
                 )
                 continue
 
         normalized = _normalize_declared_path(explicit_path)
-        candidate = root / normalized if normalized is not None else root.parent
-        if (
-            normalized is None
-            or not _safe_media_path(candidate, root, follow_symlinks=follow_symlinks)
-        ):
+        if normalized is None:
             findings.append(
                 _finding(
-                    "LEROBOT_VIDEO_MISSING",
+                    "LEROBOT_VIDEO_PATH_INVALID",
                     "error",
-                    "Episode references a video shard that is missing or outside the dataset root.",
-                    normalized or str(explicit_path),
+                    "Episode video path must be a portable dataset-relative path.",
+                    "meta/episodes",
                     {"episode_index": episode_index, "video_key": video_key},
                 )
             )
+            continue
+        candidate = root / normalized
+        status = _media_reference_status(
+            candidate,
+            root,
+            findings,
+            normalized,
+            follow_symlinks=follow_symlinks,
+        )
+        if status != "valid":
+            if status == "missing":
+                findings.append(
+                    _finding(
+                        "LEROBOT_VIDEO_MISSING",
+                        "error",
+                        "Episode references a local video shard that does not exist.",
+                        normalized,
+                        {"episode_index": episode_index, "video_key": video_key},
+                    )
+                )
+            continue
+        matched_paths.append(normalized)
+        if bounds is None:
             continue
         segment: Dict[str, Any] = {
             "video_key": video_key,
             "path_base": "dataset",
             "path": normalized,
+            "from_timestamp": bounds[0],
+            "to_timestamp": bounds[1],
         }
-        if from_timestamp is not None:
-            segment["from_timestamp"] = float(from_timestamp)
-        if to_timestamp is not None:
-            segment["to_timestamp"] = float(to_timestamp)
         segments.append(segment)
-    return segments
+    return segments, sorted(set(matched_paths))
 
 
 def _v2_video_files(
     raw: Dict[str, Any],
     videos: Iterable[str],
+    video_keys: Iterable[str],
     root: Path,
     episode_index: int,
     findings: List[Dict[str, Any]],
@@ -370,33 +859,180 @@ def _v2_video_files(
     follow_symlinks: bool,
 ) -> List[str]:
     token = f"episode_{episode_index:06d}"
-    matched = [item for item in videos if token in Path(item).stem]
-    explicit_paths: List[str] = []
+    available = sorted(set(videos))
+    declared_keys = sorted(set(video_keys))
+    matched: List[str] = []
+    covered_keys: set[str] = set()
+    if declared_keys:
+        for video_key in declared_keys:
+            camera_matches = [
+                item
+                for item in available
+                if Path(item).stem == token and video_key in PurePosixPath(item).parts
+            ]
+            matched.extend(camera_matches)
+            if camera_matches:
+                covered_keys.add(video_key)
+    else:
+        matched.extend(item for item in available if Path(item).stem == token)
+
+    explicit_paths: List[Tuple[str | None, object]] = []
     raw_videos = raw.get("videos")
     if isinstance(raw_videos, dict):
-        explicit_paths.extend(str(value) for value in raw_videos.values() if isinstance(value, str))
+        explicit_paths.extend((str(key), value) for key, value in raw_videos.items())
     raw_video_path = raw.get("video_path")
-    if isinstance(raw_video_path, str):
-        explicit_paths.append(raw_video_path)
-    for explicit in explicit_paths:
+    if raw_video_path is not None:
+        explicit_paths.append((None, raw_video_path))
+    for explicit_key, explicit in explicit_paths:
+        if not isinstance(explicit, str):
+            findings.append(
+                _finding(
+                    "LEROBOT_VIDEO_PATH_INVALID",
+                    "error",
+                    "Episode video path must be a portable dataset-relative path.",
+                    "meta/episodes",
+                    {
+                        "episode_index": episode_index,
+                        **({"video_key": explicit_key} if explicit_key is not None else {}),
+                    },
+                )
+            )
+            continue
         normalized = _normalize_declared_path(explicit)
-        candidate = root / normalized if normalized is not None else root.parent
-        if (
-            normalized is None
-            or not _safe_media_path(candidate, root, follow_symlinks=follow_symlinks)
-        ):
+        if normalized is None:
+            findings.append(
+                _finding(
+                    "LEROBOT_VIDEO_PATH_INVALID",
+                    "error",
+                    "Episode video path must be a portable dataset-relative path.",
+                    "meta/episodes",
+                    {
+                        "episode_index": episode_index,
+                        **({"video_key": explicit_key} if explicit_key is not None else {}),
+                    },
+                )
+            )
+            continue
+        status = _media_reference_status(
+            root / normalized,
+            root,
+            findings,
+            normalized,
+            follow_symlinks=follow_symlinks,
+        )
+        if status == "missing":
             findings.append(
                 _finding(
                     "LEROBOT_VIDEO_MISSING",
                     "error",
-                    "Episode references a video file that is missing or outside the dataset root.",
-                    normalized or explicit,
-                    {"episode_index": episode_index},
+                    "Episode references a local video file that does not exist.",
+                    normalized,
+                    {
+                        "episode_index": episode_index,
+                        **({"video_key": explicit_key} if explicit_key is not None else {}),
+                    },
                 )
             )
-        elif normalized not in matched:
-            matched.append(normalized)
+        elif status == "valid":
+            if normalized not in matched:
+                matched.append(normalized)
+            path_keys = {
+                video_key
+                for video_key in declared_keys
+                if video_key in PurePosixPath(normalized).parts
+            }
+            if explicit_key in declared_keys:
+                path_keys.add(str(explicit_key))
+            elif explicit_key is None and len(declared_keys) == 1:
+                path_keys.add(declared_keys[0])
+            covered_keys.update(path_keys)
+    for video_key in sorted(set(declared_keys) - covered_keys):
+        findings.append(
+            _finding(
+                "LEROBOT_VIDEO_MISSING",
+                "error",
+                "LeRobot v2.1 episode has no file for a declared video stream.",
+                "videos",
+                {"episode_index": episode_index, "video_key": video_key},
+            )
+        )
     return sorted(set(matched))
+
+
+def _validate_video_segments(
+    episodes: Iterable[Dict[str, Any]],
+    root: Path,
+    findings: List[Dict[str, Any]],
+) -> None:
+    grouped: Dict[Tuple[str, str], List[Tuple[float, float, int]]] = defaultdict(list)
+    for episode in episodes:
+        episode_index = int(episode["episode_index"])
+        for segment in episode.get("video_segments", []):
+            if not isinstance(segment, dict):
+                continue
+            path = segment.get("path")
+            video_key = segment.get("video_key")
+            from_timestamp = segment.get("from_timestamp")
+            to_timestamp = segment.get("to_timestamp")
+            if (
+                not isinstance(path, str)
+                or not isinstance(video_key, str)
+                or not isinstance(from_timestamp, (int, float))
+                or not isinstance(to_timestamp, (int, float))
+            ):
+                continue
+            grouped[(video_key, path)].append(
+                (float(from_timestamp), float(to_timestamp), episode_index)
+            )
+
+    for (video_key, path), segments in sorted(grouped.items()):
+        ordered = sorted(segments, key=lambda item: (item[0], item[1], item[2]))
+        previous: Tuple[float, float, int] | None = None
+        for current in ordered:
+            if previous is not None and current[0] < previous[1] - 1e-9:
+                findings.append(
+                    _finding(
+                        "LEROBOT_VIDEO_SEGMENT_OVERLAP",
+                        "error",
+                        "LeRobot episodes overlap in one shared video shard.",
+                        path,
+                        {
+                            "video_key": video_key,
+                            "previous_episode_index": previous[2],
+                            "previous_range": [previous[0], previous[1]],
+                            "episode_index": current[2],
+                            "range": [current[0], current[1]],
+                        },
+                    )
+                )
+            if previous is None or current[1] > previous[1]:
+                previous = current
+
+        video_info = scan_video(str(root / path))
+        fps = float(video_info.fps)
+        frame_count = int(video_info.frame_count)
+        if fps <= 0 or frame_count <= 0:
+            continue
+        duration = frame_count / fps
+        tolerance = 1.0 / fps
+        for from_timestamp, to_timestamp, episode_index in ordered:
+            if to_timestamp > duration + tolerance:
+                findings.append(
+                    _finding(
+                        "LEROBOT_VIDEO_SEGMENT_OUT_OF_RANGE",
+                        "error",
+                        "LeRobot video segment extends beyond the referenced shard duration.",
+                        path,
+                        {
+                            "episode_index": episode_index,
+                            "video_key": video_key,
+                            "from_timestamp": from_timestamp,
+                            "to_timestamp": to_timestamp,
+                            "duration_seconds": round(duration, 9),
+                            "tolerance_seconds": round(tolerance, 9),
+                        },
+                    )
+                )
 
 
 def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
@@ -416,7 +1052,17 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
         }
 
     info_path = root / "meta" / "info.json"
-    if not info_path.is_file():
+    info_status = dataset_file_status(
+        root,
+        "meta/info.json",
+        follow_symlinks=follow_symlinks,
+    )
+    if info_status != "valid":
+        _append_metadata_path_policy_finding(
+            findings,
+            "meta/info.json",
+            info_status,
+        )
         info: Dict[str, Any] = {}
         findings.append(
             _finding(
@@ -438,8 +1084,20 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
         if (root / "meta" / "episodes").is_dir()
         else []
     )
-    raw_episodes = _read_jsonl(episode_paths, root, findings)
-    raw_episodes.extend(_read_episode_parquet(parquet_paths, root, findings))
+    raw_episodes = _read_jsonl(
+        episode_paths,
+        root,
+        findings,
+        follow_symlinks=follow_symlinks,
+    )
+    raw_episodes.extend(
+        _read_episode_parquet(
+            parquet_paths,
+            root,
+            findings,
+            follow_symlinks=follow_symlinks,
+        )
+    )
     if not episode_paths and not parquet_paths:
         findings.append(
             _finding(
@@ -457,17 +1115,21 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
         follow_symlinks=follow_symlinks,
     )
     videos = [candidate.relative_to(root).as_posix() for candidate in video_paths]
-    video_keys = sorted(set(_declared_video_keys(info)) | {_video_key(item) for item in videos})
+    declared_video_keys = _declared_video_keys(info)
+    video_keys = sorted(set(declared_video_keys) | {_video_key(item) for item in videos})
     is_v3 = _is_lerobot_v3(info, raw_episodes)
+    video_template = (
+        _validate_v3_video_template(info, findings)
+        if is_v3 and declared_video_keys
+        else None
+    )
 
     episodes: List[Dict[str, Any]] = []
+    episode_occurrences: Dict[int, List[int]] = defaultdict(list)
     for ordinal, raw in enumerate(raw_episodes):
         raw_index = raw.get("episode_index", raw.get("index"))
-        try:
-            if raw_index is None:
-                raise TypeError
-            episode_index = int(raw_index)
-        except (TypeError, ValueError):
+        episode_index = _nonnegative_integer(raw_index)
+        if episode_index is None:
             findings.append(
                 _finding(
                     "LEROBOT_EPISODE_INDEX_INVALID",
@@ -478,6 +1140,7 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
                 )
             )
             continue
+        episode_occurrences[episode_index].append(ordinal)
 
         tasks_value = raw.get("tasks", raw.get("task", []))
         if isinstance(tasks_value, str):
@@ -487,22 +1150,36 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
         else:
             tasks = []
 
+        length: int | None = None
+        if "length" in raw:
+            length = _nonnegative_integer(raw.get("length"))
+            if length is None:
+                findings.append(
+                    _finding(
+                        "LEROBOT_EPISODE_LENGTH_INVALID",
+                        "error",
+                        "Episode length must be a non-negative integer.",
+                        "meta/episodes",
+                        {"episode_index": episode_index, "record": ordinal},
+                    )
+                )
+
         if is_v3:
-            segments = _v3_video_segments(
+            segments, matched = _v3_video_segments(
                 raw,
-                info,
-                video_keys,
+                video_template,
+                declared_video_keys,
                 root,
                 episode_index,
                 findings,
                 follow_symlinks=follow_symlinks,
             )
-            matched = sorted({str(item["path"]) for item in segments})
         else:
             segments = []
             matched = _v2_video_files(
                 raw,
                 videos,
+                declared_video_keys,
                 root,
                 episode_index,
                 findings,
@@ -511,24 +1188,30 @@ def read_lerobot(path: str, *, follow_symlinks: bool = False) -> Dict[str, Any]:
 
         episode = EpisodeRecord(
             episode_index=episode_index,
-            length=int(raw["length"]) if isinstance(raw.get("length"), int) else None,
+            length=length,
             tasks=tuple(tasks),
             video_files=tuple(matched),
             video_segments=tuple(segments),
         )
         episodes.append(episode.as_dict())
-        if video_keys and not matched:
-            findings.append(
-                _finding(
-                    "LEROBOT_VIDEO_MISSING",
-                    "error",
-                    "LeRobot episode has no matching local video file.",
-                    "videos",
-                    {"episode_index": episode_index, "video_keys": video_keys},
-                )
-            )
 
     episodes.sort(key=lambda item: item["episode_index"])
+    for episode_index, occurrences in sorted(episode_occurrences.items()):
+        if len(occurrences) > 1:
+            findings.append(
+                _finding(
+                    "LEROBOT_EPISODE_INDEX_DUPLICATE",
+                    "error",
+                    "Episode index appears in more than one metadata record.",
+                    "meta/episodes",
+                    {
+                        "episode_index": episode_index,
+                        "records": occurrences,
+                        "count": len(occurrences),
+                    },
+                )
+            )
+    _validate_video_segments(episodes, root, findings)
     total_declared = info.get("total_episodes")
     if isinstance(total_declared, int) and total_declared != len(episodes):
         findings.append(
@@ -584,8 +1267,20 @@ def _decode_probe(
         if not capture.isOpened():
             return False, 0
         if integrity == "sample":
-            ok, _frame = capture.read()
-            return bool(ok), 1 if ok else 0
+            last_frame = max(0, expected_frames - 1)
+            positions = sorted({0, last_frame // 2, last_frame})
+            decoded = 0
+            valid = True
+            for position in positions:
+                if not capture.set(cv2.CAP_PROP_POS_FRAMES, position):
+                    valid = False
+                    continue
+                ok, _frame = capture.read()
+                if not ok:
+                    valid = False
+                    continue
+                decoded += 1
+            return valid, decoded
         decoded = 0
         while True:
             ok, _frame = capture.read()
@@ -616,7 +1311,12 @@ def _scan_paths(
             and float(info.fps) > 0
             and float(info.duration) > 0
         )
-        decode_valid, decoded_frames = _decode_probe(candidate, integrity, info.frame_count)
+        decode_valid, probed_frames = _decode_probe(candidate, integrity, info.frame_count)
+        decoded_frames = (
+            1
+            if integrity == "sample" and decode_valid is True
+            else probed_frames
+        )
         error = _safe_error(info.error, root) if info.error is not None else None
         if not metadata_valid and error is None:
             error = "Video metadata is incomplete or invalid"
@@ -639,9 +1339,150 @@ def _scan_paths(
                 decoded_frame_count=decoded_frames,
                 error=error,
                 checksum_sha256=sha256_file(candidate) if checksum == "sha256" else None,
+                raw_fps=float(info.fps),
+                raw_duration=float(info.duration),
             )
         )
     return tuple(records)
+
+
+def _adapter_episode_records(result: AdapterResult) -> Tuple[EpisodeRecord, ...]:
+    """Project one adapter result into the legacy episode facade without I/O."""
+    video_relations: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+    for relation in result.relations:
+        if (
+            relation.kind != "video"
+            or not relation.exists
+            or relation.from_timestamp is None
+            or relation.to_timestamp is None
+        ):
+            continue
+        video_relations[relation.episode_index].append(
+            {
+                "video_key": relation.feature_key,
+                "path_base": "dataset",
+                "path": relation.path,
+                "from_timestamp": relation.from_timestamp,
+                "to_timestamp": relation.to_timestamp,
+            }
+        )
+    return tuple(
+        EpisodeRecord(
+            episode_index=episode.episode_index,
+            length=episode.length,
+            tasks=episode.tasks,
+            video_files=episode.video_paths,
+            video_segments=tuple(
+                sorted(
+                    video_relations.get(episode.episode_index, []),
+                    key=lambda item: (
+                        str(item["video_key"]),
+                        str(item["path"]),
+                        float(item["from_timestamp"]),
+                        float(item["to_timestamp"]),
+                    ),
+                )
+            ),
+        )
+        for episode in result.episodes
+    )
+
+
+def _selected_artifact_paths(
+    paths: List[str],
+    integrity: str,
+) -> set[str]:
+    if integrity == "full":
+        return set(paths)
+    if integrity == "metadata" or not paths:
+        return set()
+    last = len(paths) - 1
+    return {paths[index] for index in sorted({0, last // 2, last})}
+
+
+def _prepared_artifacts(
+    root: Path,
+    adapter_result: AdapterResult | None,
+    videos: Tuple[VideoRecord, ...],
+    *,
+    checksum: Optional[str],
+    integrity: str,
+    follow_symlinks: bool,
+) -> Tuple[DatasetArtifact, ...]:
+    """Capture portable inventory facts once, before any renderer runs."""
+    candidates: Dict[Tuple[str, str], Any] = {}
+    if adapter_result is not None:
+        for artifact in adapter_result.artifacts:
+            if not artifact.exists:
+                continue
+            kind = (
+                "data"
+                if artifact.kind == "data"
+                else "media"
+                if artifact.kind in {"media", "video"}
+                else "metadata"
+            )
+            key = (kind, artifact.path)
+            candidates.setdefault(key, artifact)
+        info_path = root / "meta/info.json"
+        if (
+            adapter_result.raw_info
+            and _safe_media_path(
+                info_path,
+                root,
+                follow_symlinks=follow_symlinks,
+            )
+        ):
+            candidates.setdefault(("metadata", "meta/info.json"), None)
+
+    data_paths = sorted(
+        path for kind, path in candidates if kind == "data"
+    )
+    selected_data = _selected_artifact_paths(data_paths, integrity)
+    records: Dict[Tuple[str, str], DatasetArtifact] = {}
+    for (kind, relative), artifact in sorted(candidates.items()):
+        candidate = root / relative
+        if not _safe_media_path(
+            candidate,
+            root,
+            follow_symlinks=follow_symlinks,
+        ):
+            continue
+        try:
+            size_bytes = candidate.stat().st_size
+        except OSError:
+            continue
+        include_digest = checksum == "sha256" and (
+            kind == "metadata"
+            or kind == "media"
+            or relative in selected_data
+        )
+        records[(kind, relative)] = DatasetArtifact(
+            kind=kind,
+            path=relative,
+            size_bytes=size_bytes,
+            checksum_sha256=(
+                sha256_file(candidate) if include_digest else None
+            ),
+            row_count=(
+                artifact.row_count if artifact is not None else None
+            ),
+            columns=(
+                artifact.columns if artifact is not None else ()
+            ),
+        )
+
+    for video in videos:
+        records[("media", video.path)] = DatasetArtifact(
+            kind="media",
+            path=video.path,
+            size_bytes=video.size_bytes,
+            checksum_sha256=video.checksum_sha256,
+        )
+    return tuple(
+        records[key]
+        for key in sorted(records, key=lambda item: (item[0], item[1]))
+    )
 
 
 def prepare_dataset(
@@ -653,37 +1494,37 @@ def prepare_dataset(
     follow_symlinks: bool = False,
 ) -> DatasetSnapshot:
     """Build one immutable snapshot shared by all output renderers."""
-    if checksum not in SUPPORTED_CHECKSUMS:
-        raise DatasetArgumentError("checksum must be omitted or 'sha256'")
-    if integrity not in SUPPORTED_INTEGRITY_LEVELS:
-        raise DatasetArgumentError(
-            f"integrity must be one of {sorted(SUPPORTED_INTEGRITY_LEVELS)}"
-        )
+    _validate_request_options(checksum, integrity)
     root = Path(path).resolve()
     if not root.is_dir():
         raise DatasetNotFoundError(f"Directory not found: {path}")
     resolved_format = detect_input_format(path, input_format)
     if resolved_format == "lerobot":
-        discovery = read_lerobot(path, follow_symlinks=follow_symlinks)
-        paths = [root / item for item in discovery["videos"]]
-        episodes = tuple(
-            EpisodeRecord(
-                episode_index=int(item["episode_index"]),
-                length=int(item["length"]) if isinstance(item.get("length"), int) else None,
-                tasks=tuple(str(task) for task in item.get("tasks", [])),
-                video_files=tuple(str(value) for value in item.get("video_files", [])),
-                video_segments=tuple(
-                    dict(value)
-                    for value in item.get("video_segments", [])
-                    if isinstance(value, dict)
-                ),
-            )
-            for item in discovery["episodes"]
+        adapter_result = read_lerobot_dataset(
+            path,
+            DiscoveryRequest(
+                integrity=integrity,
+                checksum=checksum,
+                follow_symlinks=follow_symlinks,
+            ),
         )
-        video_keys = tuple(str(value) for value in discovery["video_keys"])
-        findings = tuple(dict(value) for value in discovery["findings"])
-        codebase_version = discovery["codebase_version"]
+        paths = [
+            candidate
+            for relative_path in adapter_result.video_paths
+            if _safe_media_path(
+                candidate := root / relative_path,
+                root,
+                follow_symlinks=follow_symlinks,
+            )
+        ]
+        episodes = _adapter_episode_records(adapter_result)
+        video_keys = adapter_result.video_keys
+        findings = tuple(
+            thaw_value(value) for value in adapter_result.findings
+        )
+        codebase_version = adapter_result.declared_version
     else:
+        adapter_result = None
         discovery_findings: List[Dict[str, Any]] = []
         paths = _discover_media_paths(
             root,
@@ -697,14 +1538,38 @@ def prepare_dataset(
         )
         findings = tuple(discovery_findings)
         codebase_version = None
+    videos = _scan_paths(root, paths, checksum, integrity)
+    validation_result = (
+        validate_prepared_dataset(
+            root,
+            adapter_result,
+            videos,
+            integrity,
+        )
+        if adapter_result is not None
+        else None
+    )
     return DatasetSnapshot(
         root=root,
         input_format=resolved_format,
         codebase_version=str(codebase_version) if codebase_version is not None else None,
         episodes=episodes,
         video_keys=video_keys,
-        videos=_scan_paths(root, paths, checksum, integrity),
+        videos=videos,
         findings=findings,
+        checksum=checksum,
+        integrity=integrity,
+        follow_symlinks=follow_symlinks,
+        adapter_result=adapter_result,
+        artifacts=_prepared_artifacts(
+            root,
+            adapter_result,
+            videos,
+            checksum=checksum,
+            integrity=integrity,
+            follow_symlinks=follow_symlinks,
+        ),
+        validation_result=validation_result,
     )
 
 
@@ -728,121 +1593,58 @@ def audit_dataset(
     snapshot: DatasetSnapshot | None = None,
 ) -> Dict[str, Any]:
     """Audit a local dataset using deterministic, evidence-backed rules."""
+    run = None
     try:
-        prepared = snapshot or prepare_dataset(
-            path,
-            input_format=input_format,
-            checksum=checksum,
-            integrity=integrity,
-            follow_symlinks=follow_symlinks,
+        prepared = (
+            validate_snapshot_request(
+                snapshot,
+                path,
+                input_format,
+                checksum,
+                integrity,
+                follow_symlinks,
+            )
+            if snapshot is not None
+            else prepare_dataset(
+                path,
+                input_format=input_format,
+                checksum=checksum,
+                integrity=integrity,
+                follow_symlinks=follow_symlinks,
+            )
         )
     except DatasetArgumentError as exc:
-        findings = [
-            _finding("DATASET_INVALID_ARGUMENT", "error", str(exc), ".")
-        ]
+        findings = list(
+            enrich_findings(
+                [_finding("DATASET_INVALID_ARGUMENT", "error", str(exc), ".")]
+            )
+        )
         resolved_format = input_format
         videos: Tuple[VideoRecord, ...] = ()
     except DatasetNotFoundError as exc:
-        findings = [_finding("DATASET_NOT_FOUND", "error", str(exc), ".")]
+        findings = list(
+            enrich_findings(
+                [_finding("DATASET_NOT_FOUND", "error", str(exc), ".")]
+            )
+        )
         resolved_format = input_format
         videos = ()
     else:
         resolved_format = prepared.input_format
         videos = prepared.videos
-        findings = [dict(item) for item in prepared.findings]
+        seed_findings = list(prepared.findings)
+        adapter_result = prepared.adapter_result
+        if adapter_result is not None:
+            seed_findings.extend(adapter_result.findings)
+        validation_result = prepared.validation_result
+        if validation_result is not None:
+            seed_findings.extend(validation_result.findings)
+        run = run_audit_rules(
+            prepared,
+            seed_findings=seed_findings,
+        )
+        findings = [dict(item) for item in run.findings]
 
-    checksums: Dict[str, List[str]] = defaultdict(list)
-    streams: Dict[str, List[VideoRecord]] = defaultdict(list)
-    for video in videos:
-        relative = video.path
-        streams[video.stream].append(video)
-        if not video.metadata_valid:
-            findings.append(
-                _finding(
-                    "VIDEO_UNREADABLE",
-                    "error",
-                    "Video metadata is incomplete or invalid.",
-                    relative,
-                    {"error": video.error},
-                )
-            )
-        if video.fps <= 0:
-            findings.append(
-                _finding("VIDEO_INVALID_FPS", "error", "Video FPS must be positive.", relative)
-            )
-        if video.duration <= 0:
-            findings.append(
-                _finding(
-                    "VIDEO_INVALID_DURATION",
-                    "error",
-                    "Video duration must be positive.",
-                    relative,
-                )
-            )
-        if video.width <= 0 or video.height <= 0:
-            findings.append(
-                _finding(
-                    "VIDEO_INVALID_DIMENSIONS",
-                    "error",
-                    "Video dimensions must be positive.",
-                    relative,
-                )
-            )
-        if video.decode_valid is False:
-            findings.append(
-                _finding(
-                    "VIDEO_PREVIEW_DECODE_FAILED",
-                    "error",
-                    "Video decoding did not satisfy the requested integrity level.",
-                    relative,
-                    {
-                        "integrity_level": video.integrity_level,
-                        "decoded_frame_count": video.decoded_frame_count,
-                    },
-                )
-            )
-        digest = video.checksum_sha256
-        if isinstance(digest, str):
-            checksums[digest].append(relative)
-
-    for stream, records in sorted(streams.items()):
-        valid = [record for record in records if record.is_valid]
-        resolutions = sorted({(record.width, record.height) for record in valid})
-        fps_values = sorted({round(record.fps, 3) for record in valid})
-        if len(resolutions) > 1:
-            findings.append(
-                _finding(
-                    "STREAM_INCONSISTENT_RESOLUTION",
-                    "warning",
-                    "Videos in one camera stream use different resolutions.",
-                    stream,
-                    {"resolutions": [list(value) for value in resolutions]},
-                )
-            )
-        if len(fps_values) > 1:
-            findings.append(
-                _finding(
-                    "STREAM_INCONSISTENT_FPS",
-                    "warning",
-                    "Videos in one camera stream use different FPS values.",
-                    stream,
-                    {"fps": fps_values},
-                )
-            )
-
-    for digest, paths in sorted(checksums.items()):
-        if len(paths) > 1:
-            findings.append(
-                _finding(
-                    "DUPLICATE_CONTENT",
-                    "warning",
-                    "Multiple files have identical SHA-256 content.",
-                    sorted(paths)[0],
-                    {"checksum_sha256": digest, "paths": sorted(paths)},
-                )
-            )
-
-    findings = sorted(findings, key=_finding_sort_key)
     counts = {
         severity: sum(item["severity"] == severity for item in findings)
         for severity in ("error", "warning", "info")
@@ -851,6 +1653,23 @@ def audit_dataset(
         "schema_version": AUDIT_SCHEMA_VERSION,
         "input_format": resolved_format,
         "summary": {"videos": len(videos), **counts},
+        "rule_pack_version": (
+            run.rule_pack_version if run is not None else AUDIT_RULE_PACK_VERSION
+        ),
+        "coverage": (
+            {
+                "capabilities": [
+                    item.as_dict() for item in run.capabilities
+                ]
+            }
+            if run is not None
+            else {"capabilities": []}
+        ),
+        "skipped_checks": (
+            [item.as_dict() for item in run.skipped_checks]
+            if run is not None
+            else []
+        ),
         "findings": findings,
     }
     if output_path is not None:

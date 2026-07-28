@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_merge_plan.v1.json",
+  "title": "OpenBot Dataset Merge Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fingerprint_version",
+    "profile",
+    "decision",
+    "summary",
+    "inputs",
+    "task_remap",
+    "checks",
+    "official_operation",
+    "tool",
+    "plan_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {"const": "openbot.dataset_merge_plan.v1"},
+    "fingerprint_version": {
+      "const": "openbot.dataset_merge_plan.fingerprint.v1"
+    },
+    "profile": {"type": "string", "minLength": 1},
+    "decision": {"$ref": "#/$defs/decision"},
+    "summary": {"$ref": "#/$defs/planSummary"},
+    "inputs": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"$ref": "#/$defs/input"}
+    },
+    "task_remap": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/compatibilityCheck"}
+    },
+    "official_operation": {"$ref": "#/$defs/officialOperation"},
+    "tool": {"$ref": "#/$defs/tool"},
+    "plan_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "decision": {
+      "enum": ["direct", "transform_required", "incompatible", "unknown"]
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "openbot-data"},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "planSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checks",
+        "direct",
+        "transform_required",
+        "incompatible",
+        "unknown"
+      ],
+      "properties": {
+        "checks": {"type": "integer", "minimum": 1},
+        "direct": {"type": "integer", "minimum": 0},
+        "transform_required": {"type": "integer", "minimum": 0},
+        "incompatible": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0}
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "snapshot_fingerprint",
+        "source",
+        "format",
+        "totals"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1},
+        "snapshot_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "source": {"type": "object"},
+        "format": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "input_format",
+            "dataset_format_version",
+            "adapter"
+          ],
+          "properties": {
+            "input_format": {"type": ["string", "null"]},
+            "dataset_format_version": {"type": ["string", "null"]},
+            "adapter": {"type": ["string", "null"]}
+          }
+        },
+        "totals": {"type": "object"}
+      }
+    },
+    "compatibilityCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "status", "summary", "evidence"],
+      "properties": {
+        "check": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/decision"},
+        "summary": {"type": "string", "minLength": 1},
+        "evidence": {"type": "object"}
+      }
+    },
+    "officialOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "package",
+        "operation",
+        "command",
+        "input_ids",
+        "output_id",
+        "preconditions_satisfied",
+        "will_execute"
+      ],
+      "properties": {
+        "tool": {"const": "lerobot-edit-dataset"},
+        "package": {"const": "lerobot==0.6.0"},
+        "operation": {"const": "merge"},
+        "command": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "input_ids": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "output_id": {"type": "string", "minLength": 1},
+        "preconditions_satisfied": {"type": "boolean"},
+        "will_execute": {"const": false}
+      }
+    }
+  }
+}

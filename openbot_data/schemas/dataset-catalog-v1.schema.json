@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_catalog.v1.json",
+  "title": "OpenBot Dataset Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "input_format",
+    "codebase_version",
+    "summary",
+    "videos"
+  ],
+  "properties": {
+    "schema_version": {"const": "openbot.dataset_catalog.v1"},
+    "input_format": {"enum": ["video", "lerobot"]},
+    "codebase_version": {"type": ["string", "null"]},
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_dir",
+        "total_videos",
+        "valid_videos",
+        "invalid_videos",
+        "total_duration",
+        "total_size_mb"
+      ],
+      "properties": {
+        "source_dir": {"const": "."},
+        "total_videos": {"type": "integer", "minimum": 0},
+        "valid_videos": {"type": "integer", "minimum": 0},
+        "invalid_videos": {"type": "integer", "minimum": 0},
+        "total_duration": {"type": "number", "minimum": 0},
+        "total_size_mb": {"type": "number", "minimum": 0}
+      }
+    },
+    "videos": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/video"}
+    }
+  },
+  "$defs": {
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_dir",
+        "filename",
+        "path",
+        "width",
+        "height",
+        "fps",
+        "frame_count",
+        "duration",
+        "size_mb",
+        "is_valid",
+        "error"
+      ],
+      "properties": {
+        "source_dir": {"const": "."},
+        "filename": {"type": "string"},
+        "path": {"type": "string"},
+        "width": {"type": "integer", "minimum": 0},
+        "height": {"type": "integer", "minimum": 0},
+        "fps": {"type": "number", "minimum": 0},
+        "frame_count": {"type": "integer", "minimum": 0},
+        "duration": {"type": "number", "minimum": 0},
+        "size_mb": {"type": "number", "minimum": 0},
+        "is_valid": {"type": "boolean"},
+        "error": {"type": "string"}
+      }
+    }
+  }
+}

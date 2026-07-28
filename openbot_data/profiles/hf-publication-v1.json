@@ -1,0 +1,28 @@
+{
+  "id": "hf-publication",
+  "version": "1",
+  "source_version": "huggingface_hub revision contract 2026-07-28",
+  "source_reference": "https://huggingface.co/docs/huggingface_hub/en/guides/download",
+  "required_integrity": "metadata",
+  "input_formats": ["lerobot"],
+  "adapters": ["lerobot_v30"],
+  "dataset_versions": ["v3.0", "3.0"],
+  "required_capabilities": [
+    "source.identity",
+    "format.contract",
+    "metadata.info",
+    "metadata.episodes",
+    "metadata.tasks"
+  ],
+  "required_features": [],
+  "any_feature_groups": [],
+  "metadata_requirements": [
+    {"key": "license", "severity": "error"}
+  ],
+  "advisory_metadata": [
+    {"key": "tags", "severity": "warning"},
+    {"key": "task_categories", "severity": "warning"}
+  ],
+  "requires_hf_revision": true,
+  "thresholds": {}
+}

@@ -29,6 +29,22 @@
         "resolved_revision",
         "snapshot_fingerprint"
       ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {"source_kind": {"const": "hf_hub"}},
+            "required": ["source_kind"]
+          },
+          "then": {
+            "properties": {
+              "resolved_revision": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              }
+            }
+          }
+        }
+      ],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "source_kind": {"enum": ["local", "hf_hub"]},
@@ -74,7 +90,16 @@
     "coverage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["integrity_level", "checksum", "episodes", "videos", "capabilities"],
+      "required": [
+        "integrity_level",
+        "checksum",
+        "episodes",
+        "videos",
+        "capabilities",
+        "snapshot_contract",
+        "audit_contract",
+        "readiness_contract"
+      ],
       "properties": {
         "integrity_level": {"enum": ["metadata", "sample", "full"]},
         "checksum": {"enum": ["sha256", null]},
@@ -130,7 +155,10 @@
             "annotation_quality": {"$ref": "#/$defs/capabilityStatus"},
             "downstream_pipeline": {"$ref": "#/$defs/capabilityStatus"}
           }
-        }
+        },
+        "snapshot_contract": {"type": "object"},
+        "audit_contract": {"type": "object"},
+        "readiness_contract": {"type": "object"}
       }
     },
     "facts": {

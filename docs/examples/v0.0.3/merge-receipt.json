@@ -1,0 +1,4780 @@
+{
+  "checks": [
+    {
+      "check": "premerge_compatibility",
+      "evidence": {
+        "decision": "direct"
+      },
+      "status": "passed",
+      "summary": "Input snapshots were directly compatible."
+    },
+    {
+      "check": "post_snapshot",
+      "evidence": {
+        "checksum": "sha256",
+        "completed_capabilities": [
+          "advisory.measurements",
+          "alignment.data_relations",
+          "alignment.episode_ranges",
+          "alignment.task_foreign_keys",
+          "alignment.timestamps",
+          "alignment.video_relations",
+          "content.checksum",
+          "data.indexes",
+          "data.inventory",
+          "data.parquet_footer",
+          "data.parquet_rows",
+          "data.parquet_schema",
+          "format.contract",
+          "media.declared_contract",
+          "media.decode",
+          "media.inventory",
+          "media.metadata",
+          "metadata.episode_indexes",
+          "metadata.episodes",
+          "metadata.info",
+          "metadata.inventory",
+          "metadata.tasks",
+          "metadata.totals",
+          "source.identity"
+        ],
+        "requested_integrity": "full",
+        "snapshot_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3"
+      },
+      "status": "passed",
+      "summary": "The merged output has a full SHA-256 snapshot."
+    },
+    {
+      "check": "full_post_audit",
+      "evidence": {
+        "error_count": 0,
+        "evidence_complete": true,
+        "skipped_checks": []
+      },
+      "status": "passed",
+      "summary": "The full post-merge audit completed without errors."
+    },
+    {
+      "check": "loader_smoke",
+      "evidence": {
+        "evidence": null,
+        "status": "unverified"
+      },
+      "status": "unverified",
+      "summary": "No official LeRobot loader runner was supplied."
+    },
+    {
+      "check": "operation_and_lineage",
+      "evidence": {
+        "expected": {
+          "input_snapshot_fingerprints": [
+            "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+            "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88"
+          ],
+          "operation": "merge",
+          "output_snapshot_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3",
+          "package": "lerobot==0.6.0",
+          "tool": "lerobot-edit-dataset"
+        },
+        "recorded": null,
+        "status": "unverified"
+      },
+      "status": "unverified",
+      "summary": "No pinned official operation record was supplied."
+    },
+    {
+      "check": "semantic_reconciliation",
+      "evidence": {
+        "failures": []
+      },
+      "status": "passed",
+      "summary": "Merged features, tasks, streams, and totals reconcile."
+    },
+    {
+      "check": "semantic_diff",
+      "evidence": {
+        "diffs": 2,
+        "failures": []
+      },
+      "status": "passed",
+      "summary": "Every input-to-output semantic diff contains no contract regression."
+    }
+  ],
+  "fingerprint_version": "openbot.dataset_merge_receipt.fingerprint.v1",
+  "input_snapshots": [
+    {
+      "component_fingerprints": {
+        "coverage": "354750b6299a9ab93480929aaaebe10e3bf2a1017d94178ab7c4e16e1b0da1df",
+        "data_inventory": "b38f4717fb6f86f493be5564af9192b949ae978419ac4494f9982b4a0b0d06b7",
+        "episodes": "2a67118fbf807a7d7961b0a633ddf685780c81c41ffbdd47b0ab26eee9a4d13a",
+        "features": "85d2c18f29d51118e455a44146ad49606ef4b314ef32e6c740b962194fd44f5e",
+        "format": "6b1259e933f3184e55d65d5b6f19e0856efd791af55a38dcc9c388bb612c57d1",
+        "media_inventory": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "metadata_inventory": "6e8120013344f9de8fb0643a20bd8e8c875bf4a45dff78369c192aca9390e5ff",
+        "source": "9ab1a0ffc47bb4d8c7c1486f02216f1dfd7ae46a3a66416bbf0a57c279444752",
+        "tasks": "746c6985faa332710986bb334dd171ec4772ce304a6e990d582e114d2e3f7664",
+        "totals": "43d0c8ccc321e51d14b0ec8b652ac73ef1d24f1315ba410c6a5fb3c52dab1f70",
+        "video_streams": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "contract": {
+        "episodes": [
+          {
+            "content_rows": 2,
+            "content_sha256": "9546e8e4492b85412ac53e57366200944411341f7f32dc6581c343ba6bf796bd",
+            "data_relation": {
+              "dataset_from_index": 0,
+              "dataset_to_index": 2,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "episode_index": 0,
+            "extensions": {},
+            "length": 2,
+            "source": {
+              "path": "meta/episodes/chunk-000/file-000.parquet",
+              "row": 1
+            },
+            "source_ordinal": 0,
+            "tasks": [
+              "pick cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          }
+        ],
+        "features": [
+          {
+            "dtype": "float32",
+            "key": "action",
+            "metadata": {
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              }
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "episode_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "frame_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "float32",
+            "key": "observation.state",
+            "metadata": {
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              }
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "task_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "float32",
+            "key": "timestamp",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          }
+        ],
+        "tasks": [
+          {
+            "extensions": {},
+            "source": {
+              "path": "meta/tasks.parquet",
+              "row": 1
+            },
+            "task": "pick cube",
+            "task_index": 0
+          }
+        ],
+        "video_streams": []
+      },
+      "coverage": {
+        "capabilities": [
+          {
+            "capability": "advisory.measurements",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.data_relations",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.episode_ranges",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.task_foreign_keys",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.timestamps",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.video_relations",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "content.checksum",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "data.indexes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.inventory",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_footer",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_rows",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_schema",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "format.contract",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "media.declared_contract",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.decode",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.inventory",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.metadata",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "metadata.episode_indexes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/episodes/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.episodes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.info",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.stats",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Optional file missing.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          },
+          {
+            "capability": "metadata.tasks",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.totals",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/info.json"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "source.identity",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "stats.recomputed",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Statistics were recomputed but no stored values exist to compare.",
+            "reason_code": "stored_stats_unavailable",
+            "selected": [
+              "action",
+              "observation.state"
+            ],
+            "status": "partial",
+            "total": 2
+          },
+          {
+            "capability": "stats.stored",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [
+              "meta/stats.json"
+            ],
+            "reason": "Optional normalization statistics are absent.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          }
+        ],
+        "checksum": "sha256",
+        "completed_capabilities": [
+          "advisory.measurements",
+          "alignment.data_relations",
+          "alignment.episode_ranges",
+          "alignment.task_foreign_keys",
+          "alignment.timestamps",
+          "alignment.video_relations",
+          "content.checksum",
+          "data.indexes",
+          "data.inventory",
+          "data.parquet_footer",
+          "data.parquet_rows",
+          "data.parquet_schema",
+          "format.contract",
+          "media.declared_contract",
+          "media.decode",
+          "media.inventory",
+          "media.metadata",
+          "metadata.episode_indexes",
+          "metadata.episodes",
+          "metadata.info",
+          "metadata.inventory",
+          "metadata.tasks",
+          "metadata.totals",
+          "source.identity"
+        ],
+        "requested_integrity": "full",
+        "selection": {
+          "cameras": [],
+          "data_shards": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "episodes": [
+            0
+          ],
+          "media_shards": [],
+          "metadata_shards": [
+            "meta/episodes/chunk-000/file-000.parquet",
+            "meta/info.json",
+            "meta/tasks.parquet"
+          ]
+        },
+        "skipped_capabilities": [
+          {
+            "capability": "metadata.stats",
+            "reason": "Optional file missing.",
+            "reason_code": "optional_file_missing"
+          },
+          {
+            "capability": "stats.recomputed",
+            "reason": "Statistics were recomputed but no stored values exist to compare.",
+            "reason_code": "stored_stats_unavailable"
+          },
+          {
+            "capability": "stats.stored",
+            "reason": "Optional normalization statistics are absent.",
+            "reason_code": "optional_file_missing"
+          }
+        ],
+        "totals": {
+          "cameras": 0,
+          "data_shards": 1,
+          "episodes": 1,
+          "media_shards": 0,
+          "metadata_shards": 3
+        }
+      },
+      "fingerprint_version": "openbot.dataset_snapshot.fingerprint.v1",
+      "format": {
+        "adapter": "lerobot_v30",
+        "compatibility_target": "lerobot==0.6.0",
+        "dataset_format_version": "v3.0",
+        "input_format": "lerobot",
+        "metadata": {
+          "chunks_size": 1000,
+          "codebase_version": "v3.0",
+          "data_files_size_in_mb": 100,
+          "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+          "features": {
+            "action": {
+              "dtype": "float32",
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              },
+              "names": [
+                "joint_a",
+                "joint_b"
+              ],
+              "shape": [
+                2
+              ]
+            },
+            "episode_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "frame_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "observation.state": {
+              "dtype": "float32",
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              },
+              "names": [
+                "joint_a",
+                "joint_b"
+              ],
+              "shape": [
+                2
+              ]
+            },
+            "task_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "timestamp": {
+              "dtype": "float32",
+              "names": null,
+              "shape": [
+                1
+              ]
+            }
+          },
+          "fps": 10,
+          "robot_type": "openbot-test-arm",
+          "total_episodes": 1,
+          "total_frames": 2,
+          "total_tasks": 1,
+          "video_files_size_in_mb": 200,
+          "video_path": null
+        }
+      },
+      "inventory": {
+        "data": [
+          {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "2466e04c9bb2cbae026847fcbdeb17496dc523b7b732bc45df182d8b6702328c",
+            "size_bytes": 2512
+          }
+        ],
+        "media": [],
+        "metadata": [
+          {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "e003156f4060ab25927238415d51859011097b3e5710a6558e72173921b1adc3",
+            "size_bytes": 2489
+          },
+          {
+            "path": "meta/info.json",
+            "sha256": "0756675356e50e46a362d1779afc74134589c3406ed988cc889b0dcdcb36cb67",
+            "size_bytes": 944
+          },
+          {
+            "path": "meta/tasks.parquet",
+            "sha256": "24f5f018253f07c10c17de5cd3073fd958fd76ad39bd169f11c0fe99f32e5546",
+            "size_bytes": 772
+          }
+        ]
+      },
+      "schema_version": "openbot.dataset_snapshot.v1",
+      "snapshot_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+      "source": {
+        "kind": "local",
+        "locator": "dataset://.",
+        "requested_revision": null,
+        "resolved_revision": null
+      },
+      "tool": {
+        "name": "openbot-data",
+        "version": "0.0.2"
+      },
+      "totals": {
+        "data_shards": 1,
+        "duration_seconds": 0.2,
+        "episodes": 1,
+        "features": 7,
+        "frames": 2,
+        "media_shards": 0,
+        "metadata_shards": 3,
+        "size_bytes": 6717,
+        "tasks": 1,
+        "video_streams": 0
+      }
+    },
+    {
+      "component_fingerprints": {
+        "coverage": "354750b6299a9ab93480929aaaebe10e3bf2a1017d94178ab7c4e16e1b0da1df",
+        "data_inventory": "2a14a424515391269b78fa78fdf46f823fb74927ea5f86704e65ca725a8c0048",
+        "episodes": "4be0430b9992fb3175d7bfdaff72de8b6c529c2ccb96d74ae4ec6fd2f50e7aad",
+        "features": "85d2c18f29d51118e455a44146ad49606ef4b314ef32e6c740b962194fd44f5e",
+        "format": "6b1259e933f3184e55d65d5b6f19e0856efd791af55a38dcc9c388bb612c57d1",
+        "media_inventory": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "metadata_inventory": "ab3defdcc993e77cb97731f46e9274109c4b200db88272eaee7e9920fa732a0f",
+        "source": "9ab1a0ffc47bb4d8c7c1486f02216f1dfd7ae46a3a66416bbf0a57c279444752",
+        "tasks": "233a35af8c60d0a0808f44a46af393688f89da66f6526037d5134d9231c1bf33",
+        "totals": "38e734a5fcebf965ae3003b81091244966c97e776cd5f267a229c42327489026",
+        "video_streams": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "contract": {
+        "episodes": [
+          {
+            "content_rows": 2,
+            "content_sha256": "e0726e4dc0fbd0106b78b0858e382f065971d69e1640976a6cdada56bb9fbad1",
+            "data_relation": {
+              "dataset_from_index": 0,
+              "dataset_to_index": 2,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "episode_index": 0,
+            "extensions": {},
+            "length": 2,
+            "source": {
+              "path": "meta/episodes/chunk-000/file-000.parquet",
+              "row": 1
+            },
+            "source_ordinal": 0,
+            "tasks": [
+              "place cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          }
+        ],
+        "features": [
+          {
+            "dtype": "float32",
+            "key": "action",
+            "metadata": {
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              }
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "episode_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "frame_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "float32",
+            "key": "observation.state",
+            "metadata": {
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              }
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          {
+            "dtype": "int64",
+            "key": "task_index",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          {
+            "dtype": "float32",
+            "key": "timestamp",
+            "metadata": {},
+            "names": null,
+            "shape": [
+              1
+            ]
+          }
+        ],
+        "tasks": [
+          {
+            "extensions": {},
+            "source": {
+              "path": "meta/tasks.parquet",
+              "row": 1
+            },
+            "task": "place cube",
+            "task_index": 0
+          }
+        ],
+        "video_streams": []
+      },
+      "coverage": {
+        "capabilities": [
+          {
+            "capability": "advisory.measurements",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.data_relations",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.episode_ranges",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.task_foreign_keys",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.timestamps",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.video_relations",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "content.checksum",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "data.indexes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.inventory",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_footer",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_rows",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_schema",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "format.contract",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "media.declared_contract",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.decode",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.inventory",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.metadata",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "metadata.episode_indexes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/episodes/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.episodes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.info",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.stats",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Optional file missing.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          },
+          {
+            "capability": "metadata.tasks",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.totals",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/info.json"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "source.identity",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "stats.recomputed",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Statistics were recomputed but no stored values exist to compare.",
+            "reason_code": "stored_stats_unavailable",
+            "selected": [
+              "action",
+              "observation.state"
+            ],
+            "status": "partial",
+            "total": 2
+          },
+          {
+            "capability": "stats.stored",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [
+              "meta/stats.json"
+            ],
+            "reason": "Optional normalization statistics are absent.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          }
+        ],
+        "checksum": "sha256",
+        "completed_capabilities": [
+          "advisory.measurements",
+          "alignment.data_relations",
+          "alignment.episode_ranges",
+          "alignment.task_foreign_keys",
+          "alignment.timestamps",
+          "alignment.video_relations",
+          "content.checksum",
+          "data.indexes",
+          "data.inventory",
+          "data.parquet_footer",
+          "data.parquet_rows",
+          "data.parquet_schema",
+          "format.contract",
+          "media.declared_contract",
+          "media.decode",
+          "media.inventory",
+          "media.metadata",
+          "metadata.episode_indexes",
+          "metadata.episodes",
+          "metadata.info",
+          "metadata.inventory",
+          "metadata.tasks",
+          "metadata.totals",
+          "source.identity"
+        ],
+        "requested_integrity": "full",
+        "selection": {
+          "cameras": [],
+          "data_shards": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "episodes": [
+            0
+          ],
+          "media_shards": [],
+          "metadata_shards": [
+            "meta/episodes/chunk-000/file-000.parquet",
+            "meta/info.json",
+            "meta/tasks.parquet"
+          ]
+        },
+        "skipped_capabilities": [
+          {
+            "capability": "metadata.stats",
+            "reason": "Optional file missing.",
+            "reason_code": "optional_file_missing"
+          },
+          {
+            "capability": "stats.recomputed",
+            "reason": "Statistics were recomputed but no stored values exist to compare.",
+            "reason_code": "stored_stats_unavailable"
+          },
+          {
+            "capability": "stats.stored",
+            "reason": "Optional normalization statistics are absent.",
+            "reason_code": "optional_file_missing"
+          }
+        ],
+        "totals": {
+          "cameras": 0,
+          "data_shards": 1,
+          "episodes": 1,
+          "media_shards": 0,
+          "metadata_shards": 3
+        }
+      },
+      "fingerprint_version": "openbot.dataset_snapshot.fingerprint.v1",
+      "format": {
+        "adapter": "lerobot_v30",
+        "compatibility_target": "lerobot==0.6.0",
+        "dataset_format_version": "v3.0",
+        "input_format": "lerobot",
+        "metadata": {
+          "chunks_size": 1000,
+          "codebase_version": "v3.0",
+          "data_files_size_in_mb": 100,
+          "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+          "features": {
+            "action": {
+              "dtype": "float32",
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              },
+              "names": [
+                "joint_a",
+                "joint_b"
+              ],
+              "shape": [
+                2
+              ]
+            },
+            "episode_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "frame_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "observation.state": {
+              "dtype": "float32",
+              "info": {
+                "coordinate_system": "joint",
+                "normalization": "mean_std"
+              },
+              "names": [
+                "joint_a",
+                "joint_b"
+              ],
+              "shape": [
+                2
+              ]
+            },
+            "task_index": {
+              "dtype": "int64",
+              "names": null,
+              "shape": [
+                1
+              ]
+            },
+            "timestamp": {
+              "dtype": "float32",
+              "names": null,
+              "shape": [
+                1
+              ]
+            }
+          },
+          "fps": 10,
+          "robot_type": "openbot-test-arm",
+          "total_episodes": 1,
+          "total_frames": 2,
+          "total_tasks": 1,
+          "video_files_size_in_mb": 200,
+          "video_path": null
+        }
+      },
+      "inventory": {
+        "data": [
+          {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "b02c6f5b3c4d127b7c9cc323206f4e776e831481591abe07dcc1f0e364590645",
+            "size_bytes": 2512
+          }
+        ],
+        "media": [],
+        "metadata": [
+          {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "8933827fde9eebd81876d9474e757b207d61522d965e6bee6c53e7aacb6d4e7c",
+            "size_bytes": 2494
+          },
+          {
+            "path": "meta/info.json",
+            "sha256": "0756675356e50e46a362d1779afc74134589c3406ed988cc889b0dcdcb36cb67",
+            "size_bytes": 944
+          },
+          {
+            "path": "meta/tasks.parquet",
+            "sha256": "b921c3794870ef8d6e9aee93ca6e9c809a4f1d12178efa1e9da5f165b7b90a7e",
+            "size_bytes": 777
+          }
+        ]
+      },
+      "schema_version": "openbot.dataset_snapshot.v1",
+      "snapshot_fingerprint": "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88",
+      "source": {
+        "kind": "local",
+        "locator": "dataset://.",
+        "requested_revision": null,
+        "resolved_revision": null
+      },
+      "tool": {
+        "name": "openbot-data",
+        "version": "0.0.2"
+      },
+      "totals": {
+        "data_shards": 1,
+        "duration_seconds": 0.2,
+        "episodes": 1,
+        "features": 7,
+        "frames": 2,
+        "media_shards": 0,
+        "metadata_shards": 3,
+        "size_bytes": 6727,
+        "tasks": 1,
+        "video_streams": 0
+      }
+    }
+  ],
+  "lineage": {
+    "expected": {
+      "input_snapshot_fingerprints": [
+        "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+        "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88"
+      ],
+      "operation": "merge",
+      "output_snapshot_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3",
+      "package": "lerobot==0.6.0",
+      "tool": "lerobot-edit-dataset"
+    },
+    "recorded": null,
+    "status": "unverified"
+  },
+  "loader_smoke": {
+    "evidence": null,
+    "status": "unverified"
+  },
+  "merge_plan": {
+    "checks": [
+      {
+        "check": "format_and_version",
+        "evidence": {
+          "adapters": [
+            "lerobot_v30",
+            "lerobot_v30"
+          ],
+          "compatibility_targets": [
+            "lerobot==0.6.0",
+            "lerobot==0.6.0"
+          ],
+          "dataset_format_versions": [
+            "v3.0",
+            "v3.0"
+          ],
+          "input_formats": [
+            "lerobot",
+            "lerobot"
+          ]
+        },
+        "status": "direct",
+        "summary": "All inputs use one verified LeRobot storage contract."
+      },
+      {
+        "check": "features",
+        "evidence": {
+          "feature_keys": [
+            [
+              "action",
+              "episode_index",
+              "frame_index",
+              "index",
+              "observation.state",
+              "task_index",
+              "timestamp"
+            ],
+            [
+              "action",
+              "episode_index",
+              "frame_index",
+              "index",
+              "observation.state",
+              "task_index",
+              "timestamp"
+            ]
+          ],
+          "mismatches": []
+        },
+        "status": "direct",
+        "summary": "Feature keys, dtypes, shapes, and declared semantics agree."
+      },
+      {
+        "check": "action_state_contract",
+        "evidence": {
+          "conflicts": [],
+          "missing": [],
+          "roles": {
+            "action": [
+              {
+                "features": {
+                  "action": {
+                    "coordinates": {
+                      "info.coordinate_system": "joint"
+                    },
+                    "names": [
+                      "joint_a",
+                      "joint_b"
+                    ],
+                    "normalization": {
+                      "info.normalization": "mean_std"
+                    }
+                  }
+                },
+                "top_coordinates": {},
+                "top_normalization": {}
+              },
+              {
+                "features": {
+                  "action": {
+                    "coordinates": {
+                      "info.coordinate_system": "joint"
+                    },
+                    "names": [
+                      "joint_a",
+                      "joint_b"
+                    ],
+                    "normalization": {
+                      "info.normalization": "mean_std"
+                    }
+                  }
+                },
+                "top_coordinates": {},
+                "top_normalization": {}
+              }
+            ],
+            "state": [
+              {
+                "features": {
+                  "observation.state": {
+                    "coordinates": {
+                      "info.coordinate_system": "joint"
+                    },
+                    "names": [
+                      "joint_a",
+                      "joint_b"
+                    ],
+                    "normalization": {
+                      "info.normalization": "mean_std"
+                    }
+                  }
+                },
+                "top_coordinates": {},
+                "top_normalization": {}
+              },
+              {
+                "features": {
+                  "observation.state": {
+                    "coordinates": {
+                      "info.coordinate_system": "joint"
+                    },
+                    "names": [
+                      "joint_a",
+                      "joint_b"
+                    ],
+                    "normalization": {
+                      "info.normalization": "mean_std"
+                    }
+                  }
+                },
+                "top_coordinates": {},
+                "top_normalization": {}
+              }
+            ]
+          }
+        },
+        "status": "direct",
+        "summary": "Action and state coordinate/normalization contracts agree."
+      },
+      {
+        "check": "timing_and_media",
+        "evidence": {
+          "cameras": [
+            [],
+            []
+          ],
+          "codec": [
+            {},
+            {}
+          ],
+          "conflicts": [],
+          "delta_horizons": [
+            {},
+            {}
+          ],
+          "fps": [
+            10.0,
+            10.0
+          ],
+          "missing": [],
+          "transforms": []
+        },
+        "status": "direct",
+        "summary": "FPS, horizons, cameras, codec metadata, and media coverage agree."
+      },
+      {
+        "check": "tasks",
+        "evidence": {
+          "normalized_tasks": [
+            [
+              "pick cube"
+            ],
+            [
+              "place cube"
+            ]
+          ],
+          "task_remap": {},
+          "tasks": [
+            [
+              "pick cube"
+            ],
+            [
+              "place cube"
+            ]
+          ]
+        },
+        "status": "direct",
+        "summary": "Task identities can be unioned without remapping."
+      },
+      {
+        "check": "embodiment",
+        "evidence": {
+          "embodiments": [
+            "openbot-test-arm",
+            "openbot-test-arm"
+          ]
+        },
+        "status": "direct",
+        "summary": "Robot or embodiment provenance agrees."
+      },
+      {
+        "check": "duplicates",
+        "evidence": {
+          "content_digest_counts": [
+            1,
+            1
+          ],
+          "missing_checksums": [],
+          "overlaps": [],
+          "snapshot_fingerprints": [
+            "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+            "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88"
+          ]
+        },
+        "status": "direct",
+        "summary": "No exact duplicate input payload was found."
+      },
+      {
+        "check": "index_shard_video_collisions",
+        "evidence": {
+          "cross_input_episode_index_overlap": [
+            {
+              "indexes": [
+                0
+              ],
+              "left_input": 1,
+              "right_input": 2
+            }
+          ],
+          "cross_input_path_overlap": [
+            {
+              "group": "data",
+              "left_input": 1,
+              "paths": [
+                "data/chunk-000/file-000.parquet"
+              ],
+              "right_input": 2
+            }
+          ],
+          "inputs": [
+            {
+              "contiguous": true,
+              "duplicate_indexes": [],
+              "duplicate_paths": {},
+              "episode_indexes": [
+                0
+              ],
+              "expected_total": 1,
+              "input": 1,
+              "malformed_video_ranges": [],
+              "video_range_collisions": []
+            },
+            {
+              "contiguous": true,
+              "duplicate_indexes": [],
+              "duplicate_paths": {},
+              "episode_indexes": [
+                0
+              ],
+              "expected_total": 1,
+              "input": 2,
+              "malformed_video_ranges": [],
+              "video_range_collisions": []
+            }
+          ],
+          "official_tool_reindexes_output": true
+        },
+        "status": "direct",
+        "summary": "Input indexes and ranges are internally valid; the official tool will reindex."
+      },
+      {
+        "check": "license",
+        "evidence": {
+          "licenses": [
+            null,
+            null
+          ],
+          "profile": "lerobot-act"
+        },
+        "status": "direct",
+        "summary": "The selected non-publication profile does not assert license compatibility."
+      },
+      {
+        "check": "source_lineage",
+        "evidence": {
+          "duplicate_source_identities": [],
+          "sources": [
+            {
+              "kind": "local",
+              "locator": "dataset://.",
+              "requested_revision": null,
+              "resolved_revision": null
+            },
+            {
+              "kind": "local",
+              "locator": "dataset://.",
+              "requested_revision": null,
+              "resolved_revision": null
+            }
+          ]
+        },
+        "status": "direct",
+        "summary": "Input source identities are distinct and traceable by snapshot fingerprint."
+      }
+    ],
+    "decision": "direct",
+    "fingerprint_version": "openbot.dataset_merge_plan.fingerprint.v1",
+    "inputs": [
+      {
+        "format": {
+          "adapter": "lerobot_v30",
+          "dataset_format_version": "v3.0",
+          "input_format": "lerobot"
+        },
+        "ordinal": 1,
+        "snapshot_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+        "source": {
+          "kind": "local",
+          "locator": "dataset://.",
+          "requested_revision": null,
+          "resolved_revision": null
+        },
+        "totals": {
+          "data_shards": 1,
+          "duration_seconds": 0.2,
+          "episodes": 1,
+          "features": 7,
+          "frames": 2,
+          "media_shards": 0,
+          "metadata_shards": 3,
+          "size_bytes": 6717,
+          "tasks": 1,
+          "video_streams": 0
+        }
+      },
+      {
+        "format": {
+          "adapter": "lerobot_v30",
+          "dataset_format_version": "v3.0",
+          "input_format": "lerobot"
+        },
+        "ordinal": 2,
+        "snapshot_fingerprint": "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88",
+        "source": {
+          "kind": "local",
+          "locator": "dataset://.",
+          "requested_revision": null,
+          "resolved_revision": null
+        },
+        "totals": {
+          "data_shards": 1,
+          "duration_seconds": 0.2,
+          "episodes": 1,
+          "features": 7,
+          "frames": 2,
+          "media_shards": 0,
+          "metadata_shards": 3,
+          "size_bytes": 6727,
+          "tasks": 1,
+          "video_streams": 0
+        }
+      }
+    ],
+    "official_operation": {
+      "command": [
+        "uvx",
+        "--from",
+        "lerobot[dataset]==0.6.0",
+        "lerobot-edit-dataset",
+        "--new_repo_id",
+        "OPENBOT_MERGED_OUTPUT",
+        "--new_root",
+        "OPENBOT_MERGED_ROOT",
+        "--operation.type",
+        "merge",
+        "--operation.repo_ids",
+        "[\"OPENBOT_INPUT_001\",\"OPENBOT_INPUT_002\"]",
+        "--operation.roots",
+        "[\"OPENBOT_INPUT_ROOT_001\",\"OPENBOT_INPUT_ROOT_002\"]",
+        "--push_to_hub",
+        "false"
+      ],
+      "input_ids": [
+        "OPENBOT_INPUT_001",
+        "OPENBOT_INPUT_002"
+      ],
+      "operation": "merge",
+      "output_id": "OPENBOT_MERGED_OUTPUT",
+      "package": "lerobot==0.6.0",
+      "preconditions_satisfied": true,
+      "tool": "lerobot-edit-dataset",
+      "will_execute": false
+    },
+    "plan_fingerprint": "3b346cf1297101f436a674b978be15a6d3a9077eac686e66cbef2f72b8592802",
+    "profile": "lerobot-act",
+    "schema_version": "openbot.dataset_merge_plan.v1",
+    "summary": {
+      "checks": 10,
+      "direct": 10,
+      "incompatible": 0,
+      "transform_required": 0,
+      "unknown": 0
+    },
+    "task_remap": {},
+    "tool": {
+      "name": "openbot-data",
+      "version": "0.0.2"
+    }
+  },
+  "official_operation": {
+    "record": null,
+    "recorded": false
+  },
+  "post_audit": {
+    "report": {
+      "coverage": {
+        "capabilities": [
+          {
+            "capability": "advisory.measurements",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.data_relations",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 2
+          },
+          {
+            "capability": "alignment.episode_ranges",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 2
+          },
+          {
+            "capability": "alignment.task_foreign_keys",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.timestamps",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "alignment.video_relations",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "content.checksum",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "data.indexes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.inventory",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_footer",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_rows",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "data.parquet_schema",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "data/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "format.contract",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "media.declared_contract",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.decode",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.inventory",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "media.metadata",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 0
+          },
+          {
+            "capability": "metadata.episode_indexes",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/episodes/chunk-000/file-000.parquet"
+            ],
+            "status": "complete",
+            "total": 2
+          },
+          {
+            "capability": "metadata.episodes",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.info",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.stats",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Optional file missing.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          },
+          {
+            "capability": "metadata.tasks",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "metadata.totals",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [
+              "meta/info.json"
+            ],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "source.identity",
+            "checked": 1,
+            "integrity": "full",
+            "omitted": [],
+            "selected": [],
+            "status": "complete",
+            "total": 1
+          },
+          {
+            "capability": "stats.recomputed",
+            "checked": 2,
+            "integrity": "full",
+            "omitted": [],
+            "reason": "Statistics were recomputed but no stored values exist to compare.",
+            "reason_code": "stored_stats_unavailable",
+            "selected": [
+              "action",
+              "observation.state"
+            ],
+            "status": "partial",
+            "total": 2
+          },
+          {
+            "capability": "stats.stored",
+            "checked": 0,
+            "integrity": "full",
+            "omitted": [
+              "meta/stats.json"
+            ],
+            "reason": "Optional normalization statistics are absent.",
+            "reason_code": "optional_file_missing",
+            "selected": [],
+            "status": "unavailable",
+            "total": 1
+          }
+        ]
+      },
+      "findings": [
+        {
+          "code": "LEROBOT_STATS_MISSING",
+          "evidence": {
+            "required_by_base_loader": false
+          },
+          "fixability": "manual",
+          "impact": "normalization_contract_is_unverified",
+          "layer": "metadata",
+          "location": {},
+          "message": "Optional normalization statistics are missing.",
+          "path": "meta/stats.json",
+          "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+          "rule_id": "lerobot.stats.missing",
+          "severity": "warning"
+        }
+      ],
+      "input_format": "lerobot",
+      "rule_pack_version": "openbot.dataset_audit.rules.v1",
+      "schema_version": "openbot.dataset_audit.v1",
+      "skipped_checks": [],
+      "summary": {
+        "error": 0,
+        "info": 0,
+        "videos": 0,
+        "warning": 1
+      }
+    },
+    "requested_integrity": "full",
+    "status": "passed"
+  },
+  "post_snapshot": {
+    "component_fingerprints": {
+      "coverage": "c01392d0e36cfc3915a716002994a22cf9cddc16dbf49efd58c7c558a32ac0cb",
+      "data_inventory": "d667847dd0081ec4d5a6e62776d67e1282f09a632e804da62040df326022fa3a",
+      "episodes": "ad0b121970e4a8b456c7973326498647c9414b737758c8d764647ebdadfec9aa",
+      "features": "85d2c18f29d51118e455a44146ad49606ef4b314ef32e6c740b962194fd44f5e",
+      "format": "01d53b8163486f33bb58749ef4be9d60cdc033b48e870011c6ad9ead2a9ada75",
+      "media_inventory": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "metadata_inventory": "f57b3e5185d965d4f1e8b142de3b013ad9ae43880beef430e9f5b74c724d460f",
+      "source": "9ab1a0ffc47bb4d8c7c1486f02216f1dfd7ae46a3a66416bbf0a57c279444752",
+      "tasks": "573b00757d1ae4a1938627c7b1128016ca2b6ca6a108a198cc2f47245edcaa40",
+      "totals": "e53e17502712c1e701d622f755dafc53b13e0291ce528512d8ce8574fe50491b",
+      "video_streams": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "contract": {
+      "episodes": [
+        {
+          "content_rows": 2,
+          "content_sha256": "9546e8e4492b85412ac53e57366200944411341f7f32dc6581c343ba6bf796bd",
+          "data_relation": {
+            "dataset_from_index": 0,
+            "dataset_to_index": 2,
+            "path": "data/chunk-000/file-000.parquet"
+          },
+          "episode_index": 0,
+          "extensions": {},
+          "length": 2,
+          "source": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "row": 1
+          },
+          "source_ordinal": 0,
+          "tasks": [
+            "pick cube"
+          ],
+          "video_files": [],
+          "video_segments": []
+        },
+        {
+          "content_rows": 2,
+          "content_sha256": "778f22cee5bc83af6e751c0216693182b986ce8e702ac7009382f20a3ef81dcd",
+          "data_relation": {
+            "dataset_from_index": 2,
+            "dataset_to_index": 4,
+            "path": "data/chunk-000/file-000.parquet"
+          },
+          "episode_index": 1,
+          "extensions": {},
+          "length": 2,
+          "source": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "row": 2
+          },
+          "source_ordinal": 1,
+          "tasks": [
+            "place cube"
+          ],
+          "video_files": [],
+          "video_segments": []
+        }
+      ],
+      "features": [
+        {
+          "dtype": "float32",
+          "key": "action",
+          "metadata": {
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            }
+          },
+          "names": [
+            "joint_a",
+            "joint_b"
+          ],
+          "shape": [
+            2
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "episode_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "frame_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "float32",
+          "key": "observation.state",
+          "metadata": {
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            }
+          },
+          "names": [
+            "joint_a",
+            "joint_b"
+          ],
+          "shape": [
+            2
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "task_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "float32",
+          "key": "timestamp",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        }
+      ],
+      "tasks": [
+        {
+          "extensions": {},
+          "source": {
+            "path": "meta/tasks.parquet",
+            "row": 1
+          },
+          "task": "pick cube",
+          "task_index": 0
+        },
+        {
+          "extensions": {},
+          "source": {
+            "path": "meta/tasks.parquet",
+            "row": 2
+          },
+          "task": "place cube",
+          "task_index": 1
+        }
+      ],
+      "video_streams": []
+    },
+    "coverage": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 2
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 2
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 2
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ],
+      "checksum": "sha256",
+      "completed_capabilities": [
+        "advisory.measurements",
+        "alignment.data_relations",
+        "alignment.episode_ranges",
+        "alignment.task_foreign_keys",
+        "alignment.timestamps",
+        "alignment.video_relations",
+        "content.checksum",
+        "data.indexes",
+        "data.inventory",
+        "data.parquet_footer",
+        "data.parquet_rows",
+        "data.parquet_schema",
+        "format.contract",
+        "media.declared_contract",
+        "media.decode",
+        "media.inventory",
+        "media.metadata",
+        "metadata.episode_indexes",
+        "metadata.episodes",
+        "metadata.info",
+        "metadata.inventory",
+        "metadata.tasks",
+        "metadata.totals",
+        "source.identity"
+      ],
+      "requested_integrity": "full",
+      "selection": {
+        "cameras": [],
+        "data_shards": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "episodes": [
+          0,
+          1
+        ],
+        "media_shards": [],
+        "metadata_shards": [
+          "meta/episodes/chunk-000/file-000.parquet",
+          "meta/info.json",
+          "meta/tasks.parquet"
+        ]
+      },
+      "skipped_capabilities": [
+        {
+          "capability": "metadata.stats",
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing"
+        },
+        {
+          "capability": "stats.recomputed",
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable"
+        },
+        {
+          "capability": "stats.stored",
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing"
+        }
+      ],
+      "totals": {
+        "cameras": 0,
+        "data_shards": 1,
+        "episodes": 2,
+        "media_shards": 0,
+        "metadata_shards": 3
+      }
+    },
+    "fingerprint_version": "openbot.dataset_snapshot.fingerprint.v1",
+    "format": {
+      "adapter": "lerobot_v30",
+      "compatibility_target": "lerobot==0.6.0",
+      "dataset_format_version": "v3.0",
+      "input_format": "lerobot",
+      "metadata": {
+        "chunks_size": 1000,
+        "codebase_version": "v3.0",
+        "data_files_size_in_mb": 100,
+        "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+        "features": {
+          "action": {
+            "dtype": "float32",
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          "episode_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "frame_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "observation.state": {
+            "dtype": "float32",
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          "task_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "timestamp": {
+            "dtype": "float32",
+            "names": null,
+            "shape": [
+              1
+            ]
+          }
+        },
+        "fps": 10,
+        "robot_type": "openbot-test-arm",
+        "total_episodes": 2,
+        "total_frames": 4,
+        "total_tasks": 2,
+        "video_files_size_in_mb": 200,
+        "video_path": null
+      }
+    },
+    "inventory": {
+      "data": [
+        {
+          "path": "data/chunk-000/file-000.parquet",
+          "sha256": "720f8a61bf1e44cf6ed7fdb083acccbe75af5e666c5bd102e4e0978938df8d4b",
+          "size_bytes": 2561
+        }
+      ],
+      "media": [],
+      "metadata": [
+        {
+          "path": "meta/episodes/chunk-000/file-000.parquet",
+          "sha256": "fb8d5ab6caf977c8892e0a62a2f52ffefdad0cac752b76f4dd5e9003c0ef6064",
+          "size_bytes": 2529
+        },
+        {
+          "path": "meta/info.json",
+          "sha256": "2444d3064009362ba0f7fe6d925364a630ccb9280c7317b08341ad659fa03d3c",
+          "size_bytes": 944
+        },
+        {
+          "path": "meta/tasks.parquet",
+          "sha256": "8953a5bc5bf44bec5bf415ec52b24d82d13f304f8ba424dc673a085c14ec8226",
+          "size_bytes": 796
+        }
+      ]
+    },
+    "schema_version": "openbot.dataset_snapshot.v1",
+    "snapshot_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3",
+    "source": {
+      "kind": "local",
+      "locator": "dataset://.",
+      "requested_revision": null,
+      "resolved_revision": null
+    },
+    "tool": {
+      "name": "openbot-data",
+      "version": "0.0.2"
+    },
+    "totals": {
+      "data_shards": 1,
+      "duration_seconds": 0.4,
+      "episodes": 2,
+      "features": 7,
+      "frames": 4,
+      "media_shards": 0,
+      "metadata_shards": 3,
+      "size_bytes": 6830,
+      "tasks": 2,
+      "video_streams": 0
+    }
+  },
+  "profile": "lerobot-act",
+  "receipt_fingerprint": "cb162db589482b9796922494009066546500d8c1be3aaba0efd1b2f37997d074",
+  "schema_version": "openbot.dataset_merge_receipt.v1",
+  "semantic_diffs": [
+    {
+      "baseline_fingerprint": "2759c547a018b654b2a89cf3369c307b85c91892752e85977c38b1f2da1364a8",
+      "candidate_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3",
+      "changes": [
+        {
+          "after": {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "720f8a61bf1e44cf6ed7fdb083acccbe75af5e666c5bd102e4e0978938df8d4b",
+            "size_bytes": 2561
+          },
+          "before": {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "2466e04c9bb2cbae026847fcbdeb17496dc523b7b732bc45df182d8b6702328c",
+            "size_bytes": 2512
+          },
+          "classification": "material",
+          "component": "data_inventory",
+          "kind": "content_changed",
+          "path": "inventory/data/data/chunk-000/file-000.parquet"
+        },
+        {
+          "after": {
+            "content_rows": 2,
+            "content_sha256": "778f22cee5bc83af6e751c0216693182b986ce8e702ac7009382f20a3ef81dcd",
+            "data_relation": {
+              "dataset_from_index": 2,
+              "dataset_to_index": 4,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "episode_index": 1,
+            "extensions": {},
+            "length": 2,
+            "source": {
+              "path": "meta/episodes/chunk-000/file-000.parquet",
+              "row": 2
+            },
+            "source_ordinal": 1,
+            "tasks": [
+              "place cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          },
+          "before": null,
+          "classification": "material",
+          "component": "episodes",
+          "kind": "added",
+          "path": "contract/episodes/1"
+        },
+        {
+          "after": {
+            "extensions": {},
+            "source": {
+              "path": "meta/tasks.parquet",
+              "row": 2
+            },
+            "task": "place cube",
+            "task_index": 1
+          },
+          "before": null,
+          "classification": "material",
+          "component": "tasks",
+          "kind": "added",
+          "path": "contract/tasks/place cube"
+        },
+        {
+          "after": 0.4,
+          "before": 0.2,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/duration_seconds"
+        },
+        {
+          "after": 2,
+          "before": 1,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/episodes"
+        },
+        {
+          "after": 4,
+          "before": 2,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/frames"
+        },
+        {
+          "after": 6830,
+          "before": 6717,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/size_bytes"
+        },
+        {
+          "after": 2,
+          "before": 1,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/tasks"
+        },
+        {
+          "after": {
+            "capabilities": [
+              {
+                "capability": "advisory.measurements",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.data_relations",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "alignment.episode_ranges",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "alignment.task_foreign_keys",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.timestamps",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.video_relations",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "content.checksum",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "data.indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.inventory",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_footer",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_rows",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_schema",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "format.contract",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "media.declared_contract",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.decode",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.inventory",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.metadata",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "metadata.episode_indexes",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/episodes/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "metadata.episodes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.info",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.stats",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              },
+              {
+                "capability": "metadata.tasks",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.totals",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/info.json"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "source.identity",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "stats.recomputed",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable",
+                "selected": [
+                  "action",
+                  "observation.state"
+                ],
+                "status": "partial",
+                "total": 2
+              },
+              {
+                "capability": "stats.stored",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [
+                  "meta/stats.json"
+                ],
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              }
+            ],
+            "checksum": "sha256",
+            "completed_capabilities": [
+              "advisory.measurements",
+              "alignment.data_relations",
+              "alignment.episode_ranges",
+              "alignment.task_foreign_keys",
+              "alignment.timestamps",
+              "alignment.video_relations",
+              "content.checksum",
+              "data.indexes",
+              "data.inventory",
+              "data.parquet_footer",
+              "data.parquet_rows",
+              "data.parquet_schema",
+              "format.contract",
+              "media.declared_contract",
+              "media.decode",
+              "media.inventory",
+              "media.metadata",
+              "metadata.episode_indexes",
+              "metadata.episodes",
+              "metadata.info",
+              "metadata.inventory",
+              "metadata.tasks",
+              "metadata.totals",
+              "source.identity"
+            ],
+            "requested_integrity": "full",
+            "selection": {
+              "cameras": [],
+              "data_shards": [
+                "data/chunk-000/file-000.parquet"
+              ],
+              "episodes": [
+                0,
+                1
+              ],
+              "media_shards": [],
+              "metadata_shards": [
+                "meta/episodes/chunk-000/file-000.parquet",
+                "meta/info.json",
+                "meta/tasks.parquet"
+              ]
+            },
+            "skipped_capabilities": [
+              {
+                "capability": "metadata.stats",
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing"
+              },
+              {
+                "capability": "stats.recomputed",
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable"
+              },
+              {
+                "capability": "stats.stored",
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing"
+              }
+            ],
+            "totals": {
+              "cameras": 0,
+              "data_shards": 1,
+              "episodes": 2,
+              "media_shards": 0,
+              "metadata_shards": 3
+            }
+          },
+          "before": {
+            "capabilities": [
+              {
+                "capability": "advisory.measurements",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.data_relations",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.episode_ranges",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.task_foreign_keys",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.timestamps",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.video_relations",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "content.checksum",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "data.indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.inventory",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_footer",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_rows",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_schema",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "format.contract",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "media.declared_contract",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.decode",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.inventory",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.metadata",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "metadata.episode_indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/episodes/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.episodes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.info",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.stats",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              },
+              {
+                "capability": "metadata.tasks",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.totals",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/info.json"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "source.identity",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "stats.recomputed",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable",
+                "selected": [
+                  "action",
+                  "observation.state"
+                ],
+                "status": "partial",
+                "total": 2
+              },
+              {
+                "capability": "stats.stored",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [
+                  "meta/stats.json"
+                ],
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              }
+            ],
+            "checksum": "sha256",
+            "completed_capabilities": [
+              "advisory.measurements",
+              "alignment.data_relations",
+              "alignment.episode_ranges",
+              "alignment.task_foreign_keys",
+              "alignment.timestamps",
+              "alignment.video_relations",
+              "content.checksum",
+              "data.indexes",
+              "data.inventory",
+              "data.parquet_footer",
+              "data.parquet_rows",
+              "data.parquet_schema",
+              "format.contract",
+              "media.declared_contract",
+              "media.decode",
+              "media.inventory",
+              "media.metadata",
+              "metadata.episode_indexes",
+              "metadata.episodes",
+              "metadata.info",
+              "metadata.inventory",
+              "metadata.tasks",
+              "metadata.totals",
+              "source.identity"
+            ],
+            "requested_integrity": "full",
+            "selection": {
+              "cameras": [],
+              "data_shards": [
+                "data/chunk-000/file-000.parquet"
+              ],
+              "episodes": [
+                0
+              ],
+              "media_shards": [],
+              "metadata_shards": [
+                "meta/episodes/chunk-000/file-000.parquet",
+                "meta/info.json",
+                "meta/tasks.parquet"
+              ]
+            },
+            "skipped_capabilities": [
+              {
+                "capability": "metadata.stats",
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing"
+              },
+              {
+                "capability": "stats.recomputed",
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable"
+              },
+              {
+                "capability": "stats.stored",
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing"
+              }
+            ],
+            "totals": {
+              "cameras": 0,
+              "data_shards": 1,
+              "episodes": 1,
+              "media_shards": 0,
+              "metadata_shards": 3
+            }
+          },
+          "classification": "non_breaking",
+          "component": "coverage",
+          "kind": "coverage_changed",
+          "path": "coverage"
+        },
+        {
+          "after": {
+            "chunks_size": 1000,
+            "codebase_version": "v3.0",
+            "data_files_size_in_mb": 100,
+            "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+            "features": {
+              "action": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "episode_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "frame_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "observation.state": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "task_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "timestamp": {
+                "dtype": "float32",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              }
+            },
+            "fps": 10,
+            "robot_type": "openbot-test-arm",
+            "total_episodes": 2,
+            "total_frames": 4,
+            "total_tasks": 2,
+            "video_files_size_in_mb": 200,
+            "video_path": null
+          },
+          "before": {
+            "chunks_size": 1000,
+            "codebase_version": "v3.0",
+            "data_files_size_in_mb": 100,
+            "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+            "features": {
+              "action": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "episode_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "frame_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "observation.state": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "task_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "timestamp": {
+                "dtype": "float32",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              }
+            },
+            "fps": 10,
+            "robot_type": "openbot-test-arm",
+            "total_episodes": 1,
+            "total_frames": 2,
+            "total_tasks": 1,
+            "video_files_size_in_mb": 200,
+            "video_path": null
+          },
+          "classification": "non_breaking",
+          "component": "format",
+          "kind": "metadata_changed",
+          "path": "format/metadata"
+        },
+        {
+          "after": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "fb8d5ab6caf977c8892e0a62a2f52ffefdad0cac752b76f4dd5e9003c0ef6064",
+            "size_bytes": 2529
+          },
+          "before": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "e003156f4060ab25927238415d51859011097b3e5710a6558e72173921b1adc3",
+            "size_bytes": 2489
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/episodes/chunk-000/file-000.parquet"
+        },
+        {
+          "after": {
+            "path": "meta/info.json",
+            "sha256": "2444d3064009362ba0f7fe6d925364a630ccb9280c7317b08341ad659fa03d3c",
+            "size_bytes": 944
+          },
+          "before": {
+            "path": "meta/info.json",
+            "sha256": "0756675356e50e46a362d1779afc74134589c3406ed988cc889b0dcdcb36cb67",
+            "size_bytes": 944
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/info.json"
+        },
+        {
+          "after": {
+            "path": "meta/tasks.parquet",
+            "sha256": "8953a5bc5bf44bec5bf415ec52b24d82d13f304f8ba424dc673a085c14ec8226",
+            "size_bytes": 796
+          },
+          "before": {
+            "path": "meta/tasks.parquet",
+            "sha256": "24f5f018253f07c10c17de5cd3073fd958fd76ad39bd169f11c0fe99f32e5546",
+            "size_bytes": 772
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/tasks.parquet"
+        }
+      ],
+      "classification": "material",
+      "component_status": {
+        "coverage": "changed",
+        "data_inventory": "changed",
+        "episodes": "changed",
+        "features": "unchanged",
+        "format": "changed",
+        "media_inventory": "unchanged",
+        "metadata_inventory": "changed",
+        "source": "unchanged",
+        "tasks": "changed",
+        "totals": "changed",
+        "video_streams": "unchanged"
+      },
+      "diff_fingerprint": "07114180b6358e2bf5554b750b7142fbefefed0e87bc1ec102072f840ee66c7b",
+      "fingerprint_version": "openbot.dataset_diff.fingerprint.v1",
+      "schema_version": "openbot.dataset_diff.v1",
+      "summary": {
+        "breaking": 0,
+        "changes": 13,
+        "material": 8,
+        "non_breaking": 5
+      },
+      "tool": {
+        "name": "openbot-data",
+        "version": "0.0.2"
+      }
+    },
+    {
+      "baseline_fingerprint": "a20001baae75c67c16da7d4885a321849342c93c83e3861214588b7e66127f88",
+      "candidate_fingerprint": "98adb22cc1e78b9677b109c6487881a8b054cb2ef654437563a920db1ef22dc3",
+      "changes": [
+        {
+          "after": 1,
+          "before": 0,
+          "classification": "breaking",
+          "component": "tasks",
+          "kind": "task_index_remapped",
+          "path": "contract/tasks/place cube/task_index"
+        },
+        {
+          "after": {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "720f8a61bf1e44cf6ed7fdb083acccbe75af5e666c5bd102e4e0978938df8d4b",
+            "size_bytes": 2561
+          },
+          "before": {
+            "path": "data/chunk-000/file-000.parquet",
+            "sha256": "b02c6f5b3c4d127b7c9cc323206f4e776e831481591abe07dcc1f0e364590645",
+            "size_bytes": 2512
+          },
+          "classification": "material",
+          "component": "data_inventory",
+          "kind": "content_changed",
+          "path": "inventory/data/data/chunk-000/file-000.parquet"
+        },
+        {
+          "after": {
+            "content_rows": 2,
+            "content_sha256": "9546e8e4492b85412ac53e57366200944411341f7f32dc6581c343ba6bf796bd",
+            "data_relation": {
+              "dataset_from_index": 0,
+              "dataset_to_index": 2,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "length": 2,
+            "tasks": [
+              "pick cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          },
+          "before": {
+            "content_rows": 2,
+            "content_sha256": "e0726e4dc0fbd0106b78b0858e382f065971d69e1640976a6cdada56bb9fbad1",
+            "data_relation": {
+              "dataset_from_index": 0,
+              "dataset_to_index": 2,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "length": 2,
+            "tasks": [
+              "place cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          },
+          "classification": "material",
+          "component": "episodes",
+          "kind": "content_changed",
+          "path": "contract/episodes/0"
+        },
+        {
+          "after": {
+            "content_rows": 2,
+            "content_sha256": "778f22cee5bc83af6e751c0216693182b986ce8e702ac7009382f20a3ef81dcd",
+            "data_relation": {
+              "dataset_from_index": 2,
+              "dataset_to_index": 4,
+              "path": "data/chunk-000/file-000.parquet"
+            },
+            "episode_index": 1,
+            "extensions": {},
+            "length": 2,
+            "source": {
+              "path": "meta/episodes/chunk-000/file-000.parquet",
+              "row": 2
+            },
+            "source_ordinal": 1,
+            "tasks": [
+              "place cube"
+            ],
+            "video_files": [],
+            "video_segments": []
+          },
+          "before": null,
+          "classification": "material",
+          "component": "episodes",
+          "kind": "added",
+          "path": "contract/episodes/1"
+        },
+        {
+          "after": {
+            "extensions": {},
+            "source": {
+              "path": "meta/tasks.parquet",
+              "row": 1
+            },
+            "task": "pick cube",
+            "task_index": 0
+          },
+          "before": null,
+          "classification": "material",
+          "component": "tasks",
+          "kind": "added",
+          "path": "contract/tasks/pick cube"
+        },
+        {
+          "after": 0.4,
+          "before": 0.2,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/duration_seconds"
+        },
+        {
+          "after": 2,
+          "before": 1,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/episodes"
+        },
+        {
+          "after": 4,
+          "before": 2,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/frames"
+        },
+        {
+          "after": 6830,
+          "before": 6727,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/size_bytes"
+        },
+        {
+          "after": 2,
+          "before": 1,
+          "classification": "material",
+          "component": "totals",
+          "kind": "increased",
+          "path": "totals/tasks"
+        },
+        {
+          "after": {
+            "capabilities": [
+              {
+                "capability": "advisory.measurements",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.data_relations",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "alignment.episode_ranges",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "alignment.task_foreign_keys",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.timestamps",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.video_relations",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "content.checksum",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "data.indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.inventory",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_footer",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_rows",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_schema",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "format.contract",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "media.declared_contract",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.decode",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.inventory",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.metadata",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "metadata.episode_indexes",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/episodes/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 2
+              },
+              {
+                "capability": "metadata.episodes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.info",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.stats",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              },
+              {
+                "capability": "metadata.tasks",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.totals",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/info.json"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "source.identity",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "stats.recomputed",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable",
+                "selected": [
+                  "action",
+                  "observation.state"
+                ],
+                "status": "partial",
+                "total": 2
+              },
+              {
+                "capability": "stats.stored",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [
+                  "meta/stats.json"
+                ],
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              }
+            ],
+            "checksum": "sha256",
+            "completed_capabilities": [
+              "advisory.measurements",
+              "alignment.data_relations",
+              "alignment.episode_ranges",
+              "alignment.task_foreign_keys",
+              "alignment.timestamps",
+              "alignment.video_relations",
+              "content.checksum",
+              "data.indexes",
+              "data.inventory",
+              "data.parquet_footer",
+              "data.parquet_rows",
+              "data.parquet_schema",
+              "format.contract",
+              "media.declared_contract",
+              "media.decode",
+              "media.inventory",
+              "media.metadata",
+              "metadata.episode_indexes",
+              "metadata.episodes",
+              "metadata.info",
+              "metadata.inventory",
+              "metadata.tasks",
+              "metadata.totals",
+              "source.identity"
+            ],
+            "requested_integrity": "full",
+            "selection": {
+              "cameras": [],
+              "data_shards": [
+                "data/chunk-000/file-000.parquet"
+              ],
+              "episodes": [
+                0,
+                1
+              ],
+              "media_shards": [],
+              "metadata_shards": [
+                "meta/episodes/chunk-000/file-000.parquet",
+                "meta/info.json",
+                "meta/tasks.parquet"
+              ]
+            },
+            "skipped_capabilities": [
+              {
+                "capability": "metadata.stats",
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing"
+              },
+              {
+                "capability": "stats.recomputed",
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable"
+              },
+              {
+                "capability": "stats.stored",
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing"
+              }
+            ],
+            "totals": {
+              "cameras": 0,
+              "data_shards": 1,
+              "episodes": 2,
+              "media_shards": 0,
+              "metadata_shards": 3
+            }
+          },
+          "before": {
+            "capabilities": [
+              {
+                "capability": "advisory.measurements",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.data_relations",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.episode_ranges",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.task_foreign_keys",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.timestamps",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "alignment.video_relations",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "content.checksum",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "data.indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.inventory",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_footer",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_rows",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "data.parquet_schema",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "data/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "format.contract",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "media.declared_contract",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.decode",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.inventory",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "media.metadata",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 0
+              },
+              {
+                "capability": "metadata.episode_indexes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/episodes/chunk-000/file-000.parquet"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.episodes",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.info",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.stats",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              },
+              {
+                "capability": "metadata.tasks",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "metadata.totals",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [
+                  "meta/info.json"
+                ],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "source.identity",
+                "checked": 1,
+                "integrity": "full",
+                "omitted": [],
+                "selected": [],
+                "status": "complete",
+                "total": 1
+              },
+              {
+                "capability": "stats.recomputed",
+                "checked": 2,
+                "integrity": "full",
+                "omitted": [],
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable",
+                "selected": [
+                  "action",
+                  "observation.state"
+                ],
+                "status": "partial",
+                "total": 2
+              },
+              {
+                "capability": "stats.stored",
+                "checked": 0,
+                "integrity": "full",
+                "omitted": [
+                  "meta/stats.json"
+                ],
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing",
+                "selected": [],
+                "status": "unavailable",
+                "total": 1
+              }
+            ],
+            "checksum": "sha256",
+            "completed_capabilities": [
+              "advisory.measurements",
+              "alignment.data_relations",
+              "alignment.episode_ranges",
+              "alignment.task_foreign_keys",
+              "alignment.timestamps",
+              "alignment.video_relations",
+              "content.checksum",
+              "data.indexes",
+              "data.inventory",
+              "data.parquet_footer",
+              "data.parquet_rows",
+              "data.parquet_schema",
+              "format.contract",
+              "media.declared_contract",
+              "media.decode",
+              "media.inventory",
+              "media.metadata",
+              "metadata.episode_indexes",
+              "metadata.episodes",
+              "metadata.info",
+              "metadata.inventory",
+              "metadata.tasks",
+              "metadata.totals",
+              "source.identity"
+            ],
+            "requested_integrity": "full",
+            "selection": {
+              "cameras": [],
+              "data_shards": [
+                "data/chunk-000/file-000.parquet"
+              ],
+              "episodes": [
+                0
+              ],
+              "media_shards": [],
+              "metadata_shards": [
+                "meta/episodes/chunk-000/file-000.parquet",
+                "meta/info.json",
+                "meta/tasks.parquet"
+              ]
+            },
+            "skipped_capabilities": [
+              {
+                "capability": "metadata.stats",
+                "reason": "Optional file missing.",
+                "reason_code": "optional_file_missing"
+              },
+              {
+                "capability": "stats.recomputed",
+                "reason": "Statistics were recomputed but no stored values exist to compare.",
+                "reason_code": "stored_stats_unavailable"
+              },
+              {
+                "capability": "stats.stored",
+                "reason": "Optional normalization statistics are absent.",
+                "reason_code": "optional_file_missing"
+              }
+            ],
+            "totals": {
+              "cameras": 0,
+              "data_shards": 1,
+              "episodes": 1,
+              "media_shards": 0,
+              "metadata_shards": 3
+            }
+          },
+          "classification": "non_breaking",
+          "component": "coverage",
+          "kind": "coverage_changed",
+          "path": "coverage"
+        },
+        {
+          "after": {
+            "chunks_size": 1000,
+            "codebase_version": "v3.0",
+            "data_files_size_in_mb": 100,
+            "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+            "features": {
+              "action": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "episode_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "frame_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "observation.state": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "task_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "timestamp": {
+                "dtype": "float32",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              }
+            },
+            "fps": 10,
+            "robot_type": "openbot-test-arm",
+            "total_episodes": 2,
+            "total_frames": 4,
+            "total_tasks": 2,
+            "video_files_size_in_mb": 200,
+            "video_path": null
+          },
+          "before": {
+            "chunks_size": 1000,
+            "codebase_version": "v3.0",
+            "data_files_size_in_mb": 100,
+            "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+            "features": {
+              "action": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "episode_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "frame_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "observation.state": {
+                "dtype": "float32",
+                "info": {
+                  "coordinate_system": "joint",
+                  "normalization": "mean_std"
+                },
+                "names": [
+                  "joint_a",
+                  "joint_b"
+                ],
+                "shape": [
+                  2
+                ]
+              },
+              "task_index": {
+                "dtype": "int64",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              },
+              "timestamp": {
+                "dtype": "float32",
+                "names": null,
+                "shape": [
+                  1
+                ]
+              }
+            },
+            "fps": 10,
+            "robot_type": "openbot-test-arm",
+            "total_episodes": 1,
+            "total_frames": 2,
+            "total_tasks": 1,
+            "video_files_size_in_mb": 200,
+            "video_path": null
+          },
+          "classification": "non_breaking",
+          "component": "format",
+          "kind": "metadata_changed",
+          "path": "format/metadata"
+        },
+        {
+          "after": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "fb8d5ab6caf977c8892e0a62a2f52ffefdad0cac752b76f4dd5e9003c0ef6064",
+            "size_bytes": 2529
+          },
+          "before": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "sha256": "8933827fde9eebd81876d9474e757b207d61522d965e6bee6c53e7aacb6d4e7c",
+            "size_bytes": 2494
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/episodes/chunk-000/file-000.parquet"
+        },
+        {
+          "after": {
+            "path": "meta/info.json",
+            "sha256": "2444d3064009362ba0f7fe6d925364a630ccb9280c7317b08341ad659fa03d3c",
+            "size_bytes": 944
+          },
+          "before": {
+            "path": "meta/info.json",
+            "sha256": "0756675356e50e46a362d1779afc74134589c3406ed988cc889b0dcdcb36cb67",
+            "size_bytes": 944
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/info.json"
+        },
+        {
+          "after": {
+            "path": "meta/tasks.parquet",
+            "sha256": "8953a5bc5bf44bec5bf415ec52b24d82d13f304f8ba424dc673a085c14ec8226",
+            "size_bytes": 796
+          },
+          "before": {
+            "path": "meta/tasks.parquet",
+            "sha256": "b921c3794870ef8d6e9aee93ca6e9c809a4f1d12178efa1e9da5f165b7b90a7e",
+            "size_bytes": 777
+          },
+          "classification": "non_breaking",
+          "component": "metadata_inventory",
+          "kind": "content_changed",
+          "path": "inventory/metadata/meta/tasks.parquet"
+        }
+      ],
+      "classification": "breaking",
+      "component_status": {
+        "coverage": "changed",
+        "data_inventory": "changed",
+        "episodes": "changed",
+        "features": "unchanged",
+        "format": "changed",
+        "media_inventory": "unchanged",
+        "metadata_inventory": "changed",
+        "source": "unchanged",
+        "tasks": "changed",
+        "totals": "changed",
+        "video_streams": "unchanged"
+      },
+      "diff_fingerprint": "3b1ab4968ee620ba154531435f20ba5cc7bf4ac806df1deb8b50e4f4dee3c4f6",
+      "fingerprint_version": "openbot.dataset_diff.fingerprint.v1",
+      "schema_version": "openbot.dataset_diff.v1",
+      "summary": {
+        "breaking": 1,
+        "changes": 15,
+        "material": 9,
+        "non_breaking": 5
+      },
+      "tool": {
+        "name": "openbot-data",
+        "version": "0.0.2"
+      }
+    }
+  ],
+  "summary": {
+    "checks": 7,
+    "failed": 0,
+    "passed": 5,
+    "unverified": 2
+  },
+  "tool": {
+    "name": "openbot-data",
+    "version": "0.0.2"
+  },
+  "verification_status": "unverified"
+}

@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openbot.ai/schemas/openbot.dataset_repair_plan.v1.json",
+  "title": "OpenBot Dataset Repair Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fingerprint_version",
+    "status",
+    "source",
+    "snapshot_options",
+    "source_snapshot",
+    "source_audit",
+    "steps",
+    "unresolved_findings",
+    "safety",
+    "tool_versions",
+    "plan_fingerprint"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "openbot.dataset_repair_plan.v1"
+    },
+    "fingerprint_version": {
+      "const": "openbot.dataset_repair_plan.fingerprint.v1"
+    },
+    "status": {
+      "enum": ["repairable", "no_automatic_repairs"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_fingerprint",
+        "tree_sha256",
+        "expected_output_tree_sha256",
+        "input_format",
+        "adapter",
+        "dataset_format_version"
+      ],
+      "properties": {
+        "snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "tree_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "expected_output_tree_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "input_format": {
+          "enum": ["video", "lerobot"]
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_format_version": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "snapshot_options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_format",
+        "checksum",
+        "integrity",
+        "follow_symlinks"
+      ],
+      "properties": {
+        "input_format": {
+          "enum": ["video", "lerobot"]
+        },
+        "checksum": {
+          "enum": ["sha256", null]
+        },
+        "integrity": {
+          "enum": ["metadata", "sample", "full"]
+        },
+        "follow_symlinks": {
+          "type": "boolean"
+        }
+      }
+    },
+    "source_snapshot": {
+      "type": "object",
+      "required": ["schema_version", "snapshot_fingerprint"]
+    },
+    "source_audit": {
+      "type": "object",
+      "required": ["schema_version", "findings"]
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/automaticStep"
+      }
+    },
+    "unresolved_findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unresolvedFinding"
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planning_read_only",
+        "copy_on_write_required",
+        "source_fingerprint_required",
+        "atomic_destination_visibility",
+        "unknown_fields_preserved",
+        "payload_edits_forbidden"
+      ],
+      "properties": {
+        "planning_read_only": {
+          "const": true
+        },
+        "copy_on_write_required": {
+          "const": true
+        },
+        "source_fingerprint_required": {
+          "const": true
+        },
+        "atomic_destination_visibility": {
+          "const": true
+        },
+        "unknown_fields_preserved": {
+          "const": true
+        },
+        "payload_edits_forbidden": {
+          "const": true
+        }
+      }
+    },
+    "tool_versions": {
+      "$ref": "#/$defs/toolVersions"
+    },
+    "plan_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "automaticStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operation",
+        "artifact",
+        "json_pointer",
+        "before_exists",
+        "before",
+        "after",
+        "derivation",
+        "fixability",
+        "risk",
+        "preconditions",
+        "finding_codes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^repair\\.info\\.total_(episodes|frames|tasks|videos)$"
+        },
+        "operation": {
+          "const": "set_derived_json_value"
+        },
+        "artifact": {
+          "const": "meta/info.json"
+        },
+        "json_pointer": {
+          "enum": [
+            "/total_episodes",
+            "/total_frames",
+            "/total_tasks",
+            "/total_videos"
+          ]
+        },
+        "before_exists": {
+          "type": "boolean"
+        },
+        "before": true,
+        "after": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "derivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "evidence_paths"],
+          "properties": {
+            "method": {
+              "enum": [
+                "count_unique_episode_records",
+                "count_parquet_rows",
+                "sum_validated_episode_lengths",
+                "count_unique_task_mapping",
+                "count_unique_episode_task_names",
+                "count_local_video_files"
+              ]
+            },
+            "evidence_paths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "fixability": {
+          "const": "automatic"
+        },
+        "risk": {
+          "const": "low"
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "finding_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "unresolvedFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding",
+        "fixability",
+        "reason_code",
+        "risk",
+        "remediation_steps"
+      ],
+      "properties": {
+        "finding": {
+          "type": "object",
+          "required": ["code", "severity"]
+        },
+        "fixability": {
+          "enum": ["automatic", "delegated", "manual", "not_repairable"]
+        },
+        "reason_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "risk": {
+          "enum": ["medium", "high"]
+        },
+        "remediation_steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "instruction", "command"],
+            "properties": {
+              "kind": {
+                "enum": ["manual_review", "delegated_operation"]
+              },
+              "instruction": {
+                "type": "string",
+                "minLength": 1
+              },
+              "command": {
+                "type": ["string", "null"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "toolVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "openbot_data",
+        "dataset_adapter",
+        "official_loader_target"
+      ],
+      "properties": {
+        "openbot_data": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "official_loader_target": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}

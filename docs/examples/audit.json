@@ -1,7 +1,92 @@
 {
+  "coverage": {
+    "capabilities": [
+      {
+        "capability": "content.checksum",
+        "checked": 0,
+        "integrity": "sample",
+        "omitted": [
+          "camera/episode.avi"
+        ],
+        "reason": "SHA-256 content checking was not requested.",
+        "reason_code": "option_not_enabled",
+        "selected": [],
+        "status": "skipped",
+        "total": 1
+      },
+      {
+        "capability": "format.contract",
+        "checked": 1,
+        "integrity": "sample",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "media.decode",
+        "checked": 1,
+        "integrity": "sample",
+        "omitted": [],
+        "selected": [
+          "camera/episode.avi"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "media.inventory",
+        "checked": 1,
+        "integrity": "sample",
+        "omitted": [],
+        "selected": [
+          "camera/episode.avi"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "media.metadata",
+        "checked": 1,
+        "integrity": "sample",
+        "omitted": [],
+        "selected": [
+          "camera/episode.avi"
+        ],
+        "status": "complete",
+        "total": 1
+      },
+      {
+        "capability": "source.identity",
+        "checked": 1,
+        "integrity": "sample",
+        "omitted": [],
+        "selected": [],
+        "status": "complete",
+        "total": 1
+      }
+    ]
+  },
   "findings": [],
   "input_format": "video",
+  "rule_pack_version": "openbot.dataset_audit.rules.v1",
   "schema_version": "openbot.dataset_audit.v1",
+  "skipped_checks": [
+    {
+      "layer": "provenance",
+      "location": {
+        "omitted": [
+          "camera/episode.avi"
+        ]
+      },
+      "missing_capabilities": [
+        "content.checksum"
+      ],
+      "reason": "SHA-256 content checking was not requested.",
+      "reason_code": "option_not_enabled",
+      "rule_id": "duplicate.content"
+    }
+  ],
   "summary": {
     "error": 0,
     "info": 0,

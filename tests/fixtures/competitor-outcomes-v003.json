@@ -1,0 +1,98 @@
+{
+  "schema_version": "openbot.competitor_outcomes.v1",
+  "evidence_date": "2026-07-28",
+  "scenario": {
+    "id": "lerobot-v30-stale-total-frames",
+    "basis": "Official LeRobot 0.6.0 LeRobotDataset v3.0 fixture",
+    "mutation": {
+      "path": "meta/info.json",
+      "json_pointer": "/total_frames",
+      "before": 12,
+      "after": 999
+    },
+    "required_user_outcome": "block"
+  },
+  "tools": [
+    {
+      "name": "lerobot-doctor",
+      "version": "0.2.0",
+      "install": "lerobot-doctor==0.2.0",
+      "command": [
+        "lerobot-doctor",
+        "check",
+        "DATASET",
+        "--json"
+      ],
+      "clean": {
+        "exit_code": 0,
+        "outcome": "non_blocking",
+        "failures": 0
+      },
+      "mutated": {
+        "exit_code": 1,
+        "outcome": "block",
+        "failures": 1,
+        "evidence": [
+          "total_frames=999 but actual frame count is 12"
+        ]
+      }
+    },
+    {
+      "name": "robovet",
+      "version": "0.2.2",
+      "install": "robovet==0.2.2",
+      "command": [
+        "robovet",
+        "doctor",
+        "DATASET",
+        "--json",
+        "REPORT"
+      ],
+      "clean": {
+        "exit_code": 0,
+        "outcome": "non_blocking",
+        "failures": 0
+      },
+      "mutated": {
+        "exit_code": 1,
+        "outcome": "block",
+        "failures": 2,
+        "evidence": [
+          "META-501",
+          "META-502"
+        ]
+      }
+    },
+    {
+      "name": "openbot-data",
+      "version": "0.0.3",
+      "install": "source version 0.0.3",
+      "command": [
+        "openbot-data",
+        "audit",
+        "DATASET",
+        "--integrity",
+        "full",
+        "--out",
+        "REPORT",
+        "--fail-on",
+        "error"
+      ],
+      "clean": {
+        "exit_code": 0,
+        "outcome": "non_blocking",
+        "failures": 0
+      },
+      "mutated": {
+        "exit_code": 2,
+        "outcome": "block",
+        "failures": 4,
+        "evidence": [
+          "LEROBOT_FRAME_COUNT_MISMATCH",
+          "LEROBOT_STATS_COUNT_MISMATCH"
+        ]
+      }
+    }
+  ],
+  "comparison_rule": "Outcome parity requires the same blocking decision for the same critical defect; rule IDs, severities, counts, scores, and mutation behavior do not need to match."
+}

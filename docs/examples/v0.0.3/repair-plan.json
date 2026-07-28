@@ -1,0 +1,1088 @@
+{
+  "fingerprint_version": "openbot.dataset_repair_plan.fingerprint.v1",
+  "plan_fingerprint": "3eb070224ca695dcb310f36ab340c02528a3d7b8b4fefbdab8a2e8ddb8b7a397",
+  "safety": {
+    "atomic_destination_visibility": true,
+    "copy_on_write_required": true,
+    "payload_edits_forbidden": true,
+    "planning_read_only": true,
+    "source_fingerprint_required": true,
+    "unknown_fields_preserved": true
+  },
+  "schema_version": "openbot.dataset_repair_plan.v1",
+  "snapshot_options": {
+    "checksum": "sha256",
+    "follow_symlinks": false,
+    "input_format": "lerobot",
+    "integrity": "full"
+  },
+  "source": {
+    "adapter": "lerobot_v30",
+    "dataset_format_version": "v3.0",
+    "expected_output_tree_sha256": "40569135467c47114a80db7adda09ed6e5b938d3504fb3bd3bf75c1233686e5a",
+    "input_format": "lerobot",
+    "snapshot_fingerprint": "c123ec8d670fb4386a3da71e8db77552e77963cb3b30e99b9514fefc51103de7",
+    "tree_sha256": "f245f43f334e8ba9b78b046ceb1ee512dbed5b20308b68ea1fa33b1c1869b646"
+  },
+  "source_audit": {
+    "coverage": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ]
+    },
+    "findings": [
+      {
+        "code": "LEROBOT_STATS_MISSING",
+        "evidence": {
+          "required_by_base_loader": false
+        },
+        "fixability": "manual",
+        "impact": "normalization_contract_is_unverified",
+        "layer": "metadata",
+        "location": {},
+        "message": "Optional normalization statistics are missing.",
+        "path": "meta/stats.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+        "rule_id": "lerobot.stats.missing",
+        "severity": "warning"
+      },
+      {
+        "code": "LEROBOT_FRAME_COUNT_MISMATCH",
+        "evidence": {
+          "declared": 99,
+          "discovered": 2,
+          "method": "count_all_parquet_rows"
+        },
+        "fixability": "delegated",
+        "impact": "declared_frame_extent_is_stale",
+        "layer": "alignment",
+        "location": {
+          "json_pointer": "/total_frames"
+        },
+        "message": "Declared frame total differs from full Parquet row count.",
+        "path": "meta/info.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_FRAME_COUNT_MISMATCH",
+        "rule_id": "lerobot.frame.count.mismatch",
+        "severity": "error"
+      },
+      {
+        "code": "LEROBOT_FRAME_COUNT_MISMATCH",
+        "evidence": {
+          "declared": 99,
+          "discovered": 2,
+          "method": "sum_episode_lengths"
+        },
+        "fixability": "delegated",
+        "impact": "declared_frame_extent_is_stale",
+        "layer": "alignment",
+        "location": {
+          "json_pointer": "/total_frames"
+        },
+        "message": "Declared frame total differs from episode metadata.",
+        "path": "meta/info.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_FRAME_COUNT_MISMATCH",
+        "rule_id": "lerobot.frame.count.mismatch",
+        "severity": "error"
+      }
+    ],
+    "input_format": "lerobot",
+    "rule_pack_version": "openbot.dataset_audit.rules.v1",
+    "schema_version": "openbot.dataset_audit.v1",
+    "skipped_checks": [],
+    "summary": {
+      "error": 2,
+      "info": 0,
+      "videos": 0,
+      "warning": 1
+    }
+  },
+  "source_snapshot": {
+    "component_fingerprints": {
+      "coverage": "354750b6299a9ab93480929aaaebe10e3bf2a1017d94178ab7c4e16e1b0da1df",
+      "data_inventory": "b38f4717fb6f86f493be5564af9192b949ae978419ac4494f9982b4a0b0d06b7",
+      "episodes": "2a67118fbf807a7d7961b0a633ddf685780c81c41ffbdd47b0ab26eee9a4d13a",
+      "features": "85d2c18f29d51118e455a44146ad49606ef4b314ef32e6c740b962194fd44f5e",
+      "format": "7ef17ec56f80da19815f05b5aecb6e11abcac2340cac24c2fc8fbf3294818bbb",
+      "media_inventory": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "metadata_inventory": "fc01100c0dd4a2495bf9bb6c37a4d5232db5ed1d4ac597d708c580105b8e7f13",
+      "source": "9ab1a0ffc47bb4d8c7c1486f02216f1dfd7ae46a3a66416bbf0a57c279444752",
+      "tasks": "746c6985faa332710986bb334dd171ec4772ce304a6e990d582e114d2e3f7664",
+      "totals": "fab464837421f063a7bdcfdf618ea073a1707fae480846ce965dded83459f3f2",
+      "video_streams": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "contract": {
+      "episodes": [
+        {
+          "content_rows": 2,
+          "content_sha256": "9546e8e4492b85412ac53e57366200944411341f7f32dc6581c343ba6bf796bd",
+          "data_relation": {
+            "dataset_from_index": 0,
+            "dataset_to_index": 2,
+            "path": "data/chunk-000/file-000.parquet"
+          },
+          "episode_index": 0,
+          "extensions": {},
+          "length": 2,
+          "source": {
+            "path": "meta/episodes/chunk-000/file-000.parquet",
+            "row": 1
+          },
+          "source_ordinal": 0,
+          "tasks": [
+            "pick cube"
+          ],
+          "video_files": [],
+          "video_segments": []
+        }
+      ],
+      "features": [
+        {
+          "dtype": "float32",
+          "key": "action",
+          "metadata": {
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            }
+          },
+          "names": [
+            "joint_a",
+            "joint_b"
+          ],
+          "shape": [
+            2
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "episode_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "frame_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "float32",
+          "key": "observation.state",
+          "metadata": {
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            }
+          },
+          "names": [
+            "joint_a",
+            "joint_b"
+          ],
+          "shape": [
+            2
+          ]
+        },
+        {
+          "dtype": "int64",
+          "key": "task_index",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        },
+        {
+          "dtype": "float32",
+          "key": "timestamp",
+          "metadata": {},
+          "names": null,
+          "shape": [
+            1
+          ]
+        }
+      ],
+      "tasks": [
+        {
+          "extensions": {},
+          "source": {
+            "path": "meta/tasks.parquet",
+            "row": 1
+          },
+          "task": "pick cube",
+          "task_index": 0
+        }
+      ],
+      "video_streams": []
+    },
+    "coverage": {
+      "capabilities": [
+        {
+          "capability": "advisory.measurements",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.data_relations",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.episode_ranges",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.task_foreign_keys",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.timestamps",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "alignment.video_relations",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "content.checksum",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "data.indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.inventory",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_footer",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_rows",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "data.parquet_schema",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "data/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "format.contract",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "media.declared_contract",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.decode",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.inventory",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "media.metadata",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 0
+        },
+        {
+          "capability": "metadata.episode_indexes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/episodes/chunk-000/file-000.parquet"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.episodes",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.info",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.stats",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        },
+        {
+          "capability": "metadata.tasks",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "metadata.totals",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [
+            "meta/info.json"
+          ],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "source.identity",
+          "checked": 1,
+          "integrity": "full",
+          "omitted": [],
+          "selected": [],
+          "status": "complete",
+          "total": 1
+        },
+        {
+          "capability": "stats.recomputed",
+          "checked": 2,
+          "integrity": "full",
+          "omitted": [],
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable",
+          "selected": [
+            "action",
+            "observation.state"
+          ],
+          "status": "partial",
+          "total": 2
+        },
+        {
+          "capability": "stats.stored",
+          "checked": 0,
+          "integrity": "full",
+          "omitted": [
+            "meta/stats.json"
+          ],
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing",
+          "selected": [],
+          "status": "unavailable",
+          "total": 1
+        }
+      ],
+      "checksum": "sha256",
+      "completed_capabilities": [
+        "advisory.measurements",
+        "alignment.data_relations",
+        "alignment.episode_ranges",
+        "alignment.task_foreign_keys",
+        "alignment.timestamps",
+        "alignment.video_relations",
+        "content.checksum",
+        "data.indexes",
+        "data.inventory",
+        "data.parquet_footer",
+        "data.parquet_rows",
+        "data.parquet_schema",
+        "format.contract",
+        "media.declared_contract",
+        "media.decode",
+        "media.inventory",
+        "media.metadata",
+        "metadata.episode_indexes",
+        "metadata.episodes",
+        "metadata.info",
+        "metadata.inventory",
+        "metadata.tasks",
+        "metadata.totals",
+        "source.identity"
+      ],
+      "requested_integrity": "full",
+      "selection": {
+        "cameras": [],
+        "data_shards": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "episodes": [
+          0
+        ],
+        "media_shards": [],
+        "metadata_shards": [
+          "meta/episodes/chunk-000/file-000.parquet",
+          "meta/info.json",
+          "meta/tasks.parquet"
+        ]
+      },
+      "skipped_capabilities": [
+        {
+          "capability": "metadata.stats",
+          "reason": "Optional file missing.",
+          "reason_code": "optional_file_missing"
+        },
+        {
+          "capability": "stats.recomputed",
+          "reason": "Statistics were recomputed but no stored values exist to compare.",
+          "reason_code": "stored_stats_unavailable"
+        },
+        {
+          "capability": "stats.stored",
+          "reason": "Optional normalization statistics are absent.",
+          "reason_code": "optional_file_missing"
+        }
+      ],
+      "totals": {
+        "cameras": 0,
+        "data_shards": 1,
+        "episodes": 1,
+        "media_shards": 0,
+        "metadata_shards": 3
+      }
+    },
+    "fingerprint_version": "openbot.dataset_snapshot.fingerprint.v1",
+    "format": {
+      "adapter": "lerobot_v30",
+      "compatibility_target": "lerobot==0.6.0",
+      "dataset_format_version": "v3.0",
+      "input_format": "lerobot",
+      "metadata": {
+        "chunks_size": 1000,
+        "codebase_version": "v3.0",
+        "data_files_size_in_mb": 100,
+        "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+        "features": {
+          "action": {
+            "dtype": "float32",
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          "episode_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "frame_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "observation.state": {
+            "dtype": "float32",
+            "info": {
+              "coordinate_system": "joint",
+              "normalization": "mean_std"
+            },
+            "names": [
+              "joint_a",
+              "joint_b"
+            ],
+            "shape": [
+              2
+            ]
+          },
+          "task_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "timestamp": {
+            "dtype": "float32",
+            "names": null,
+            "shape": [
+              1
+            ]
+          }
+        },
+        "fps": 10,
+        "robot_type": "openbot-test-arm",
+        "total_episodes": 1,
+        "total_frames": 99,
+        "total_tasks": 1,
+        "video_files_size_in_mb": 200,
+        "video_path": null
+      }
+    },
+    "inventory": {
+      "data": [
+        {
+          "path": "data/chunk-000/file-000.parquet",
+          "sha256": "2466e04c9bb2cbae026847fcbdeb17496dc523b7b732bc45df182d8b6702328c",
+          "size_bytes": 2512
+        }
+      ],
+      "media": [],
+      "metadata": [
+        {
+          "path": "meta/episodes/chunk-000/file-000.parquet",
+          "sha256": "e003156f4060ab25927238415d51859011097b3e5710a6558e72173921b1adc3",
+          "size_bytes": 2489
+        },
+        {
+          "path": "meta/info.json",
+          "sha256": "0a6eeb8b6e89385fd06723bf1b41191d1a0b536a61987efe12cde2eab5f866eb",
+          "size_bytes": 945
+        },
+        {
+          "path": "meta/tasks.parquet",
+          "sha256": "24f5f018253f07c10c17de5cd3073fd958fd76ad39bd169f11c0fe99f32e5546",
+          "size_bytes": 772
+        }
+      ]
+    },
+    "schema_version": "openbot.dataset_snapshot.v1",
+    "snapshot_fingerprint": "c123ec8d670fb4386a3da71e8db77552e77963cb3b30e99b9514fefc51103de7",
+    "source": {
+      "kind": "local",
+      "locator": "dataset://.",
+      "requested_revision": null,
+      "resolved_revision": null
+    },
+    "tool": {
+      "name": "openbot-data",
+      "version": "0.0.2"
+    },
+    "totals": {
+      "data_shards": 1,
+      "duration_seconds": 0.2,
+      "episodes": 1,
+      "features": 7,
+      "frames": 2,
+      "media_shards": 0,
+      "metadata_shards": 3,
+      "size_bytes": 6718,
+      "tasks": 1,
+      "video_streams": 0
+    }
+  },
+  "status": "repairable",
+  "steps": [
+    {
+      "after": 2,
+      "artifact": "meta/info.json",
+      "before": 99,
+      "before_exists": true,
+      "derivation": {
+        "evidence_paths": [
+          "data/chunk-000/file-000.parquet"
+        ],
+        "method": "count_parquet_rows"
+      },
+      "finding_codes": [],
+      "fixability": "automatic",
+      "id": "repair.info.total_frames",
+      "json_pointer": "/total_frames",
+      "operation": "set_derived_json_value",
+      "preconditions": [
+        "source_snapshot_fingerprint_matches",
+        "source_tree_sha256_matches",
+        "derivation_remains_unique",
+        "target_json_value_matches_plan_before_value"
+      ],
+      "risk": "low"
+    }
+  ],
+  "tool_versions": {
+    "dataset_adapter": "lerobot_v30",
+    "official_loader_target": "lerobot==0.6.0",
+    "openbot_data": "0.0.2"
+  },
+  "unresolved_findings": [
+    {
+      "finding": {
+        "code": "LEROBOT_FRAME_COUNT_MISMATCH",
+        "evidence": {
+          "declared": 99,
+          "discovered": 2,
+          "method": "count_all_parquet_rows"
+        },
+        "fixability": "delegated",
+        "impact": "declared_frame_extent_is_stale",
+        "layer": "alignment",
+        "location": {
+          "json_pointer": "/total_frames"
+        },
+        "message": "Declared frame total differs from full Parquet row count.",
+        "path": "meta/info.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_FRAME_COUNT_MISMATCH",
+        "rule_id": "lerobot.frame.count.mismatch",
+        "severity": "error"
+      },
+      "fixability": "delegated",
+      "reason_code": "automatic_repair_not_permitted",
+      "remediation_steps": [
+        {
+          "command": null,
+          "instruction": "Review the evidence and use a format-aware external operation; the conservative core executor will not mutate this payload.",
+          "kind": "manual_review"
+        }
+      ],
+      "risk": "medium"
+    },
+    {
+      "finding": {
+        "code": "LEROBOT_FRAME_COUNT_MISMATCH",
+        "evidence": {
+          "declared": 99,
+          "discovered": 2,
+          "method": "sum_episode_lengths"
+        },
+        "fixability": "delegated",
+        "impact": "declared_frame_extent_is_stale",
+        "layer": "alignment",
+        "location": {
+          "json_pointer": "/total_frames"
+        },
+        "message": "Declared frame total differs from episode metadata.",
+        "path": "meta/info.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_FRAME_COUNT_MISMATCH",
+        "rule_id": "lerobot.frame.count.mismatch",
+        "severity": "error"
+      },
+      "fixability": "delegated",
+      "reason_code": "automatic_repair_not_permitted",
+      "remediation_steps": [
+        {
+          "command": null,
+          "instruction": "Review the evidence and use a format-aware external operation; the conservative core executor will not mutate this payload.",
+          "kind": "manual_review"
+        }
+      ],
+      "risk": "medium"
+    },
+    {
+      "finding": {
+        "code": "LEROBOT_STATS_MISSING",
+        "evidence": {
+          "required_by_base_loader": false
+        },
+        "fixability": "manual",
+        "impact": "normalization_contract_is_unverified",
+        "layer": "metadata",
+        "location": {},
+        "message": "Optional normalization statistics are missing.",
+        "path": "meta/stats.json",
+        "remediation_ref": "openbot://remediation/LEROBOT_STATS_MISSING",
+        "rule_id": "lerobot.stats.missing",
+        "severity": "warning"
+      },
+      "fixability": "manual",
+      "reason_code": "automatic_repair_not_permitted",
+      "remediation_steps": [
+        {
+          "command": null,
+          "instruction": "Review the evidence and use a format-aware external operation; the conservative core executor will not mutate this payload.",
+          "kind": "manual_review"
+        }
+      ],
+      "risk": "medium"
+    }
+  ]
+}

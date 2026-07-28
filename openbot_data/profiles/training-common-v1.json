@@ -1,0 +1,45 @@
+{
+  "id": "training-common",
+  "version": "1",
+  "source_version": "lerobot==0.6.0",
+  "source_reference": "https://huggingface.co/docs/lerobot/v0.6.0/en/getting_started_training",
+  "required_integrity": "full",
+  "input_formats": ["lerobot"],
+  "adapters": ["lerobot_v30"],
+  "dataset_versions": ["v3.0", "3.0"],
+  "required_capabilities": [
+    "format.contract",
+    "metadata.info",
+    "metadata.episodes",
+    "metadata.tasks",
+    "metadata.totals",
+    "metadata.episode_indexes",
+    "data.inventory",
+    "data.parquet_footer",
+    "data.parquet_schema",
+    "data.parquet_rows",
+    "data.indexes",
+    "alignment.data_relations",
+    "alignment.episode_ranges",
+    "alignment.timestamps",
+    "alignment.task_foreign_keys",
+    "stats.stored",
+    "stats.recomputed"
+  ],
+  "required_features": [
+    {"key": "action", "role": "output"},
+    {"key": "timestamp", "role": "index"},
+    {"key": "episode_index", "role": "index"},
+    {"key": "frame_index", "role": "index"}
+  ],
+  "any_feature_groups": [
+    {
+      "id": "policy-observation",
+      "patterns": ["observation.state", "observation.images.*"],
+      "minimum": 1
+    }
+  ],
+  "metadata_requirements": [],
+  "advisory_metadata": [],
+  "thresholds": {}
+}

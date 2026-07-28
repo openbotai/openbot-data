@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install -e ".[dev,lerobot,hub]"
       - run: python scripts/check_version.py --tag "${GITHUB_REF_NAME}"
       - run: pytest -q
       - if: matrix.python-version == '3.9'
@@ -27,9 +27,24 @@ jobs:
       - if: matrix.python-version == '3.9'
         run: mypy openbot_data
 
+  official-lerobot-conformance:
+    name: Official LeRobot 0.6.0 conformance
+    runs-on: ubuntu-latest
+    env:
+      OPENBOT_DATA_OFFICIAL_CONFORMANCE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ".[dev,lerobot,hub]"
+      - run: python -m pip install "lerobot[dataset]==0.6.0"
+      - run: pytest -q tests/test_official_lerobot_conformance.py
+
   build:
     name: Build distributions
-    needs: test
+    needs: [test, official-lerobot-conformance]
     runs-on: ubuntu-latest
     permissions:
       contents: read

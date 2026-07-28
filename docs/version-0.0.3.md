@@ -1,10 +1,38 @@
 # OpenBot Data 0.0.3 — LeRobot Preflight and Dataset Change Control
 
-> Status: Planned overall; the `catalog-evidence-v1` handoff is implemented,
-> but the full `0.0.3` release gate is not complete
+> Status: `0.0.3` source release candidate; all P0 interfaces and local release
+> gates pass, but the package has not been published.
 > Baseline package: `0.0.2`
 > Primary compatibility target: `lerobot==0.6.0`, dataset format `v3.0`
 > Research: [reference libraries and differentiation](reference-libraries.md)
+
+## Status and scope authority
+
+This document is the single source of truth for the `openbot-data==0.0.3`
+package release. It defines the required user outcomes, public interfaces,
+machine-readable artifacts, compatibility boundary, non-goals, and release
+acceptance criteria.
+
+The status terms in this document are normative:
+
+- **released** means a versioned package has passed every release criterion and
+  is publicly available;
+- **implemented** means code and focused tests exist in the current source tree,
+  but the feature
+  is not a released `0.0.3` capability until the complete release gate passes;
+- **planned** means the behavior is required by this contract but is not yet
+  accepted as implemented;
+- **deferred** means the behavior is explicitly outside `0.0.3` and cannot
+  silently become a release blocker.
+
+At this checkpoint, PyPI remains on `0.0.2` and the source package version is
+`0.0.3`. P0.1–P0.11, clean-install artifacts, the supported Python matrix,
+packaged examples/Schemas, pinned LeRobot conformance, and final local release
+checks pass. Publishing still requires an explicit release action.
+
+Every P0 item below is required for `0.0.3`. P1 candidates and later-version
+items are not required and must not be pulled into the release gate without an
+explicit version-contract update.
 
 ## Goal
 
@@ -20,6 +48,51 @@ migrated, uploaded, or published:
 5. Can two individually valid datasets be combined without breaking their
    feature, timing, or provenance contracts?
 6. What changed from the last approved dataset snapshot?
+
+## Canonical `0.0.3` feature set
+
+This table is the complete release-level feature map. The detailed P0 sections
+below define the behavior and acceptance evidence for each row.
+
+| ID | Required feature | User-visible outcome | Primary contract |
+|---|---|---|---|
+| P0.1 | `0.0.2` correctness closure | Existing local audits are safe to build on: deterministic multi-position media probes, structured malformed-input findings, snapshot-request validation, correct symlink semantics, duplicate episode detection, complete camera relations, valid segment bounds, and bounded Parquet reads | compatible manifest/audit v1 output |
+| P0.2 | Explicit LeRobot v2.1 and v3.0 adapters | A user can inspect a known v2.1 dataset or validate a stable LeRobot 0.6.0/v3.0 dataset without installing the full LeRobot package in the core environment | `lerobot_v21` and `lerobot_v30` internal adapters |
+| P0.3 | Layered collect-all validation | One audit reports every safely discoverable metadata, schema, data, media, alignment, and provenance problem with stable locations and evidence | `openbot.dataset_audit.v1` |
+| P0.4 | Portable dataset snapshot | A user can capture a deterministic, secret-free dataset identity with component-level digests and explicit coverage | `openbot.dataset_snapshot.v1` |
+| P0.5 | Semantic dataset diff | A user can compare two snapshots and distinguish breaking, material, non-breaking, and unchanged results | `openbot.dataset_diff.v1` |
+| P0.6 | Revision-pinned Hugging Face audit | A branch or tag is resolved to an immutable revision; metadata, sample, and full modes report exactly what was and was not checked | Hub source resolver plus audit/snapshot provenance |
+| P0.7 | Adapter and rule architecture | Discovery happens once, rules declare required capabilities, skipped checks are explicit, and all renderers consume the same prepared dataset | internal source/adapter/rule contracts |
+| P0.8 | Readiness profiles and deterministic gates | A user can distinguish format validity from `READY`, `BLOCKED`, or `PARTIAL` readiness for a declared training or publication contract | `openbot.dataset_readiness.v1` |
+| P0.9 | Evidence triage, advisory signals, and Catalog handoff | Findings are grouped at actionable locations; low-cost signals remain evidence rather than scores; Catalog receives versioned facts without a package-owned scoring formula | canonical JSON/Markdown and `catalog-evidence-v1` |
+| P0.10 | Verified remediation and conservative repair | A user can generate a deterministic repair plan, apply only unambiguous derived-value fixes to a new destination, and verify the result without mutating the source | repair plan and receipt v1 artifacts |
+| P0.11 | Merge compatibility and post-operation verification | A user can determine whether datasets are directly compatible, need a transform, are incompatible, or remain unknown, then verify an official-tool merge | merge plan and receipt v1 artifacts |
+
+### Implementation checkpoint
+
+As of 2026-07-28, every P0 row has code and acceptance evidence, and the complete
+local `0.0.3` release gate passes. No row is a publicly released capability
+until the package is published. This checkpoint prevents a source release
+candidate from being confused with a published package:
+
+| ID | Current state | Existing foundation that may be reused |
+|---|---|---|
+| P0.1 | Implemented | deterministic multi-position probes, structured malformed-input findings, symlink/path safety, bounded Parquet reads, snapshot-request validation, and `0.0.2` compatibility regression tests |
+| P0.2 | Implemented | explicit immutable v2.1/v3.0 adapters, unknown-field preservation, stable-version detection, and non-mutating official v2.1 migration guidance |
+| P0.3 | Implemented | collect-all metadata/schema/data/media/alignment/provenance validation, global v3 shard offsets, stored/recomputed statistics, and explicit capability coverage |
+| P0.4 | Implemented | public secret-free `openbot.dataset_snapshot.v1`, strict Schema, 11 component digests, Hub provenance, and byte-stable output |
+| P0.5 | Implemented | strict snapshot validation and `unchanged`/`non_breaking`/`material`/`breaking` semantic diff |
+| P0.6 | Implemented | revision-pinned Hub resolver, credential-safe cache materialization, hard budgets, publication metadata, and metadata/sample/full coverage |
+| P0.7 | Implemented | one prepared adapter result, capability-declaring static rule registry, explicit skipped checks, and shared renderers |
+| P0.8 | Implemented | versioned core/training/publication/ACT/SmolVLA profiles, strict policy-config override, deterministic JSON/Markdown, and READY/BLOCKED/PARTIAL gates |
+| P0.9 | Implemented | actionable-location triage, raw advisory measurements and thresholds, non-executing synchronized idle-trim plans, deterministic Markdown, and score-free Catalog evidence |
+| P0.10 | Implemented | deterministic plan, stale-plan refusal, allowlisted copy-on-write apply, atomic destination publication, re-audit/diff/official-loader receipt |
+| P0.11 | Implemented | four-way compatibility plan, pinned official command template, operation/lineage reconciliation, full post-audit, loader smoke, semantic reconciliation, and diff verification |
+
+Changing a row to **implemented** requires linked code, packaged schemas where
+applicable, positive and negative fixtures, public-interface documentation, and
+green supported-version CI. Changing the release status to **released** requires
+every criterion in this document, not merely every row in this checkpoint.
 
 The version theme is:
 
@@ -90,6 +163,49 @@ v2.1-to-v3 migration, merge, re-encoding, visualization, annotation, and
 training. OpenBot Data must still check their preconditions, emit the operation
 plan, and verify the result. Hosted behavior remains in the main OpenBot
 repository and is called through `openbot-sdk`.
+
+## Public contract surface
+
+All canonical artifacts are deterministic JSON and ship with Draft 2020-12 JSON
+Schemas. Markdown and console output are projections of the same prepared
+result; they are never separate sources of truth.
+
+| Artifact | Producer | Required role in `0.0.3` |
+|---|---|---|
+| `openbot.dataset_manifest.v1` | `inspect_dataset` / `openbot-data inspect` | Preserved byte- and fingerprint-compatible for unchanged `0.0.2` fixtures |
+| `openbot.dataset_audit.v1` | `audit_dataset` / `openbot-data audit` | Extended additively with layers, locations, coverage, impact, fixability, and remediation references |
+| `openbot.dataset_snapshot.v1` | `build_dataset_snapshot` / `openbot-data snapshot` | Portable identity, provenance, normalized contracts, inventories, component digests, and skipped capabilities |
+| `openbot.dataset_diff.v1` | `diff_dataset_snapshots` / `openbot-data diff` | Stable semantic change classification between two snapshots |
+| `openbot.dataset_readiness.v1` | `evaluate_dataset_readiness` / `openbot-data readiness` | Profile-specific `READY`, `BLOCKED`, or `PARTIAL` result with coverage and blockers |
+| `catalog-evidence-v1` | `build_catalog_evidence` / `openbot-data catalog-evidence` | Score-free facts and evidence for server-side Catalog evaluation |
+| `openbot.dataset_repair_plan.v1` | `plan_dataset_repair` / `openbot-data repair plan` | Preconditions, risk, deterministic steps, and delegated/manual actions |
+| `openbot.dataset_repair_receipt.v1` | `apply_dataset_repair`, `verify_dataset_repair` / `repair apply`, `verify` | Before/after identity, executed steps, re-audit, diff, and verification result |
+| `openbot.dataset_merge_plan.v1` | `check_merge_compatibility` / `openbot-data merge-check` | `direct`, `transform_required`, `incompatible`, or `unknown` decision with evidence |
+| `openbot.dataset_merge_receipt.v1` | `verify_dataset_merge` / `openbot-data verify-merge` | Input lineage, official operation record, full post-merge audit, loader smoke, and diff |
+
+These artifact and API names are the intended `0.0.3` public contract. A name or
+schema ID may change before release only through an explicit update to this
+document, its packaged schema, canonical example, tests, and migration notes in
+the same change.
+
+The complete command surface added or extended by `0.0.3` is:
+
+```text
+openbot-data inspect
+openbot-data audit
+openbot-data snapshot
+openbot-data diff
+openbot-data readiness
+openbot-data catalog-evidence
+openbot-data repair plan
+openbot-data repair apply
+openbot-data verify
+openbot-data merge-check
+openbot-data verify-merge
+```
+
+`scan`, `catalog`, and `version` remain backward compatible. Hosted upload,
+review, export, and billing commands are not added to this package.
 
 ## Required `0.0.3` functionality
 
@@ -208,6 +324,13 @@ The base rules must include:
 - in `full` integrity mode, deterministic recomputation of standard normalization
   statistics and comparison against stored values with documented tolerances.
 
+Every P0 rule is added to the finding registry before implementation is accepted.
+The registry row freezes the stable code, layer, default severity, applicability,
+required capabilities, evidence fields, location fields, impact, fixability,
+remediation reference, deterministic ordering key, and positive/negative
+fixtures. Numeric rules also freeze the tolerance, unit, comparison method, and
+threshold source. Undocumented heuristics cannot block readiness or release.
+
 Stats absence is a readiness warning, not automatically a malformed dataset,
 when the official loader permits missing stats.
 
@@ -223,7 +346,8 @@ Preserve `openbot.dataset_manifest.v1` and its current fingerprint algorithm.
 Add a separate `openbot.dataset_snapshot.v1` artifact for change control. It
 contains:
 
-- `snapshot_schema_version` and `fingerprint_version`;
+- `schema_version` (`openbot.dataset_snapshot.v1`) and
+  `fingerprint_version`;
 - source kind (`local` or `hf_hub`) and format adapter;
 - requested and resolved source revision when available;
 - LeRobot package compatibility target and dataset format version;
@@ -283,8 +407,8 @@ candidate = build_dataset_snapshot("./candidate", input_format="lerobot")
 diff = diff_dataset_snapshots(baseline, candidate)
 ```
 
-Final names may change before implementation only if the JSON schema IDs and
-migration notes are updated together.
+The public names and schema ID follow the contract-freeze rule in
+[Public contract surface](#public-contract-surface).
 
 ### P0.6 Revision-pinned Hugging Face audit
 
@@ -309,6 +433,12 @@ Requirements:
   were skipped;
 - emit a stable partial-coverage finding listing every skipped rule capability;
 - make sample/full downloads explicit, bounded, and resumable;
+- expose and document byte, shard, episode, and media-download budgets; record
+  effective budgets, cache/resume state, and exhausted limits in the canonical
+  coverage result;
+- stop before exceeding a budget and emit a stable coverage/budget finding
+  rather than silently reducing coverage; a readiness projection becomes
+  `PARTIAL` unless the budget itself was invalid configuration;
 - in sample mode, deterministically select and report episode, data-shard, and
   camera coverage instead of downloading arbitrary first files;
 - check version refs against `info.json.codebase_version`;
@@ -394,6 +524,21 @@ Rules:
 - each built-in profile is versioned and tested against its pinned official
   policy configuration.
 
+Each built-in profile ships as versioned package data and declares:
+
+- compatible dataset format and source-tool versions;
+- required and optional feature keys, dtypes, shapes, and semantics;
+- action dimensions and coordinate/normalization contracts;
+- camera, language, state, timestamp, task, and delta-horizon requirements;
+- required audit capabilities and minimum integrity level;
+- deterministic blocker rules and advisory recommendations;
+- the official configuration or documentation revision from which each
+  requirement was derived.
+
+Profiles cannot override base format truth or silently change a stable finding
+severity. A profile change that can change a readiness result requires a new
+profile version, fixtures for the old and new behavior, and release notes.
+
 Required interfaces:
 
 ```bash
@@ -401,6 +546,16 @@ openbot-data readiness ./dataset --profile lerobot-act --out readiness.json
 openbot-data readiness ./dataset --policy-config ./policy/config.json
 openbot-data readiness hf://datasets/org/name@revision \
   --profile hf-publication --integrity metadata
+```
+
+```python
+from openbot_data import evaluate_dataset_readiness
+
+readiness = evaluate_dataset_readiness(
+    "./dataset",
+    profile="lerobot-act",
+    integrity="full",
+)
 ```
 
 Canonical JSON is the machine contract. Console and Markdown reports summarize
@@ -498,7 +653,8 @@ publish must overwrite any caller-supplied evaluation.
 The dynamic lifecycle is:
 
 ```text
-openbot-data audit or official-source refresh
+local audit or revision-pinned official-source refresh
+-> openbot-data catalog-evidence
 -> versioned facts/evidence
 -> Catalog candidate and server-side score recomputation
 -> human review and published revision
@@ -507,8 +663,8 @@ openbot-data audit or official-source refresh
 
 This makes a score change traceable to changed evidence, a rule-pack version,
 or a new reviewed revision. It does not permit a background scan to overwrite a
-published Catalog entry, and it does not change the canonical `openbot-data`
-`READY`/`BLOCKED`/`PARTIAL` audit result.
+published Catalog entry. It also does not replace or change the future
+P0.8 `openbot.dataset_readiness.v1` `READY`/`BLOCKED`/`PARTIAL` result.
 
 The handoff implementation is available through:
 
@@ -570,6 +726,18 @@ openbot-data verify ./dataset.fixed \
   --out repair-receipt.json
 ```
 
+```python
+from openbot_data import (
+    apply_dataset_repair,
+    plan_dataset_repair,
+    verify_dataset_repair,
+)
+
+plan = plan_dataset_repair("./dataset")
+applied = apply_dataset_repair("./dataset", plan, output_path="./dataset.fixed")
+receipt = verify_dataset_repair("./dataset.fixed", against=plan)
+```
+
 `openbot.dataset_repair_plan.v1` and
 `openbot.dataset_repair_receipt.v1` are deterministic artifacts. The P0 repair
 executor is intentionally narrow. It may only rebuild derived values that can
@@ -622,6 +790,25 @@ openbot-data verify-merge ./merged \
   --inputs dataset-a.snapshot.json dataset-b.snapshot.json \
   --out merge-receipt.json
 ```
+
+```python
+from openbot_data import check_merge_compatibility, verify_dataset_merge
+
+plan = check_merge_compatibility(
+    ["./dataset-a", "./dataset-b"],
+    profile="lerobot-act",
+)
+receipt = verify_dataset_merge(
+    "./merged",
+    input_snapshots=[
+        "dataset-a.snapshot.json",
+        "dataset-b.snapshot.json",
+    ],
+)
+```
+
+`openbot.dataset_merge_plan.v1` and
+`openbot.dataset_merge_receipt.v1` are deterministic artifacts.
 
 The pre-merge check covers:
 
@@ -723,12 +910,57 @@ versions.
 - Keep `lerobot` out of normal runtime dependencies.
 - Keep PyArrow and any precise media parser behind documented optional extras.
 - Put Hugging Face access behind a small optional `hub` extra.
+- Keep core audit, snapshot, diff, readiness evaluation, repair planning, and
+  merge checking usable without the full LeRobot package.
+- Commands that verify an official LeRobot operation use an explicitly selected
+  Python 3.12 conformance environment pinned to `lerobot[dataset]==0.6.0`.
+  If that runner is unavailable, the command may emit a canonical unverified
+  receipt and exit `2`, but it must not claim verification.
 - Run official LeRobot conformance only in a separate Python 3.12 job pinned to
   `lerobot[dataset]==0.6.0`.
 - Run LeRobot `main` compatibility as a non-blocking scheduled job; unreleased
   upstream changes do not block a stable OpenBot Data release.
 - Preserve manifest v1 schema, bytes, and fingerprint behavior for unchanged
   fixtures.
+
+## Integrity, coverage, and exit behavior
+
+Integrity is a declared coverage contract, not a quality label:
+
+| Integrity | Required work | Result limitation |
+|---|---|---|
+| `metadata` | Resolve source identity; validate required metadata, JSON/Parquet readability, declared schemas, path templates, totals discoverable without payload reads, and provenance | Must report every skipped data/media/statistics capability; cannot return `READY` for a profile that requires one of them |
+| `sample` | Everything in `metadata`, plus deterministic episode/data-shard/camera selection, bounded row/value checks, and start/middle/end media probes for every selected video | Must include selected and total coverage; cannot be represented as full-dataset validation |
+| `full` | Read every required data row and media stream, validate all relations, and recompute required standard statistics under documented tolerances | May return `READY` only when every capability required by the selected profile completed successfully |
+
+Every audit, snapshot, readiness result, repair/merge plan, and receipt records
+the requested integrity, completed capabilities, skipped capabilities, selected
+sample, and total known population. A renderer must never infer stronger
+coverage than the prepared result contains.
+
+All CLI commands use the same process-exit classes:
+
+| Exit | Meaning |
+|---|---|
+| `0` | The command completed and the selected gate accepted the canonical result |
+| `1` | Invocation, configuration, source access, authentication, dependency, or unexpected runtime failure prevented a canonical result |
+| `2` | The command completed and produced a canonical negative result that reached the selected gate threshold |
+
+Command-specific gate behavior is:
+
+- `audit --fail-on none|warning|error` exits `2` only when the completed audit
+  reaches the selected non-`none` threshold;
+- `diff --fail-on none|material|breaking` exits `2` when the completed diff
+  reaches the selected non-`none` change class;
+- `readiness` requires `READY` by default, so `BLOCKED` and `PARTIAL` exit `2`;
+  `--allow-partial` permits a completed `PARTIAL` result to exit `0`;
+- `merge-check` exits `0` only for `direct`; `transform_required`,
+  `incompatible`, and `unknown` are completed negative results and exit `2`;
+- `repair apply`, `verify`, and `verify-merge` exit `2` when a canonical receipt
+  is produced but verification is not complete or successful.
+
+JSON artifacts are written for completed results before exit `2`. Exit `1` must
+not be disguised as a dataset finding or readiness result.
 
 ## Release acceptance criteria
 
@@ -862,6 +1094,13 @@ Stable findings cover:
   substitute user outcome, why the workflow remains complete, and its
   acceptance evidence.
 
+The comparison gate is implemented by
+`tests/fixtures/competitor-outcomes-v003.json` and
+`tests/test_competitor_outcomes.py`. It freezes a real 2026-07-28 run of
+`lerobot-doctor==0.2.0` and `robovet==0.2.2` against the same official LeRobot
+0.6.0 v3.0 stale-counter scenario, then reconstructs the case to enforce the
+OpenBot blocking outcome.
+
 ## Implementation order
 
 1. Fix `0.0.2` correctness debt and freeze v1 fingerprint fixtures.
@@ -872,8 +1111,9 @@ Stable findings cover:
 6. Add revision-pinned Hub metadata resolution.
 7. Add readiness profiles, episode-level triage, canonical Markdown, and stable
    gate exit behavior.
-8. Add the deterministic `catalog-evidence-v1` handoff without adding a package
-   scoring formula.
+8. Revalidate and integrate the implemented deterministic
+   `catalog-evidence-v1` handoff against the final snapshot, audit, coverage, and
+   readiness contracts without adding a package scoring formula.
 9. Add remediation plans and the conservative copy-on-write repair executor.
 10. Add merge compatibility and post-operation verification.
 11. Add official LeRobot 0.6.0 conformance, competitor-outcome comparison, and
@@ -883,9 +1123,9 @@ Stable findings cover:
 ## References
 
 - [Reference libraries and differentiation](reference-libraries.md)
-- [LeRobotDataset v3.0](https://huggingface.co/docs/lerobot/main/lerobot-dataset-v3)
-- [LeRobot Dataset Tools](https://huggingface.co/docs/lerobot/main/using_dataset_tools)
-- [LeRobot action representations](https://huggingface.co/docs/lerobot/main/action_representations)
+- [LeRobotDataset v3.0](https://huggingface.co/docs/lerobot/v0.6.0/lerobot-dataset-v3)
+- [LeRobot Dataset Tools](https://huggingface.co/docs/lerobot/v0.6.0/using_dataset_tools)
+- [LeRobot action representations](https://huggingface.co/docs/lerobot/v0.6.0/action_representations)
 - [LeRobot 0.6.0 release](https://github.com/huggingface/lerobot/releases/tag/v0.6.0)
 - [LeRobot dataset-tool gaps and use cases](https://github.com/huggingface/lerobot/issues/2326)
 - [LeRobot merge user need](https://github.com/huggingface/lerobot/issues/847)

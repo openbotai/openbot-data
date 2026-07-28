@@ -1,0 +1,58 @@
+{
+  "id": "lerobot-act",
+  "version": "1",
+  "source_version": "lerobot==0.6.0",
+  "source_reference": "https://github.com/huggingface/lerobot/tree/v0.6.0/src/lerobot/policies/act",
+  "required_integrity": "full",
+  "input_formats": ["lerobot"],
+  "adapters": ["lerobot_v30"],
+  "dataset_versions": ["v3.0", "3.0"],
+  "required_capabilities": [
+    "format.contract",
+    "metadata.info",
+    "metadata.episodes",
+    "metadata.totals",
+    "metadata.episode_indexes",
+    "data.inventory",
+    "data.parquet_footer",
+    "data.parquet_schema",
+    "data.parquet_rows",
+    "data.indexes",
+    "alignment.data_relations",
+    "alignment.episode_ranges",
+    "alignment.timestamps",
+    "alignment.task_foreign_keys",
+    "stats.stored",
+    "stats.recomputed"
+  ],
+  "required_features": [
+    {
+      "key": "action",
+      "role": "output",
+      "dtype": "float32",
+      "shape_min_rank": 1
+    }
+  ],
+  "any_feature_groups": [
+    {
+      "id": "act-observation",
+      "patterns": ["observation.state", "observation.images.*"],
+      "minimum": 1
+    }
+  ],
+  "metadata_requirements": [],
+  "advisory_metadata": [],
+  "thresholds": {
+    "near_zero_variance": 1e-12,
+    "variance_threshold_source": "lerobot-act-v1 advisory"
+  },
+  "policy_defaults": {
+    "normalization_mapping": {
+      "VISUAL": "MEAN_STD",
+      "STATE": "MEAN_STD",
+      "ACTION": "MEAN_STD"
+    },
+    "observation_delta_indices": null,
+    "action_delta_indices": {"start": 0, "stop": 100}
+  }
+}
