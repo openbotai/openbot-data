@@ -243,11 +243,13 @@ The released PyPI package and current source version are both `0.0.3`.
 `v0.0.3` points to commit
 `7c4974c0ce53a93ea101529e6bd9565146da0d78`; the GitHub Release workflow
 published its wheel and source distribution to PyPI. OpenBot Data remains an
-early local Python toolkit. Hosted upload, annotation, review, export, billing,
-Workers, and Container infrastructure belong to the main
-[OpenBot](https://github.com/openbotai/OpenBot) product repository. Use the separate
-[`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package to call the
-hosted API.
+early local Python toolkit. It does not provide platform authentication,
+billing, remote jobs, or server infrastructure. The main
+[OpenBot](https://github.com/openbotai/OpenBot) repository is an API-first
+platform framework, and the separate
+[`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package calls only APIs
+that the platform has actually published. Future robot/ego-data API adapters are
+research directions, not current package or platform promises.
 
 ## Roadmap
 

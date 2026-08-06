@@ -485,7 +485,7 @@ explicit contract change.
 - multi-file training-set balancing, merging, or deduplication;
 - a custom viewer or a required Rerun dependency;
 - an opaque aggregate quality score;
-- hosted upload, review, export, API keys, billing, Workers, or storage.
+- platform authentication, remote jobs, billing, Workers, or storage.
 
 RLDS/Open X remains planned for `0.0.5`; it is not part of this version.
 
@@ -549,5 +549,6 @@ conventions as authoritative:
 - [Rerun timelines](https://rerun.io/docs/concepts/logging-and-ingestion/timelines)
 - [Rerun file ingestion boundary](https://rerun.io/docs/getting-started/data-in/open-any-file)
 
-These package versions are independent from Hosted OpenBot Data product
-versions.
+These package versions are independent from OpenBot platform and
+`openbot-sdk` versions. A future API adapter requires an actually published
+platform contract and remains outside `0.0.4`.

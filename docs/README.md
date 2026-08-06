@@ -1,8 +1,8 @@
 # OpenBot Data documentation
 
 OpenBot Data is a local, open-source Python library. It inspects robot-video
-directories and local LeRobot v2.1/v3 repositories before training or upload. It
-does not call the Hosted OpenBot API.
+directories and local LeRobot v2.1/v3 repositories before training or
+publication. It does not call the OpenBot platform by default.
 
 ## Start here
 
@@ -34,6 +34,8 @@ This repository owns local and revision-pinned Hub preflight, media inspection,
 deterministic manifests/audits/snapshots/diffs, readiness gates, conservative
 copy-on-write metadata repair, official-operation verification, catalog export,
 and the score-free Catalog evidence handoff. Catalog scoring, candidate review,
-publication, uploads, API keys, asynchronous processing, hosted artifacts,
-retention, and billing belong to the main OpenBot service and are called through
-`openbot-sdk`.
+publication, API authentication, asynchronous platform work, retention, and
+billing are outside this library. The main OpenBot repository provides an
+API-first platform framework; `openbot-sdk` calls APIs that are actually
+published. A future opt-in robot/ego-data adapter requires a real platform API
+contract and is not current functionality.

@@ -63,7 +63,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://openbot.ai/data"
-Documentation = "https://openbot.ai/api/docs#data-recipe"
+Documentation = "https://github.com/openbotai/openbot-data/tree/main/docs"
 Repository = "https://github.com/openbotai/openbot-data"
 Issues = "https://github.com/openbotai/openbot-data/issues"
 

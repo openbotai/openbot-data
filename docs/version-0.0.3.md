@@ -156,14 +156,14 @@ LeRobot tool instead of being reimplemented.
   task semantics;
 - a duplicate low-level LeRobot editor, merger, migrator, or re-encoder;
 - a universal numeric quality score;
-- hosted upload, review, approved export, API keys, billing, Workers, or
-  production storage.
+- platform authentication, remote jobs, billing, Workers, or production
+  storage.
 
 Official LeRobot tools remain the execution engine for payload-changing edits,
 v2.1-to-v3 migration, merge, re-encoding, visualization, annotation, and
 training. OpenBot Data must still check their preconditions, emit the operation
-plan, and verify the result. Hosted behavior remains in the main OpenBot
-repository and is called through `openbot-sdk`.
+plan, and verify the result. Any future platform integration requires a
+separately published OpenBot API and an opt-in adapter; none is part of `0.0.3`.
 
 ## Public contract surface
 
@@ -205,8 +205,8 @@ openbot-data merge-check
 openbot-data verify-merge
 ```
 
-`scan`, `catalog`, and `version` remain backward compatible. Hosted upload,
-review, export, and billing commands are not added to this package.
+`scan`, `catalog`, and `version` remain backward compatible. Remote platform
+job, authentication, and billing commands are not added to this package.
 
 ## Required `0.0.3` functionality
 
@@ -879,8 +879,8 @@ validity.
 - explicit external validator interoperability after a stable report contract
   exists.
 
-These package versions are independent from Hosted OpenBot Data product
-versions.
+These package versions are independent from OpenBot platform and
+`openbot-sdk` versions.
 
 ## Explicit non-goals
 
@@ -902,7 +902,8 @@ versions.
 - TensorFlow, Pandera, Datumaro, DVC, Rerun, or Foxglove as core dependencies;
 - RLDS/HDF5/MCAP conversion;
 - VLM annotations, task-success judgment, policy training, or evaluation;
-- hosted Catalog mutation, upload, billing, or production API implementation.
+- remote Catalog mutation, platform authentication, billing, or production API
+  implementation.
 
 ## Compatibility and packaging
 

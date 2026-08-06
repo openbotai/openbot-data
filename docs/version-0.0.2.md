@@ -10,15 +10,15 @@ documented in the [`0.0.3` release contract](version-0.0.3.md).
 
 ## Goal
 
-`0.0.2` should answer one question before a robot-video dataset is uploaded or
-used for training:
+`0.0.2` should answer one question before a robot-video dataset is used for
+training or publication:
 
 > Can this local video directory or local LeRobot dataset be read consistently,
 > and what concrete issues must be fixed first?
 
-The package remains a local inspection tool. Hosted uploads, asynchronous jobs,
-private artifacts, review, and billing belong to the OpenBot API and
-`openbot-sdk`.
+The package remains a local inspection tool. Platform authentication, remote
+jobs, billing, and server infrastructure are outside its scope. At this release,
+OpenBot did not expose a robot-data processing API that this package called.
 
 ## `0.0.1.post2` baseline carried into `0.0.2`
 
@@ -155,7 +155,7 @@ The complete suite is required on every supported Python interpreter.
 
 ## Explicit non-goals
 
-- Hosted upload, job polling, cancellation, artifacts, API keys, or billing;
+- remote platform jobs, API authentication, or billing;
 - Hugging Face remote download or private object-store access;
 - RLDS/HDF5 readers or dataset conversion/writing;
 - VLM annotation, subtask labeling, or automatic dataset correction;
@@ -163,4 +163,5 @@ The complete suite is required on every supported Python interpreter.
 - paid features or production SLA claims.
 
 These exclusions keep `openbot-data` a small local preflight tool and avoid
-duplicating responsibilities owned by `openbot-sdk` and the hosted API.
+mixing local data processing with responsibilities of a generic platform API
+client.

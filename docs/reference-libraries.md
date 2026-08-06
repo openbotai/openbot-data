@@ -50,8 +50,9 @@ video, LeRobot, and later robot-data formats:
 - stable, evidence-addressable findings and a versioned readiness artifact;
 - deterministic copy-on-write repair with pre/post evidence for the narrow
   metadata cases that have one authoritative reconstruction;
-- artifacts that can later be registered by the OpenBot Catalog and Hosted Data
-  API without putting hosted credentials or service code in this package.
+- portable artifacts that the OpenBot Catalog or a future explicitly published
+  platform API can consume without putting credentials or service code in this
+  package.
 
 ### Capability inclusion rule
 
@@ -86,7 +87,7 @@ to complete the supported workflow.
 | Semantic baseline-to-candidate diff | Dataset operations, not a release diff contract | Merge check | Not documented as a general diff | No | Core differentiator |
 | Raw robot-video directories | Not the dataset contract | Not documented | Not documented | Yes | Keep as a first-class adapter |
 | Multi-format contract | LeRobot-specific | LeRobot-specific | LeRobot-specific | Video + partial LeRobot | Adapter architecture; add formats deliberately |
-| OpenBot Catalog/release lineage | No | No | No | Catalog export | Produce portable artifacts; hosted registration stays elsewhere |
+| OpenBot Catalog/release lineage | No | No | No | Catalog export | Produce portable artifacts; any platform registration requires a separately published API |
 
 “Not documented” means the capability was not found in the reviewed public
 contract. It is not a claim that no private or unreleased implementation exists.
@@ -515,6 +516,7 @@ into a visualization-specific storage format.
 | `0.0.5` | RLDS/Open X read-only adapter and cross-format provenance profiles | TensorFlow in core, action-coordinate conversion |
 | Later | ROS bag/MCAP adapter, Foxglove handoff, explicit DVC hooks | Replacing ROS, DVC, Rerun, or Foxglove |
 
-Package versions in this table are independent from the Hosted OpenBot Data
-product versions. Hosted upload, review, approved export, billing, and production
-API behavior remain owned by the main OpenBot repository and `openbot-sdk`.
+Package versions in this table are independent from OpenBot platform and
+`openbot-sdk` versions. The main OpenBot repository currently provides the API
+framework, while `openbot-sdk` is only its thin client. No Hosted Data product or
+robot-data processing API is implied by these local-library plans.
