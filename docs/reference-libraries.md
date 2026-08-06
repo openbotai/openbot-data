@@ -5,7 +5,7 @@
 > Evidence boundary: upstream stable source, official documentation, and published
 > package metadata were reviewed. The critical stale-counter workflow was also
 > executed on 2026-07-28 against pinned `lerobot-doctor==0.2.0`,
-> `robovet==0.2.2`, and the `openbot-data 0.0.3` candidate.
+> `robovet==0.2.2`, and the source that shipped as `openbot-data==0.0.3`.
 
 ## Decision
 
@@ -348,11 +348,11 @@ result is normalized to the user decision rather than tool-specific rule names:
 |---|---:|---|---|---|
 | `lerobot-doctor` | `0.2.0` | exit 0, non-blocking | exit 1, blocking | actual 12 frames vs declared 999 |
 | `robovet` | `0.2.2` | exit 0, non-blocking | exit 1, blocking | `META-501`, `META-502` |
-| `openbot-data` | `0.0.3` candidate | no error findings | exit 2 with `--fail-on error` | `LEROBOT_FRAME_COUNT_MISMATCH`, `LEROBOT_STATS_COUNT_MISMATCH` |
+| `openbot-data` | `0.0.3` | no error findings | exit 2 with `--fail-on error` | `LEROBOT_FRAME_COUNT_MISMATCH`, `LEROBOT_STATS_COUNT_MISMATCH` |
 
 The portable evidence is frozen in
 `tests/fixtures/competitor-outcomes-v003.json`; its test reconstructs the clean
-and corrupted inputs and proves that the OpenBot candidate keeps the same
+and corrupted inputs and proves that the released OpenBot package keeps the same
 blocking outcome. Counts and labels intentionally differ because outcome parity
 does not mean cloning another package's rules.
 
@@ -511,7 +511,7 @@ into a visualization-specific storage format.
 |---|---|---|
 | `0.0.3` P0 | LeRobot 0.6/v3.0 conformance, v2.1 read compatibility, Hub metadata/sample/full audit, policy readiness, finding-level triage/remediation, deterministic copy-on-write repair, merge compatibility, `openbot.dataset_readiness.v1`, portable snapshot, semantic diff, and verified official-tool handoff | In-place mutation, OpenBot-owned edit/merge/re-encode engines, opaque score, custom viewer |
 | `0.0.3` P1 | Transparent advanced quality signals and ranked episode evidence; human-reviewed synchronized copy-on-write trim apply | Unattended trim, score-driven deletion, task-success judgment |
-| `0.0.4` | Read-only robomimic/HDF5 adapter and optional Rerun handoff | HDF5 conversion and simulator replay |
+| [`0.0.4`](version-0.0.4.md) | Read-only robomimic/HDF5 preflight and optional P1 Rerun handoff | Generic HDF5 validation, HDF5 conversion, and simulator replay |
 | `0.0.5` | RLDS/Open X read-only adapter and cross-format provenance profiles | TensorFlow in core, action-coordinate conversion |
 | Later | ROS bag/MCAP adapter, Foxglove handoff, explicit DVC hooks | Replacing ROS, DVC, Rerun, or Foxglove |
 

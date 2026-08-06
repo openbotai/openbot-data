@@ -1,7 +1,7 @@
 # OpenBot Data 0.0.3 — LeRobot Preflight and Dataset Change Control
 
-> Status: `0.0.3` source release candidate; all P0 interfaces and local release
-> gates pass, but the package has not been published.
+> Status: **Released** as `openbot-data==0.0.3` on PyPI; all P0 interfaces and
+> release gates passed.
 > Baseline package: `0.0.2`
 > Primary compatibility target: `lerobot==0.6.0`, dataset format `v3.0`
 > Research: [reference libraries and differentiation](reference-libraries.md)
@@ -25,10 +25,12 @@ The status terms in this document are normative:
 - **deferred** means the behavior is explicitly outside `0.0.3` and cannot
   silently become a release blocker.
 
-At this checkpoint, PyPI remains on `0.0.2` and the source package version is
-`0.0.3`. P0.1–P0.11, clean-install artifacts, the supported Python matrix,
-packaged examples/Schemas, pinned LeRobot conformance, and final local release
-checks pass. Publishing still requires an explicit release action.
+PyPI and the source package version are `0.0.3`. P0.1–P0.11, clean-install
+artifacts, the supported Python matrix, packaged examples/Schemas, pinned
+LeRobot conformance, and the final release checks passed. Tag `v0.0.3` points
+to `7c4974c0ce53a93ea101529e6bd9565146da0d78`; GitHub Release workflow
+`30333600797` completed successfully and published the wheel and source
+distribution.
 
 Every P0 item below is required for `0.0.3`. P1 candidates and later-version
 items are not required and must not be pulled into the release gate without an
@@ -70,24 +72,23 @@ below define the behavior and acceptance evidence for each row.
 
 ### Implementation checkpoint
 
-As of 2026-07-28, every P0 row has code and acceptance evidence, and the complete
-local `0.0.3` release gate passes. No row is a publicly released capability
-until the package is published. This checkpoint prevents a source release
-candidate from being confused with a published package:
+As of 2026-07-30, every P0 row has code and acceptance evidence, the complete
+`0.0.3` release gate passed, and the package is publicly available. The table
+records the released capability set:
 
 | ID | Current state | Existing foundation that may be reused |
 |---|---|---|
-| P0.1 | Implemented | deterministic multi-position probes, structured malformed-input findings, symlink/path safety, bounded Parquet reads, snapshot-request validation, and `0.0.2` compatibility regression tests |
-| P0.2 | Implemented | explicit immutable v2.1/v3.0 adapters, unknown-field preservation, stable-version detection, and non-mutating official v2.1 migration guidance |
-| P0.3 | Implemented | collect-all metadata/schema/data/media/alignment/provenance validation, global v3 shard offsets, stored/recomputed statistics, and explicit capability coverage |
-| P0.4 | Implemented | public secret-free `openbot.dataset_snapshot.v1`, strict Schema, 11 component digests, Hub provenance, and byte-stable output |
-| P0.5 | Implemented | strict snapshot validation and `unchanged`/`non_breaking`/`material`/`breaking` semantic diff |
-| P0.6 | Implemented | revision-pinned Hub resolver, credential-safe cache materialization, hard budgets, publication metadata, and metadata/sample/full coverage |
-| P0.7 | Implemented | one prepared adapter result, capability-declaring static rule registry, explicit skipped checks, and shared renderers |
-| P0.8 | Implemented | versioned core/training/publication/ACT/SmolVLA profiles, strict policy-config override, deterministic JSON/Markdown, and READY/BLOCKED/PARTIAL gates |
-| P0.9 | Implemented | actionable-location triage, raw advisory measurements and thresholds, non-executing synchronized idle-trim plans, deterministic Markdown, and score-free Catalog evidence |
-| P0.10 | Implemented | deterministic plan, stale-plan refusal, allowlisted copy-on-write apply, atomic destination publication, re-audit/diff/official-loader receipt |
-| P0.11 | Implemented | four-way compatibility plan, pinned official command template, operation/lineage reconciliation, full post-audit, loader smoke, semantic reconciliation, and diff verification |
+| P0.1 | Released | deterministic multi-position probes, structured malformed-input findings, symlink/path safety, bounded Parquet reads, snapshot-request validation, and `0.0.2` compatibility regression tests |
+| P0.2 | Released | explicit immutable v2.1/v3.0 adapters, unknown-field preservation, stable-version detection, and non-mutating official v2.1 migration guidance |
+| P0.3 | Released | collect-all metadata/schema/data/media/alignment/provenance validation, global v3 shard offsets, stored/recomputed statistics, and explicit capability coverage |
+| P0.4 | Released | public secret-free `openbot.dataset_snapshot.v1`, strict Schema, 11 component digests, Hub provenance, and byte-stable output |
+| P0.5 | Released | strict snapshot validation and `unchanged`/`non_breaking`/`material`/`breaking` semantic diff |
+| P0.6 | Released | revision-pinned Hub resolver, credential-safe cache materialization, hard budgets, publication metadata, and metadata/sample/full coverage |
+| P0.7 | Released | one prepared adapter result, capability-declaring static rule registry, explicit skipped checks, and shared renderers |
+| P0.8 | Released | versioned core/training/publication/ACT/SmolVLA profiles, strict policy-config override, deterministic JSON/Markdown, and READY/BLOCKED/PARTIAL gates |
+| P0.9 | Released | actionable-location triage, raw advisory measurements and thresholds, non-executing synchronized idle-trim plans, deterministic Markdown, and score-free Catalog evidence |
+| P0.10 | Released | deterministic plan, stale-plan refusal, allowlisted copy-on-write apply, atomic destination publication, re-audit/diff/official-loader receipt |
+| P0.11 | Released | four-way compatibility plan, pinned official command template, operation/lineage reconciliation, full post-audit, loader smoke, semantic reconciliation, and diff verification |
 
 Changing a row to **implemented** requires linked code, packaged schemas where
 applicable, positive and negative fixtures, public-interface documentation, and
@@ -855,7 +856,7 @@ validity.
 
 ## Later versions
 
-### `0.0.4`: robomimic/HDF5 read-only adapter
+### [`0.0.4`: robomimic/HDF5 read-only preflight](version-0.0.4.md)
 
 - HDF5 structure and `env_args`;
 - trajectory length and leading-dimension consistency;

@@ -2,11 +2,11 @@
 
 > Status: Released and publicly verified
 > Previous package: `0.0.1.post2`
-> Current source version: `0.0.2`
+> Release version: `0.0.2`
 
 This document is the release contract for the local `openbot-data` Python package.
-The functionality below shipped in `openbot-data==0.0.2`. Future work is tracked
-separately in the [`0.0.3` plan](version-0.0.3.md).
+The functionality below shipped in `openbot-data==0.0.2`. Its successor is
+documented in the [`0.0.3` release contract](version-0.0.3.md).
 
 ## Goal
 

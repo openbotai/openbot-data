@@ -17,6 +17,9 @@ does not call the Hosted OpenBot API.
   feature map, public artifacts and commands, LeRobot compatibility, readiness,
   remediation, merge safety, snapshots, semantic diff, current implementation
   checkpoint, and release acceptance criteria.
+- [0.0.4 planned version contract](version-0.0.4.md): the planned read-only
+  robomimic/HDF5 preflight, safety boundary, artifact reuse, test matrix, and
+  release gates. It is not implemented or released.
 - [Reference libraries and differentiation](reference-libraries.md):
   LeRobot, `lerobot-doctor`, `robovet`, and adjacent-library decisions.
 - [Canonical manifest](examples/manifest.json) and

@@ -19,9 +19,9 @@ evaluation.
 pip install openbot-data
 ```
 
-PyPI currently installs the released `0.0.2` package. The source tree is the
-`0.0.3` release candidate: its P0 interfaces and local release gates pass, but it
-has not been published. Requires Python 3.9+.
+PyPI currently installs the released `0.0.3` package. Its P0 interfaces,
+supported Python matrix, official LeRobot conformance, build, and clean-install
+release gates pass. Requires Python 3.9+.
 
 ## Runnable demo
 
@@ -239,12 +239,13 @@ and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
 
 ## Status
 
-The released PyPI package is `0.0.2`; the current source version is `0.0.3` and
-its local release gate passes. No tag, GitHub Release, or PyPI publication has
-been performed. OpenBot Data remains an early local Python toolkit. Hosted upload,
-annotation, review, export, billing, Workers, and Container infrastructure
-belong to the main [OpenBot](https://github.com/openbotai/OpenBot) product
-repository. Use the separate
+The released PyPI package and current source version are both `0.0.3`.
+`v0.0.3` points to commit
+`7c4974c0ce53a93ea101529e6bd9565146da0d78`; the GitHub Release workflow
+published its wheel and source distribution to PyPI. OpenBot Data remains an
+early local Python toolkit. Hosted upload, annotation, review, export, billing,
+Workers, and Container infrastructure belong to the main
+[OpenBot](https://github.com/openbotai/OpenBot) product repository. Use the separate
 [`openbot-sdk`](https://github.com/openbotai/openbot-sdk) package to call the
 hosted API.
 
@@ -260,10 +261,12 @@ hosted API.
       with correctness closure, explicit v2.1/v3 adapters, layered validation,
       portable snapshots, semantic diff, revision-pinned Hub audit, readiness
       profiles, evidence triage, conservative repair, and merge verification.
-      P0 interfaces, the package version, clean install, Python matrix,
-      artifacts, official conformance, and local release checks pass. Public
-      release remains a separate explicit action.
-- [ ] Later: read-only robomimic/HDF5 and RLDS/Open X adapters
+      P0 interfaces, clean install, Python matrix, artifacts, and official
+      conformance passed before the public `0.0.3` release.
+- [ ] [`0.0.4`: read-only robomimic/HDF5 preflight](docs/version-0.0.4.md), with
+      file-source detection, bounded structural and payload validation, portable
+      snapshot/diff/readiness evidence, and optional P1 Rerun handoff
+- [ ] `0.0.5`: read-only RLDS/Open X adapter
 - [ ] Later: advanced episode-quality signals and any aggregate score only after
       labeled downstream validation exists
 

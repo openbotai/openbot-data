@@ -8,9 +8,8 @@ Install the released package:
 python -m pip install openbot-data
 ```
 
-PyPI currently provides `0.0.2`. The current source tree is the `0.0.3` release
-candidate; its P0 interfaces and local release gates pass, but it has not been
-published.
+PyPI currently provides `0.0.3`. Its P0 interfaces and release gates passed
+before publication.
 
 Install the optional Parquet reader required for layered LeRobot validation:
 

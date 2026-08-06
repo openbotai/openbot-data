@@ -1,8 +1,7 @@
 # API and CLI reference
 
 All functions below are importable from `openbot_data`. The released PyPI
-package remains `0.0.2`; the current source tree is the locally verified `0.0.3`
-release candidate.
+package and current source tree are `0.0.3`.
 
 ## Coverage and result semantics
 
