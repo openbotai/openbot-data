@@ -415,6 +415,7 @@ Accepted keys are:
 |---|---|
 | `scan`, `inspect`, `audit`, `catalog`, `catalog-evidence` | Discovery and projections |
 | `snapshot`, `diff` | Portable identity and change classification |
+| `review` | Local read-only LeRobot v3 episode and audit workbench |
 | `readiness` | Local or Hub profile gate |
 | `repair plan`, `repair apply`, `verify` | Copy-on-write repair loop |
 | `merge-check`, `verify-merge` | Official merge handoff and verification |
@@ -423,3 +424,8 @@ Accepted keys are:
 All commands use exit `0` for an accepted completed result, `2` for a completed
 negative gate result, and `1` for invocation/configuration/access/runtime
 failure. A completed exit-2 result writes its canonical JSON first.
+
+`review` is a long-running local server. It binds to `127.0.0.1`, exits with
+`Ctrl-C`, and does not write to the dataset. It needs `openbot-data[lerobot]`;
+video preview additionally needs `ffmpeg` on `PATH`. Use `--port` to select a
+port or `--no-open` to leave browser opening to the caller.

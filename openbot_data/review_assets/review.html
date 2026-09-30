@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenBot Data · Episode review</title>
+  <link rel="stylesheet" href="review.css">
+  <script src="review.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">OB</span><span>OpenBot Data <small>/ episode review</small></span></div>
+    <div class="top-summary" id="topSummary">Loading dataset…</div>
+    <span class="read-only">READ ONLY</span>
+  </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="eyebrow">DATASET</div>
+        <h1 id="datasetName">Loading…</h1>
+        <p id="datasetMeta"></p>
+        <input id="search" type="search" placeholder="Find episode or task" aria-label="Find episode or task">
+        <label class="filter"><input id="issuesOnly" type="checkbox"> Show episodes with findings</label>
+      </div>
+      <div class="episode-list" id="episodeList" aria-label="Episodes"></div>
+      <div class="sidebar-foot" id="listCount"></div>
+    </aside>
+    <main class="main">
+      <div id="errorBanner" class="error-banner" hidden></div>
+      <section class="audit-scope" aria-label="Audit scope">
+        <div id="auditSummary">Loading audit scope…</div>
+        <p>Metadata checks at startup. Frame-level validation, task success and motion quality are not assessed.</p>
+        <details id="skippedAudit" hidden><summary id="skippedCount"></summary><div id="skippedChecks"></div></details>
+      </section>
+      <div class="episode-head">
+        <div>
+          <div class="eyebrow">EPISODE <span id="episodeIndex">—</span></div>
+          <h2 id="episodeTask">Choose an episode</h2>
+          <p id="episodeMeta"></p>
+        </div>
+        <div class="nav">
+          <button id="previous" type="button" aria-label="Previous episode">←</button>
+          <button id="next" type="button" aria-label="Next episode">→</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="section-title"><h3>Cameras</h3><span id="cameraStatus"></span></div>
+        <div id="cameras" class="cameras"></div>
+        <div class="playback">
+          <button id="play" type="button" aria-label="Play or pause">▶</button>
+          <span id="clock">0.00s</span>
+          <input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Episode timeline">
+          <span id="duration">0.00s</span>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="section-title"><h3>Motion traces</h3><span>Sampled frame data</span></div>
+        <div id="charts" class="charts"></div>
+      </section>
+    </main>
+    <aside class="findings">
+      <div class="eyebrow">PREFLIGHT EVIDENCE</div>
+      <h3>Findings</h3>
+      <p id="findingCount"></p>
+      <div id="episodeFindings"></div>
+      <details class="dataset-findings"><summary>Dataset-wide findings <span id="generalCount"></span></summary><div id="generalFindings"></div></details>
+    </aside>
+  </div>
+</body>
+</html>

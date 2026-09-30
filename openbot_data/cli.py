@@ -743,6 +743,25 @@ def verify_merge_command(
 
 
 @app.command()
+def review(
+    dataset_dir: str = typer.Argument(..., help="Local LeRobot v3 dataset to review"),
+    port: int = typer.Option(8766, "--port", help="Local web server port"),
+    no_open: bool = typer.Option(False, "--no-open", help="Do not open a browser"),
+):
+    """Open a read-only local episode and audit review workbench."""
+    from openbot_data.review import serve_review
+
+    if port < 0 or port > 65535:
+        typer.echo("Error: --port must be between 0 and 65535", err=True)
+        raise typer.Exit(1)
+    try:
+        serve_review(dataset_dir, port=port, open_browser=not no_open)
+    except (OpenBotDataError, ValueError, OSError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+
+
+@app.command()
 def version():
     """Show version information."""
     from openbot_data import __version__

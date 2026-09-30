@@ -124,6 +124,30 @@ openbot-data readiness ./lerobot_dataset \
   --out ./readiness.json --markdown ./readiness.md
 ```
 
+### Local episode review (source checkout)
+
+```bash
+pip install -e '.[lerobot]'
+openbot-data review ./lerobot_dataset
+openbot-data review ./lerobot_dataset --port 8766 --no-open
+```
+
+The local workbench shows LeRobot v3 episodes, camera segments, sampled state
+and action traces, and the existing audit findings in one place. It binds to
+`127.0.0.1` and never writes to the source dataset. `ffmpeg` on `PATH` enables
+on-demand H.264 browser previews; preview files are temporary and removed when
+the server stops. The review reflects a metadata-level audit taken at startup.
+The page shows skipped audit rules and their reasons. Zero reported errors or
+warnings does not establish frame-level integrity, task success, or motion quality.
+Restart the reviewer after changing the dataset. Shared-file findings appear
+under every affected episode; the summary counts each audit finding once.
+An unreadable motion shard leaves the episode's video and findings accessible.
+Previews show at most the first 180 seconds per camera. Cached previews are
+evicted above 256 MiB or 32 files; active streams can temporarily exceed this
+budget until their requests finish. Open the printed localhost URL, rather
+than opening the HTML asset directly.
+This command is in the source tree and is not part of the released PyPI `0.0.3`.
+
 ### Repair and merge verification
 
 ```bash

@@ -525,6 +525,40 @@ def test_v30_adapter_reads_canonical_parquet_contract(tmp_path: Path) -> None:
     )
 
 
+@pytest.mark.parametrize("index_column", ["__index_level_0__", "instruction"])
+def test_v30_task_text_can_be_a_pandas_index(tmp_path: Path, index_column: str) -> None:
+    pa = pytest.importorskip("pyarrow", exc_type=ImportError)
+    parquet = pytest.importorskip("pyarrow.parquet", exc_type=ImportError)
+    root = tmp_path / "dataset"
+    write_v30_parquet_dataset(root, use_video=False)
+    table = pa.table({"task_index": [0], index_column: ["pick"]})
+    table = table.replace_schema_metadata({
+        b"pandas": json.dumps({"index_columns": [index_column]}).encode(),
+    })
+    path = root / "meta/tasks.parquet"
+    parquet.write_table(table, path)
+    before = path.read_bytes()
+
+    result = read_lerobot_dataset(str(root), DiscoveryRequest(integrity="full"))
+
+    assert not [item for item in result.findings if item["severity"] == "error"]
+    assert [(task.task_index, task.task) for task in result.tasks] == [(0, "pick")]
+    assert path.read_bytes() == before
+
+
+def test_v30_does_not_guess_task_text_from_an_unmarked_column(tmp_path: Path) -> None:
+    pa = pytest.importorskip("pyarrow", exc_type=ImportError)
+    parquet = pytest.importorskip("pyarrow.parquet", exc_type=ImportError)
+    root = tmp_path / "dataset"
+    write_v30_parquet_dataset(root, use_video=False)
+    parquet.write_table(
+        pa.table({"task_index": [0], "__index_level_0__": ["pick"]}),
+        root / "meta/tasks.parquet",
+    )
+    result = read_lerobot_dataset(str(root))
+    assert "LEROBOT_TASK_INVALID" in finding_codes(result)
+
+
 def test_v30_video_path_none_is_valid_without_video_features(tmp_path: Path) -> None:
     pytest.importorskip("pyarrow", exc_type=ImportError)
     root = tmp_path / "dataset"

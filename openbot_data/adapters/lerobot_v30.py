@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence, Tuple
 
@@ -63,6 +64,29 @@ def _load_parquet_module() -> Optional[Any]:
     return parquet
 
 
+def _task_index_column(schema: Any) -> Optional[str]:
+    """Recognize a serialized Pandas task index without requiring pandas.
+
+    Official readers restore the task text from the DataFrame index, including
+    unnamed indexes serialized by Arrow as __index_level_0__.
+    """
+    if "task" in schema.names:
+        return None
+    try:
+        metadata = json.loads((schema.metadata or {}).get(b"pandas", b"{}"))
+    except (TypeError, ValueError):
+        return None
+    indexes = metadata.get("index_columns") if isinstance(metadata, dict) else None
+    if (
+        isinstance(indexes, list)
+        and len(indexes) == 1
+        and isinstance(indexes[0], str)
+        and indexes[0] in schema.names
+    ):
+        return indexes[0]
+    return None
+
+
 def _parquet_rows(
     root: Path,
     paths: Sequence[str],
@@ -82,13 +106,19 @@ def _parquet_rows(
         try:
             parquet_file = parquet.ParquetFile(path)
             columns = tuple(str(name) for name in parquet_file.schema_arrow.names)
+            task_index_column = (
+                _task_index_column(parquet_file.schema_arrow) if role == "tasks" else None
+            )
             row_count = int(parquet_file.metadata.num_rows)
             row_number = 0
             for batch in parquet_file.iter_batches(batch_size=batch_size):
                 for value in batch.to_pylist():
                     row_number += 1
                     if isinstance(value, dict):
-                        rows.append((relative_path, row_number, dict(value)))
+                        record = dict(value)
+                        if task_index_column is not None:
+                            record["task"] = record.get(task_index_column)
+                        rows.append((relative_path, row_number, record))
                     else:
                         findings.append(
                             finding(
