@@ -3,6 +3,15 @@
 `openbot.dataset_audit.v1` reports evidence-backed findings instead of an
 uncalibrated numeric quality score.
 
+This is the current built-in registry, checked against
+`openbot_data/audit/registry.py` on 2026-10-02: all 89 registered codes are
+listed below. Review reuses these codes in a metadata-level audit and exposes
+skipped rules; it does not introduce a separate finding namespace. A rule can
+remain unchecked even when the summary has no errors. Coverage and readiness
+semantics are documented in the [API reference](api-reference.md).
+Repair and readiness artifacts can additionally contain operation- or
+profile-specific codes outside this base audit registry.
+
 | Code | Severity | Meaning |
 |---|---|---|
 | `DATASET_NOT_FOUND` | error | The requested dataset directory does not exist. |
@@ -42,7 +51,7 @@ uncalibrated numeric quality score.
 | `LEROBOT_EPISODE_RANGE_LENGTH_MISMATCH` | error | An episode range does not match its declared length. |
 | `LEROBOT_EPISODE_RANGE_GAP` | error | Episode ranges leave uncovered rows. |
 | `LEROBOT_EPISODE_RANGE_OVERLAP` | error | Episode ranges overlap. |
-| `LEROBOT_EPISODE_RANGE_OUT_OF_BOUNDS` | error | An episode range extends beyond its data shard. |
+| `LEROBOT_EPISODE_RANGE_OUT_OF_BOUNDS` | error | A dataset-global episode range extends outside the resolved data-shard extent. |
 | `LEROBOT_DATA_PATH_TEMPLATE_INVALID` | error | The declared data path template is malformed or lacks required placeholders. |
 | `LEROBOT_DATA_RELATION_MISSING` | error | A LeRobot v3 episode lacks a complete data-shard relation. |
 | `LEROBOT_DATA_RELATION_INVALID` | error | A LeRobot v3 data-shard relation contains invalid indexes. |

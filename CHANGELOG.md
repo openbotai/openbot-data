@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+These changes are in the source checkout after tag `v0.0.3`. `VERSION` remains
+`0.0.3`; the published PyPI wheel does not contain these additions.
+
+### Added
+- `openbot-data review` for a read-only local LeRobot v3 episode workbench:
+  camera playback, sampled state/action traces, per-episode and dataset findings,
+  and explicit startup metadata-audit coverage.
+- Temporary FFmpeg H.264 previews with a 180-second per-camera limit, bounded
+  cache eviction, and HTTP byte-range playback.
+- Review tests covering source immutability, damaged trace data, shared-file
+  findings, active preview streams, and browser-state regressions.
+
+### Changed
+- V3 adapter discovery records episode data ranges in dataset-global offsets
+  rather than subtracting each episode's own start offset.
+
+### Documentation
+- Reconciled all documentation with the source checkout and the published
+  `0.0.3` wheel on 2026-10-02. Added the Review guide, distinguished source-only
+  additions from released capabilities, and corrected repair limits, command
+  examples, API failure behavior, and development prerequisites.
+
 ## 0.0.3 - 2026-07-28
 
 ### Added

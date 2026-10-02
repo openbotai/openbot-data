@@ -6,6 +6,22 @@
 > package metadata were reviewed. The critical stale-counter workflow was also
 > executed on 2026-07-28 against pinned `lerobot-doctor==0.2.0`,
 > `robovet==0.2.2`, and the source that shipped as `openbot-data==0.0.3`.
+> Current-source reconciliation: 2026-10-02. Upstream comparisons remain frozen
+> historical evidence, not a claim about the latest competitor releases.
+
+## Current implementation checkpoint
+
+`0.0.3` is published on PyPI. The source checkout still declares that version
+but adds a local [LeRobot v3 Review workbench](review.md) after the release tag.
+The workbench is absent from the published wheel. robomimic/HDF5 support and
+Rerun/Foxglove integrations remain planned.
+
+The released automatic repair executor changes only four derived integer
+totals in `meta/info.json`: `total_episodes`, `total_frames`, `total_tasks`, and
+`total_videos`. It does not rebuild episode boundaries, stored statistics, or
+task references. The broader repair ideas in the research were narrowed to
+that allowlist; unsupported mutations retain delegated/manual remediation.
+See [the API reference](api-reference.md#conservative-repair) for current behavior.
 
 ## Decision
 
@@ -49,7 +65,7 @@ video, LeRobot, and later robot-data formats:
 - semantic dataset diff between an approved baseline and a candidate;
 - stable, evidence-addressable findings and a versioned readiness artifact;
 - deterministic copy-on-write repair with pre/post evidence for the narrow
-  metadata cases that have one authoritative reconstruction;
+  metadata-total cases that have one authoritative reconstruction;
 - portable artifacts that the OpenBot Catalog or a future explicitly published
   platform API can consume without putting credentials or service code in this
   package.
@@ -166,8 +182,9 @@ Sources:
 
 ### Contract drift to handle explicitly
 
-One current format page still mentions `meta/tasks.jsonl`, while the stable
-`0.6.0` source, loader, and porting guide use `meta/tasks.parquet`. The v2.1
+At the research snapshot, one format page still mentioned `meta/tasks.jsonl`,
+while the stable `0.6.0` source, loader, and porting guide use
+`meta/tasks.parquet`. The v2.1
 layout used JSONL metadata.
 
 The `0.0.3` rule is:
@@ -252,9 +269,8 @@ and `robovet` deliberately limits
 `0.0.3` P0 must therefore provide:
 
 - a finding-level remediation plan by default;
-- deterministic copy-on-write repair only for metadata counters, episode
-  lengths/relations, and statistics that can be reconstructed from one
-  authoritative payload;
+- deterministic copy-on-write repair only for the four allowlisted
+  `meta/info.json` totals whose values have one authoritative derivation;
 - an explicit output directory, with no default in-place mode;
 - pre-repair and post-repair snapshots, semantic diff, and re-audit;
 - idempotence and preservation of unknown metadata fields;
@@ -375,12 +391,14 @@ does not mean cloning another package's rules.
 1. **Deterministic copy-on-write repair**
    - plan is the default;
    - apply requires an explicit output directory and never overwrites the source;
-   - only an unambiguous metadata/statistics reconstruction is eligible;
+   - only an unambiguous reconstruction of an allowlisted `info.json` total is
+     eligible; stored statistics and episode relations remain unchanged;
    - every plan records input fingerprint, expected edits, rule codes, and
      preconditions;
    - apply verifies the input fingerprint, preserves unknown fields, emits
      pre/post snapshots and a diff, and runs the audit again;
-   - the same repair run twice is idempotent.
+   - repeated planning is deterministic; apply refuses every pre-existing
+     destination, including one produced by a previous run.
 2. **Policy readiness**
    - base `lerobot-core` validity remains separate from declared ACT, Diffusion,
      VLA, or other policy profiles;
@@ -412,11 +430,12 @@ does not mean cloning another package's rules.
      snapshot fingerprint, and tool/contract versions;
    - prohibit a metadata-only or sampled audit from claiming full readiness.
 6. **Verified official-tool handoff**
-   - actual delete, split, merge, migration, conversion, and re-encoding execute
-     through the official LeRobot tool;
-   - OpenBot records the proposed command without secrets, validates the target
-     is separate where data may be removed, and performs a full post-operation
-     audit plus semantic diff.
+   - payload edits, migration, conversion, and re-encoding remain explicit
+     official-tool operations outside OpenBot's automatic repair executor;
+   - OpenBot records the pinned merge command without executing it, then
+     provides dedicated merge verification with lineage, loader, audit, and
+     semantic-diff evidence; other edits can be checked with audit/snapshot/diff
+     without claiming a dedicated verified receipt for every operation type.
 
 ### P1: useful, but judgment-dependent
 
@@ -503,15 +522,17 @@ not implement remote storage, cache, checkout, push, or pull.
 [Foxglove](https://docs.foxglove.dev/docs/visualization/connecting/local-data)
 are visualization targets, not validation dependencies. LeRobot already offers
 Rerun and Foxglove visualization. A later handoff may open a finding at an
-episode/timestamp; `0.0.3` should not build another viewer or convert datasets
-into a visualization-specific storage format.
+episode/timestamp. The published `0.0.3` wheel has no viewer or visualization-specific
+storage format. The current source's local Review surface renders existing
+LeRobot evidence directly; a Rerun/Foxglove handoff is still unimplemented.
 
 ## Version placement
 
-| Version | Planned focus | Explicitly deferred |
+| Version or source scope | Focus and status | Explicitly deferred |
 |---|---|---|
 | `0.0.3` P0 | LeRobot 0.6/v3.0 conformance, v2.1 read compatibility, Hub metadata/sample/full audit, policy readiness, finding-level triage/remediation, deterministic copy-on-write repair, merge compatibility, `openbot.dataset_readiness.v1`, portable snapshot, semantic diff, and verified official-tool handoff | In-place mutation, OpenBot-owned edit/merge/re-encode engines, opaque score, custom viewer |
 | `0.0.3` P1 | Transparent advanced quality signals and ranked episode evidence; human-reviewed synchronized copy-on-write trim apply | Unattended trim, score-driven deletion, task-success judgment |
+| Post-`0.0.3` source | Implemented local LeRobot v3 Review with startup metadata audit, bounded video previews and sampled motion traces; not published | HDF5 Review, annotation, payload edits, task-success judgment |
 | [`0.0.4`](version-0.0.4.md) | Read-only robomimic/HDF5 preflight and optional P1 Rerun handoff | Generic HDF5 validation, HDF5 conversion, and simulator replay |
 | `0.0.5` | RLDS/Open X read-only adapter and cross-format provenance profiles | TensorFlow in core, action-coordinate conversion |
 | Later | ROS bag/MCAP adapter, Foxglove handoff, explicit DVC hooks | Replacing ROS, DVC, Rerun, or Foxglove |

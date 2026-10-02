@@ -3,10 +3,16 @@
 > Status: Released and publicly verified
 > Previous package: `0.0.1.post2`
 > Release version: `0.0.2`
+> Historical contract; documentation reviewed 2026-10-02
 
 This document is the release contract for the local `openbot-data` Python package.
 The functionality below shipped in `openbot-data==0.0.2`. Its successor is
 documented in the [`0.0.3` release contract](version-0.0.3.md).
+Current installation and source-only additions are documented in
+[Getting started](getting-started.md) and [Review](review.md). Statements about
+excluded remote functionality below apply to `0.0.2`; `0.0.3` added bounded Hub
+downloads. The current finding registry contains later additive codes as well
+as this release's original findings.
 
 ## Goal
 

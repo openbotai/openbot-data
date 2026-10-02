@@ -1,9 +1,21 @@
 # OpenBot Data 0.0.3 artifact examples
 
+These are generated fixture artifacts for the released `0.0.3` contracts,
+not results from a production customer dataset. They remain applicable to the
+current source checkout (documentation reviewed 2026-10-02). The source-only
+[Review workbench](../../review.md) serves its own local view and does not
+generate or import these example artifacts.
+
 These deterministic examples are regenerated with:
 
 ```bash
 python scripts/generate_v003_examples.py
+```
+
+Run from the repository root with the optional Parquet dependency installed:
+
+```bash
+python -m pip install -e '.[lerobot]'
 ```
 
 | File | Schema key | Expected result |

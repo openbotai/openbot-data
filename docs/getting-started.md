@@ -1,5 +1,10 @@
 # Getting started
 
+The published package is `0.0.3`. The source checkout still uses that version
+string but also contains post-release additions, including
+[local episode Review](review.md). Availability was checked against the PyPI
+wheel on 2026-10-02.
+
 ## Install
 
 Install the released package:
@@ -8,8 +13,7 @@ Install the released package:
 python -m pip install openbot-data
 ```
 
-PyPI currently provides `0.0.3`. Its P0 interfaces and release gates passed
-before publication.
+This installs the released package; the Review command requires a source install.
 
 Install the optional Parquet reader required for layered LeRobot validation:
 
@@ -17,21 +21,22 @@ Install the optional Parquet reader required for layered LeRobot validation:
 python -m pip install "openbot-data[lerobot]"
 ```
 
-For a source checkout:
+For a source checkout, run this from the cloned repository root:
 
 ```bash
-python -m pip install -e .
+python -m pip install -e '.[lerobot,hub]'
 ```
 
-Hub audit needs the Hub extra. Official repair/merge loader verification runs
-only in the pinned conformance environment:
+For Hub audit from PyPI, install both source-download and Parquet extras:
 
 ```bash
-python -m pip install -e ".[hub]"
-python -m pip install "lerobot[dataset]==0.6.0"
+python -m pip install 'openbot-data[lerobot,hub]'
 ```
 
 Python 3.9–3.12 is the supported release matrix.
+Official repair/merge loader verification needs a separate Python 3.12
+environment with `lerobot[dataset]==0.6.0` and FFmpeg. The normal `lerobot` extra
+only installs PyArrow; it does not provide the official loader.
 
 Maintainers can run that matrix locally with `scripts/test_matrix.sh`; it uses
 `uv` isolated environments and does not depend on hosted CI.
@@ -112,7 +117,21 @@ openbot-data catalog-evidence ./robot_videos \
 
 `audit --fail-on none` always exits successfully after writing JSON.
 `--fail-on error` exits `2` for errors, while `--fail-on warning` exits `2` for
-warnings or errors. Invalid CLI arguments exit `1`.
+warnings or errors. Application-level configuration/access failures exit `1`;
+the CLI parser may return `2` for missing arguments or unknown options without
+writing an audit artifact.
+
+## Local episode Review — source checkout
+
+```bash
+openbot-data review ./lerobot_dataset --no-open
+```
+
+Open the printed localhost URL. Review accepts local LeRobot v3 datasets,
+shows camera segments, sampled state/action traces and findings, and uses a
+metadata audit captured at startup. It is read-only. FFmpeg enables temporary
+video previews; `Ctrl-C` stops the server. See the [Review guide](review.md) for
+installation, coverage limits and troubleshooting.
 
 ## 0.0.3 preflight workflow
 
@@ -168,7 +187,18 @@ Check compatibility before invoking the official merge tool, then verify its
 result:
 
 ```bash
+openbot-data snapshot ./dataset-a --format lerobot --integrity full \
+  --checksum sha256 --out ./dataset-a.snapshot.json
+openbot-data snapshot ./dataset-b --format lerobot --integrity full \
+  --checksum sha256 --out ./dataset-b.snapshot.json
 openbot-data merge-check ./dataset-a ./dataset-b --out ./merge.plan.json
+```
+
+Review the plan and explicitly run the pinned official merge operation in its
+own environment. After a successful real run, capture the operation record
+described in the [API reference](api-reference.md#operation-record), then verify:
+
+```bash
 openbot-data verify-merge ./merged \
   --input ./dataset-a.snapshot.json \
   --input ./dataset-b.snapshot.json \
@@ -176,7 +206,7 @@ openbot-data verify-merge ./merged \
   --out ./merge.receipt.json
 ```
 
-`repair apply` and `verify-merge` automatically attempt the official loader
+`repair apply`, `verify`, and `verify-merge` automatically attempt the official loader
 smoke when exactly `lerobot[dataset]==0.6.0` is installed. Without it, the
 result is explicitly unverified and exits `2`.
 

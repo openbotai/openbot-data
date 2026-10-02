@@ -5,6 +5,7 @@
 > Primary compatibility target: robomimic `0.5.x` local single-file HDF5 datasets
 > Release rule: no item is implemented or released merely because it appears in
 > this document
+> Source status reviewed 2026-10-02
 
 ## Status and scope authority
 
@@ -26,6 +27,12 @@ The status terms are normative:
 Every P0 row below is **planned** at this checkpoint. P1 is optional and must not
 block the release unless this contract is explicitly updated before feature
 freeze.
+
+The current checkout has no robomimic/HDF5 adapter, `robomimic` extra,
+`read_robomimic` API, or Rerun handoff. It does contain the post-`0.0.3`
+[LeRobot v3 Review workbench](review.md). That existing viewer is source-only;
+it is not proof of HDF5 support or a completed `0.0.4` release. Carry it forward
+through regression and packaging checks when preparing a future release.
 
 ## Goal
 
@@ -389,7 +396,9 @@ No `convert`, `rewrite`, `repair`, `merge`, or simulator command is added for
 HDF5 in `0.0.4`.
 
 `inspect`, `scan`, `catalog`, `repair`, `verify`, `merge-check`, and
-`verify-merge` keep their existing released scope. A robomimic file passed to an
+`verify-merge` keep their existing released scope. Source-only `review` retains
+its local LeRobot v3 scope; this contract does not require an HDF5 viewer.
+A robomimic file passed to an
 unsupported command returns an explicit format/configuration error rather than
 an empty video or LeRobot result.
 
@@ -483,7 +492,7 @@ explicit contract change.
 - following external links, virtual sources, or external storage by default;
 - Hub download of remote HDF5 files;
 - multi-file training-set balancing, merging, or deduplication;
-- a custom viewer or a required Rerun dependency;
+- a new robomimic/HDF5 viewer or a required Rerun dependency;
 - an opaque aggregate quality score;
 - platform authentication, remote jobs, billing, Workers, or storage.
 
@@ -537,8 +546,10 @@ released.
 
 ## Research basis
 
-The plan follows the current official contracts rather than treating file-name
-conventions as authoritative:
+The plan targets the pinned robomimic 0.5 contract below rather than treating
+file-name conventions as authoritative. It does not imply compatibility with
+every later upstream version; revalidate the pinned writer/loader and dependency
+matrix before implementation and release:
 
 - [robomimic 0.5 dataset structure and conventions](https://robomimic.github.io/docs/datasets/overview.html)
 - [robomimic v0.5.0 runtime environment metadata reader](https://github.com/ARISE-Initiative/robomimic/blob/v0.5.0/robomimic/utils/file_utils.py)

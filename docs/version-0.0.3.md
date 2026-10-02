@@ -5,6 +5,7 @@
 > Baseline package: `0.0.2`
 > Primary compatibility target: `lerobot==0.6.0`, dataset format `v3.0`
 > Research: [reference libraries and differentiation](reference-libraries.md)
+> Documentation reconciled with the released tag and current source on 2026-10-02
 
 ## Status and scope authority
 
@@ -25,7 +26,13 @@ The status terms in this document are normative:
 - **deferred** means the behavior is explicitly outside `0.0.3` and cannot
   silently become a release blocker.
 
-PyPI and the source package version are `0.0.3`. P0.1–P0.11, clean-install
+PyPI and the source package version string are `0.0.3`. The source checkout
+contains post-release additions, including [local Review](review.md), which is
+absent from the published wheel. This document describes the released scope;
+[Getting started](getting-started.md) and the [Unreleased changelog](../CHANGELOG.md#unreleased)
+describe the current checkout.
+
+At publication, P0.1–P0.11, clean-install
 artifacts, the supported Python matrix, packaged examples/Schemas, pinned
 LeRobot conformance, and the final release checks passed. Tag `v0.0.3` points
 to `7c4974c0ce53a93ea101529e6bd9565146da0d78`; GitHub Release workflow
@@ -544,9 +551,10 @@ Required interfaces:
 
 ```bash
 openbot-data readiness ./dataset --profile lerobot-act --out readiness.json
-openbot-data readiness ./dataset --policy-config ./policy/config.json
+openbot-data readiness ./dataset --policy-config ./policy/config.json --out policy.readiness.json
 openbot-data readiness hf://datasets/org/name@revision \
-  --profile hf-publication --integrity metadata
+  --profile hf-publication --integrity metadata \
+  --out publication.readiness.json
 ```
 
 ```python
@@ -664,7 +672,7 @@ local audit or revision-pinned official-source refresh
 
 This makes a score change traceable to changed evidence, a rule-pack version,
 or a new reviewed revision. It does not permit a background scan to overwrite a
-published Catalog entry. It also does not replace or change the future
+published Catalog entry. It also does not replace or change the released
 P0.8 `openbot.dataset_readiness.v1` `READY`/`BLOCKED`/`PARTIAL` result.
 
 The handoff implementation is available through:
@@ -741,14 +749,15 @@ receipt = verify_dataset_repair("./dataset.fixed", against=plan)
 
 `openbot.dataset_repair_plan.v1` and
 `openbot.dataset_repair_receipt.v1` are deterministic artifacts. The P0 repair
-executor is intentionally narrow. It may only rebuild derived values that can
-be uniquely recomputed from already validated payload:
+executor is intentionally narrow. The implemented allowlist changes only
+`meta/info.json` fields `total_episodes`, `total_frames`, `total_tasks`, and
+`total_videos`, when they can be uniquely derived from readable metadata or
+validated payload at the selected coverage level.
 
-- `info.json` totals and counters;
-- episode lengths, offsets, and relation ledgers when their source ranges are
-  unambiguous;
-- normalization statistics from finite, validated feature values;
-- task references when exactly one valid mapping exists.
+Episode lengths, offsets, relation ledgers, normalization statistics, and task
+references are not rewritten by this executor. Their findings remain delegated
+or manual actions; a general design goal for metadata repair is not evidence
+that those mutations are implemented.
 
 Safety is part of the contract:
 
@@ -788,7 +797,9 @@ openbot-data merge-check ./dataset-a ./dataset-b \
   --profile lerobot-act \
   --out merge-plan.json
 openbot-data verify-merge ./merged \
-  --inputs dataset-a.snapshot.json dataset-b.snapshot.json \
+  --input dataset-a.snapshot.json \
+  --input dataset-b.snapshot.json \
+  --operation-record official-operation.json \
   --out merge-receipt.json
 ```
 
@@ -905,6 +916,11 @@ These package versions are independent from OpenBot platform and
 - remote Catalog mutation, platform authentication, billing, or production API
   implementation.
 
+The custom-viewer exclusion above applies to the published `0.0.3` wheel. A
+local, read-only LeRobot v3 [Review workbench](review.md) was implemented
+afterwards in the source checkout. It does not add task-success evaluation,
+annotation, payload mutation, or a new readiness gate.
+
 ## Compatibility and packaging
 
 - Keep the current Python 3.9–3.12 core support unless a separate packaging
@@ -920,8 +936,9 @@ These package versions are independent from OpenBot platform and
   receipt and exit `2`, but it must not claim verification.
 - Run official LeRobot conformance only in a separate Python 3.12 job pinned to
   `lerobot[dataset]==0.6.0`.
-- Run LeRobot `main` compatibility as a non-blocking scheduled job; unreleased
-  upstream changes do not block a stable OpenBot Data release.
+- CI and Release currently run only the pinned official LeRobot 0.6.0
+  conformance job. A scheduled upstream-`main` compatibility job is a deferred
+  candidate and is not configured in the current workflows.
 - Preserve manifest v1 schema, bytes, and fingerprint behavior for unchanged
   fixtures.
 
@@ -940,7 +957,7 @@ the requested integrity, completed capabilities, skipped capabilities, selected
 sample, and total known population. A renderer must never infer stronger
 coverage than the prepared result contains.
 
-All CLI commands use the same process-exit classes:
+Artifact-producing commands use the following application process-exit classes:
 
 | Exit | Meaning |
 |---|---|
@@ -963,6 +980,10 @@ Command-specific gate behavior is:
 
 JSON artifacts are written for completed results before exit `2`. Exit `1` must
 not be disguised as a dataset finding or readiness result.
+CLI parser errors for missing required arguments/options or unknown commands
+can also exit `2` without a canonical artifact. Check the artifact as well as
+the exit code. Source-only `review` is a long-running local server and does not
+write a canonical gate result.
 
 ## Release acceptance criteria
 

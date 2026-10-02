@@ -9,9 +9,10 @@ OpenBot Data is an early Python toolkit for working with **robot data** — espe
 **egocentric video** and **teleoperation data** collected from wrist cameras,
 head-mounted cameras, and robot demonstrators.
 
-Use it to scan video directories, extract preview frames, build dataset manifests,
-and export a searchable **robot dataset catalog** (JSON/CSV) before training or
-evaluation.
+Use it to inspect local video directories and LeRobot v2.1/v3 datasets, audit
+revision-pinned Hub sources, compare dataset snapshots, gate declared training
+profiles, and plan and verify conservative repairs or official merges. It also
+extracts previews and exports **robot dataset catalogs** (JSON/CSV).
 
 ## Install
 
@@ -19,9 +20,14 @@ evaluation.
 pip install openbot-data
 ```
 
-PyPI currently installs the released `0.0.3` package. Its P0 interfaces,
-supported Python matrix, official LeRobot conformance, build, and clean-install
-release gates pass. Requires Python 3.9+.
+PyPI provides the released `0.0.3` package (checked 2026-10-02). Requires Python
+3.9+; the supported test matrix is Python 3.9–3.12. LeRobot Parquet validation
+requires `pip install 'openbot-data[lerobot]'`; Hub access additionally requires
+the `hub` extra.
+
+The source checkout still declares version `0.0.3` but contains additions made
+after that release, including the local Review workbench. Install the checkout
+to use those additions; `pip install openbot-data` does not include them.
 
 ## Runnable demo
 
@@ -39,6 +45,7 @@ The demo uses the public Python API and writes
 `--integrity full` to decode every frame, or `--no-checksum` to skip SHA-256
 duplicate detection. The demo discovers and hashes the dataset once, then shares
 one immutable `DatasetSnapshot` across both renderers.
+Install `pip install -e '.[lerobot]'` before running the LeRobot demo.
 
 ## What it does
 
@@ -57,6 +64,8 @@ one immutable `DatasetSnapshot` across both renderers.
 - **Verify official merges** — check compatibility before merge, then reconcile lineage, loader, audit, and diff evidence.
 - **Hand off score-free Catalog evidence** — emit versioned facts, coverage,
   findings, and unresolved checks for server-side evaluation.
+- **Review local LeRobot v3 episodes (source checkout)** — browse camera
+  segments, sampled motion traces, audit findings, and skipped-check evidence.
 
 ## CLI
 
@@ -147,6 +156,7 @@ evicted above 256 MiB or 32 files; active streams can temporarily exceed this
 budget until their requests finish. Open the printed localhost URL, rather
 than opening the HTML asset directly.
 This command is in the source tree and is not part of the released PyPI `0.0.3`.
+See the [Review guide](docs/review.md) for installation, limits, and troubleshooting.
 
 ### Repair and merge verification
 
@@ -246,7 +256,7 @@ with schema_path("manifest") as manifest_schema:
 ## Development
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,lerobot,hub]"
 python scripts/check_version.py
 pytest
 scripts/test_matrix.sh
@@ -256,6 +266,10 @@ python -m twine check dist/*
 
 The local matrix script requires [`uv`](https://docs.astral.sh/uv/) and tests
 Python 3.9–3.12 without requiring a repository CI workflow.
+Install `ffmpeg` for Review video-preview tests and Node.js for its browser-logic
+tests. The test suite explicitly skips those checks when the executables are
+absent. Official LeRobot loader conformance runs separately on Python 3.12 with
+`lerobot[dataset]==0.6.0` and `OPENBOT_DATA_OFFICIAL_CONFORMANCE=1`.
 
 `VERSION` is the package version source of truth. To release, update `VERSION`
 and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
@@ -263,11 +277,16 @@ and `CHANGELOG.md`, verify locally, then publish a GitHub Release whose tag is
 
 ## Status
 
-The released PyPI package and current source version are both `0.0.3`.
+As of 2026-10-02, the latest published PyPI package is `0.0.3`.
 `v0.0.3` points to commit
 `7c4974c0ce53a93ea101529e6bd9565146da0d78`; the GitHub Release workflow
-published its wheel and source distribution to PyPI. OpenBot Data remains an
-early local Python toolkit. It does not provide platform authentication,
+published its wheel and source distribution to PyPI. The current checkout uses
+the same version string but includes later code; the release tag and installed
+package version alone do not establish whether `review` is available. The
+published wheel has no Review module or CLI command.
+
+OpenBot Data remains an early Python toolkit for local processing and explicit
+Hub downloads. It does not provide platform authentication,
 billing, remote jobs, or server infrastructure. The main
 [OpenBot](https://github.com/openbotai/OpenBot) repository is an API-first
 platform framework, and the separate
@@ -289,6 +308,8 @@ research directions, not current package or platform promises.
       profiles, evidence triage, conservative repair, and merge verification.
       P0 interfaces, clean install, Python matrix, artifacts, and official
       conformance passed before the public `0.0.3` release.
+- [x] [Local LeRobot v3 Review workbench](docs/review.md): implemented in the
+      source checkout after `0.0.3`; not yet published to PyPI
 - [ ] [`0.0.4`: read-only robomimic/HDF5 preflight](docs/version-0.0.4.md), with
       file-source detection, bounded structural and payload validation, portable
       snapshot/diff/readiness evidence, and optional P1 Rerun handoff
@@ -322,5 +343,5 @@ If you use OpenBot Data in research or production, cite the project repository:
 
 ## Related
 
-- [OpenBot.ai](https://openbot.ai) — Robot dataset catalog and policy evaluation platform.
+- [OpenBot.ai](https://openbot.ai) — Robot dataset Catalog and developer platform.
 - [OpenBot.ai Datasets](https://openbot.ai/datasets) — Searchable index of egocentric and robot datasets.
