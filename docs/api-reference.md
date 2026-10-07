@@ -22,11 +22,39 @@ Canonical gates return completed negative results instead of raising:
 
 Failure behavior depends on the entry point. Preparation, snapshot, readiness,
 repair, and merge operations normally raise `OpenBotDataError` or `ValueError`
-for invalid configuration or unusable inputs. `audit_dataset` instead converts
+for invalid configuration or unusable inputs. The Hub entry points
+(`audit_hub_dataset`, `snapshot_hub_dataset`, `evaluate_hub_dataset_readiness`)
+raise `HubSourceError` and its subclasses (`HubArgumentError`,
+`HubDependencyError`, `HubRevisionError`, `HubDownloadError`) when source
+resolution, revision selection, or download fails. `audit_dataset` instead converts
 `DatasetArgumentError` and `DatasetNotFoundError` into canonical error findings;
 `inspect_dataset` returns an `error` field for those two failure classes.
 Malformed artifacts and other runtime failures are not universally converted
 into findings. Check both the entry point's result and its documented gate.
+
+## Data classes and exceptions
+
+The package also exports the data classes and exceptions that the functions
+above return and raise.
+
+- `DatasetSnapshot` — immutable discovery result shared by the manifest, preview,
+  and audit renderers. Key fields: `input_format`, `codebase_version`,
+  `episodes` (tuple of `EpisodeRecord`), `videos` (tuple of `VideoRecord`),
+  `findings`, optional `checksum`, `integrity` (`"sample"` by default,
+  `"metadata"` when the full startup audit ran), and `artifacts` /
+  `validation_result` when a renderer produced them.
+- `EpisodeRecord` — one logical episode and the shared media segments that
+  contain it: `episode_index`, optional `length`, `tasks`, `video_files`, and
+  `video_segments`.
+- `VideoRecord` — a scanned local video with a private `source_path` (excluded
+  from `repr` and equality) plus portable metadata: `path`, `filename`,
+  `stream`, `width`, `height`, `fps`, `frame_count`, `duration`, `size_bytes`,
+  `size_mb`, `metadata_valid`, `decode_valid`, `integrity_level`, and optional
+  `decoded_frame_count`, `error`, and `checksum_sha256`.
+- `OpenBotDataError` — base exception for OpenBot Data API failures.
+- `DatasetNotFoundError` — raised when a requested dataset root does not exist.
+- `DatasetArgumentError` — raised when a caller supplies an unsupported
+  inspection option; also a `ValueError`.
 
 ## Discovery, inspection, and audit
 
@@ -406,6 +434,10 @@ verify_dataset_merge(
     output_path: str | None = None,
 ) -> dict
 ```
+
+`snapshot_builder` (both functions) and `audit_runner` / `diff_runner`
+(`verify_dataset_merge` only) are test/integration injection points and are not
+needed for normal use. They are omitted from the signatures above.
 
 The plan is `openbot.dataset_merge_plan.v1` and never executes its command.
 Physical merge is delegated to `lerobot-edit-dataset` from

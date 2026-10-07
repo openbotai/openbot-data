@@ -91,7 +91,7 @@ These changes are in the source checkout after tag `v0.0.3`. `VERSION` remains
   checkpoint, integrity/coverage semantics, uniform exit classes, scope
   boundaries, implementation order, and release acceptance criteria.
 
-## 0.0.2
+## 0.0.2 - 2026-07-25
 
 ### Added
 - Single-source package versioning with CI and release-tag validation.

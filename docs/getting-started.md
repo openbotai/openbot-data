@@ -115,7 +115,8 @@ openbot-data catalog-evidence ./robot_videos \
   --out ./catalog-evidence.json
 ```
 
-`audit --fail-on none` always exits successfully after writing JSON.
+`audit --fail-on none` exits successfully after writing JSON for a completed
+audit.
 `--fail-on error` exits `2` for errors, while `--fail-on warning` exits `2` for
 warnings or errors. Application-level configuration/access failures exit `1`;
 the CLI parser may return `2` for missing arguments or unknown options without
